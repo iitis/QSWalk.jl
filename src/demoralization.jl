@@ -1,78 +1,192 @@
-#glue distribution over abstraction classess
-function glue_distrib(A::Vector{Float64},tab::Array{Array{Int64}})
-    B = Float64[]
-    for i = 1:length(tab)
-        suma = 0
-        for j in tab[i]
-            suma += A[j]
-        end
-        push!(B,suma)
-    end
-    return B
+export
+  localhamiltonian,
+  demoralizedlindbladian
+
+"""
+
+    partitionsize(partition)
+
+# Examples
+
+```jldoctest
+julia>
+```
+"""
+function partitionsize(partition::Vector{Vector{Int}})
+  sum([length(block) for block=partition])
 end
 
-function rotating_hamiltonian(macierz::Matrix{Complex128}, klasy_abstrakcji::Vector{Array{Int64}})
-    ######random line segment
-    hamiltonians = SparseMatrixCSC{Complex128,Int64}[]
-    for k in klasy_abstrakcji
-        H = zeros(macierz)
-        for i = 1:(length(k)-1)
-            a, b = k[i], k[i+1]
-            H += im*ketbra(a,b,size(macierz)[1])
-        end
-        H += H'
-        push!(hamiltonians,H)
-    end
-    return sparse(sum(hamiltonians))
+"""
+
+    defaultlocalhamiltonian(size)
+
+# Examples
+
+```jldoctest
+julia>
+```
+"""
+function defaultlocalhamiltonian(size::Int)
+  if size == 1
+    return spzeros(Complex128,1,1)
+  else
+    spdiagm((im*ones(size-1),-im*ones(size-1)),(1,-1))
+  end
 end
 
-function enlarged_lindblad(L::SparseMatrixCSC{Complex128,Int64})
-    ####w wyniku otrzymujemy macierz z rownymi wagami, przyjmujemy z roznymi wagami, ale zwraca z jedynkami
-    klasy_abstrakcji = Array{Int64}[]
-    n = size(L)[1]
-    st = n + 1
-    en = 0
-    for i = 1:n
-        en = st + countnz(L[i,:])-2
-        if en>=st
-            push!(klasy_abstrakcji,vcat(i,collect(st:en)))
-            st = en+1
-        elseif en-st < 0
-            push!(klasy_abstrakcji,[i])
-        end
 
+"""
+
+    localhamiltonian(partition[, hamiltonians, mode])
+
+# Arguments
+-
+-
+-
+
+# Return
+
+# Examples
+
+```jldoctest
+julia>
+```
+"""
+function localhamiltonian(partition::Vector{Vector{Int}},
+      hamiltonians::Function=x->defaultlocalhamiltonian(x),
+      mode::String="size")
+
+  result = spzeros(Complex128,partitionsize(partition),partitionsize(partition))
+  if mode == "size"
+    for block=partition
+      result[block,block] = hamiltonians(length(block))
     end
-
-    #####################################################
-    macierz = zeros(Complex128,(length(vcat(klasy_abstrakcji...)),length(vcat(klasy_abstrakcji...))))
-
-    for i = 1:n
-        klasy_wchodzace = find(L[i,:].!=0)
-        for j in klasy_wchodzace
-            for k in klasy_abstrakcji[j], l in klasy_abstrakcji[i]
-                macierz[l,k] = 1
-            end
-        end
+  elseif mode == "index"
+    for (index,block)=enumerate(partition)
+      result[block,block] = hamiltonians(index)
     end
-    ########################hamiltoniany dla roznych klas abstrakcji
-    hamiltonian = rotating_hamiltonian(macierz,klasy_abstrakcji)
+  else
+    error(ArgumentError("mode should be size or index"))
+  end
+  result
+end
 
-    for i = 1:n
-        klasy_wchodzace = find(L[i,:].!=0)
-        n_kl = length(klasy_abstrakcji[i])
-        a = 0
-        for j in klasy_wchodzace
-            for k in klasy_abstrakcji[j]
-                b = 0
-                for l in klasy_abstrakcji[i]
-                    macierz[l,k] = exp(im*2*b*a*pi/n_kl)
-                    b += 1
-                end
-            end
-            a += 1
-        end
+"""
+
+    reversedincidencelist(A[, ϵ])
+
+
+# Examples
+
+```jldoctest
+julia>
+```
+"""
+function reversedincidencelist{T<:FieldType}(A::SparseMatrixCSC{T}, ϵ::Real=eps(1.))
+  [(A[:,i].nzind)[find(x -> abs(x)>=ϵ, A[:,i].nzind)] for i=1:size(A,1)]
+end
+
+function reversedincidencelist{T<:FieldType}(A::Matrix{T}, ϵ::Real=eps(1.))
+  [find(x -> abs(x)>=ϵ, A[:,i]) for i=1:size(A,1)]
+end
+
+"""
+
+    incidencelist(A[, ϵ])
+
+
+# Examples
+
+```jldoctest
+julia>
+```
+"""
+function incidencelist(A::SparseMatrixCSC{FieldType}, ϵ::Real=eps(1.))
+  [(A[:,i].nzind)[find(x -> abs(x)>=ϵ, A[i,:].nzind)] for i=1:size(A,1)]
+end
+
+function incidencelist(A::Matrix{FieldType}, ϵ::Real=eps(1.))
+  [find(x -> abs(x)>=ϵ, A[i,:]) for i=1:size(A,1)]
+end
+
+"""
+
+    makepartition(revincidencelist)
+
+
+# Examples
+
+```jldoctest
+julia>
+```
+"""
+function makepartition(revincidencelist::Vector{Vector{Int}})
+  result = Vector{Int}[]
+  start = 1
+  for i=revincidencelist
+    if length(i)!=0
+      push!(result, collect(start:(start+length(i)-1)))
+      start+=length(i)
+    else
+      push!(result, [start])
+      start += 1
     end
-    L = SparseMatrixCSC{Complex128,Int64}[]
-    push!(L,sparse(macierz))
-    return (L, klasy_abstrakcji, hamiltonian)
+  end
+  result
+end
+
+"""
+
+    rectangularfouriermatrix(size, columnnumber)
+
+# Examples
+
+```jldoctest
+julia>
+```
+"""
+function rectangularfouriermatrix(size::Int,column::Int)
+  result = zeros(Complex128,size)
+  result = [ exp(2im*π*(i-1)*(column-1)/size) for i=1:size]
+  result
+end
+
+"""
+
+    demoralizedlindbladian(A, ϵ)
+
+# Arguments
+ -
+ -
+ -
+
+# Return
+
+
+# Examples
+
+```jldoctest
+julia>
+```
+"""
+function demoralizedlindbladian(A::SparseDenseMatrix, ϵ::Real=eps(1.),
+  lindbladians::Function=(x,y)->rectangularfouriermatrix(x,y), mode::String="size")
+  revincidencelist = reversedincidencelist(A, ϵ)
+  partition = makepartition(revincidencelist)
+
+  L = spzeros(typeof(A[1,1]),partitionsize(partition),partitionsize(partition))
+  if mode == "size"
+    for i=1:size(A,1), (index,j)=enumerate(revincidencelist[i]), k in partition[j]
+        L[partition[i],k] = A[i,j]*lindbladians(length(partition[i]), index)
+    end
+  elseif mode == "index"
+    for i=1:size(A,1), (index,j)=enumerate(revincidencelist[i]), k in partition[j]
+        #TODO test, may be wrong
+        L[partition[i],k] = A[i,j]*lindbladians(i,j)
+    end
+  else
+    error(ArgumentError("mode should be size or index"))
+  end
+
+  L, partition
 end

@@ -1,4 +1,3 @@
-using Compat
 export
   ket,
   bra,
@@ -8,8 +7,9 @@ export
   unres
 
 
-FieldType = Union{Real,Complex}
-@compat SparseDenseMatrix{T<:FieldType} = Union{SparseMatrixCSC{T},Matrix{T}}
+typealias FieldType Union{Real,Complex}
+typealias SparseDenseMatrix{T<:FieldType} Union{SparseMatrixCSC{T},Matrix{T}}
+typealias SparseDenseVector{T<:FieldType} Union{SparseVector{T},Vector{T}}
 
 
 """
@@ -33,7 +33,7 @@ julia> ket(Complex64,1,2)
 
 ```
 """
-@compat function ket(::Type{T}, i::Int, n::Int) where T<:FieldType
+function ket{T<:FieldType}(::Type{T}, i::Int, n::Int)
   ret = zeros(T,n)
   ret[i] = 1
   ret
@@ -139,7 +139,7 @@ end
 
 proj(i::Int,n::Int) = proj(Complex128,i,n)
 
-function proj(v::SparseDenseMatrix)
+function proj(v::SparseDenseVector)
   v*v'
 end
 
@@ -183,13 +183,10 @@ julia> res(v)
 ```
 
 """
-function res{T<:FieldType}(::Type{T}, mtx::Array{T,2} )
-  Base.vec(transpose(mtx))
+function res(matrix::SparseDenseMatrix)
+  Base.vec(transpose(matrix))
 end
 
-function res(mtx::SparseDenseMatrix)
-  res(Complex128,mtx)
-end
 
 
 """
@@ -216,11 +213,11 @@ true
 
 """
 
-function unres{T<:FieldType}(::Type{T}, v::Array{T,1}, dims::Tuple{Int,Int})
+function unres(v::SparseDenseVector, dims::Tuple{Int,Int})
   reshape(v,dims)
 end
 
-function unres{T<:FieldType}(::Type, v::Array{T,1})
+function unres(::Type, v::SparseDenseVector)
   d = floor(Int64,sqrt(length(v)))
   if d*d == length(v)
     transpose(reshape(v,(d,d)))
@@ -229,4 +226,4 @@ function unres{T<:FieldType}(::Type, v::Array{T,1})
   end
 end
 
-unres(v::Array{Complex128,1}) = unres(Complex128,v)
+unres(v::SparseDenseVector) = unres(Complex128,v)
