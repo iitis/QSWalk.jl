@@ -5,10 +5,11 @@ export
 
 
 
-function evolve{T<:File}(H::Matrix{T}, L::Vector{Matrix{S}}, timepoint::Real;
+function evolve{T<:FieldType,S<:FieldType}(H::Matrix{T}, L::Vector{Matrix{S}}, timepoint::Real;
   w=1.::Real)
 
 end
+
 
 """
 
