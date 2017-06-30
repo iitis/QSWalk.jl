@@ -2,6 +2,14 @@ export
   localhamiltonian,
   demoralizedlindbladian
 
+type FunctionByIndex
+  f::Function
+end
+
+function (f::FunctionByIndex)(x::Int)
+  f.Function(x)
+end
+
 """
 
     partitionsize(partition)
@@ -42,7 +50,7 @@ end
 # Arguments
 -
 -
--
+-f
 
 # Return
 
@@ -53,20 +61,20 @@ julia>
 ```
 """
 function localhamiltonian(partition::Vector{Vector{Int}},
-      hamiltonians::Function=x->defaultlocalhamiltonian(x),
-      mode::String="size")
+                          hamiltonians::Function=defaultlocalhamiltonian)
 
   result = spzeros(Complex128,partitionsize(partition),partitionsize(partition))
-  if mode == "size"
-    for block=partition
-      result[block,block] = hamiltonians(length(block))
-    end
-  elseif mode == "index"
-    for (index,block)=enumerate(partition)
-      result[block,block] = hamiltonians(index)
-    end
-  else
-    error(ArgumentError("mode should be size or index"))
+  for block=partition
+    result[block,block] = hamiltonians(length(block))
+  end
+  result
+end
+
+function localhamiltonian(partition::Vector{Vector{Int}},
+                          hamiltonians::FunctionByIndex)
+  result = spzeros(Complex128,partitionsize(partition),partitionsize(partition))
+  for (index,block)=enumerate(partition)
+    result[block,block] = hamiltonians(index)
   end
   result
 end
@@ -82,11 +90,11 @@ end
 julia>
 ```
 """
-function reversedincidencelist{T<:FieldType}(A::SparseMatrixCSC{T}, ϵ::Real=eps(1.))
+function reversedincidencelist{T<:Number}(A::SparseMatrixCSC{T}, ϵ::Real=eps(1.))
   [(A[:,i].nzind)[find(x -> abs(x)>=ϵ, A[:,i].nzind)] for i=1:size(A,1)]
 end
 
-function reversedincidencelist{T<:FieldType}(A::Matrix{T}, ϵ::Real=eps(1.))
+function reversedincidencelist{T<:Number}(A::Matrix{T}, ϵ::Real=eps(1.))
   [find(x -> abs(x)>=ϵ, A[:,i]) for i=1:size(A,1)]
 end
 
@@ -101,11 +109,11 @@ end
 julia>
 ```
 """
-function incidencelist(A::SparseMatrixCSC{FieldType}, ϵ::Real=eps(1.))
+function incidencelist(A::SparseMatrixCSC{Number}, ϵ::Real=eps(1.))
   [(A[:,i].nzind)[find(x -> abs(x)>=ϵ, A[i,:].nzind)] for i=1:size(A,1)]
 end
 
-function incidencelist(A::Matrix{FieldType}, ϵ::Real=eps(1.))
+function incidencelist(A::Matrix{Number}, ϵ::Real=eps(1.))
   [find(x -> abs(x)>=ϵ, A[i,:]) for i=1:size(A,1)]
 end
 
@@ -170,22 +178,26 @@ julia>
 ```
 """
 function demoralizedlindbladian(A::SparseDenseMatrix, ϵ::Real=eps(1.),
-  lindbladians::Function=(x,y)->rectangularfouriermatrix(x,y), mode::String="size")
+  lindbladians::Function=rectangularfouriermatrix)
   revincidencelist = reversedincidencelist(A, ϵ)
   partition = makepartition(revincidencelist)
 
   L = spzeros(typeof(A[1,1]),partitionsize(partition),partitionsize(partition))
-  if mode == "size"
-    for i=1:size(A,1), (index,j)=enumerate(revincidencelist[i]), k in partition[j]
-        L[partition[i],k] = A[i,j]*lindbladians(length(partition[i]), index)
-    end
-  elseif mode == "index"
-    for i=1:size(A,1), (index,j)=enumerate(revincidencelist[i]), k in partition[j]
-        #TODO test, may be wrong
-        L[partition[i],k] = A[i,j]*lindbladians(i,j)
-    end
-  else
-    error(ArgumentError("mode should be size or index"))
+  for i=1:size(A,1), (index,j)=enumerate(revincidencelist[i]), k in partition[j]
+      L[partition[i],k] = A[i,j]*lindbladians(length(partition[i]), index)
+  end
+
+  L, partition
+end
+
+function demoralizedlindbladian(A::SparseDenseMatrix,
+  lindbladians::FunctionByIndex, ϵ::Real=eps(1.))
+  revincidencelist = reversedincidencelist(A, ϵ)
+  partition = makepartition(revincidencelist)
+
+  L = spzeros(typeof(A[1,1]),partitionsize(partition),partitionsize(partition))
+  for i=1:size(A,1), (index,j)=enumerate(revincidencelist[i]), k in partition[j]
+      L[partition[i],k] = A[i,j]*lindbladians.f(length(partition[i]), index)
   end
 
   L, partition

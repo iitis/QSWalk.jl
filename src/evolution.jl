@@ -23,7 +23,7 @@ function distributionsummation{T<:Real}(probability::Vector{T},partition::Vector
     [sum(probability[block]) for block=partition]
 end
 
-function distributionsummation{T<:FieldType}(state::SparseDenseMatrix{T},partition::Vector{Vector{Int}})
+function distributionsummation{T<:Number}(state::SparseDenseMatrix{T},partition::Vector{Vector{Int}})
     distributionsummation(Vector{Real}(diag(state)),partition)
 end
 
@@ -37,12 +37,12 @@ end
 julia>
 ```
 """
-function simpleevolve{T<:FieldType}(globaloperator::Matrix{T},
+function simpleevolve{T<:Number}(globaloperator::Matrix{T},
   initialstate::SparseDenseMatrix,  timepoint::Real)
   unres(expm(timepoint*globaloperator)*res(initialstate))
 end
 
-function simpleevolve{T<:FieldType,S<:FieldType}(globaloperator::SparseMatrixCSC{T},
+function simpleevolve{T<:Number,S<:Number}(globaloperator::SparseMatrixCSC{T},
   initialstate::Matrix{S}, timepoint::Real)
   unres(expmv(timepoint, globaloperator, res(initialstate)))
 end

@@ -3,79 +3,93 @@ using QSWalk
 
 facts("Basic linear util functions") do
   context("ket") do
+    #standard tests
     @fact ket(1,2) --> [1.0+0.0im;0.0+0.0im]
-    @fact ket(Float64,1,2) --> [1.0;0.0]
+    #type tests
+    @fact typeof(ket(Complex128,1,2)) --> typeof(ket(1,2))
+    @fact typeof(ket(Float64,1,2)) --> Vector{Float64}
+    #error tests
+    @fact_throws AssertionError ket(4,2)
+    @fact_throws ArgumentError ket(-4,-2)
   end
   context("bra") do
+    #standard tests
     @fact bra(1,2) --> [1.0+0.0im 0.0+0.0im]
+    #type tests
+    @fact typeof(bra(Complex128,1,2)) --> typeof(bra(1,2))
+    @fact typeof(bra(Float64,1,2)) --> Matrix{Float64}
+    #error tests
+    @fact_throws AssertionError, bra(4,2)
+    @fact_throws ArgumentError, bra(-4,-2)
   end
   context("ketbra") do
+    #standard tests
     @fact ketbra(1,2,3) -->  [0.0+0.0im 1.0+0.0im 0.0+0.0im;
                               0.0+0.0im 0.0+0.0im 0.0+0.0im;
                               0.0+0.0im 0.0+0.0im 0.0+0.0im]
+    #type tests
+    @fact typeof(ketbra(Complex128,1,2,3)) --> typeof(ketbra(1,2,3))
+    @fact typeof(ketbra(Float64,1,2,3)) --> Matrix{Float64}
+    #error tests
+    @fact_throws AssertionError, ketbra(3,2,2)
+    @fact_throws AssertionError, ketbra(2,3,2)
+    @fact_throws ArgumentError, ketbra(-4,-2,-1)
   end
   context("proj") do
-    result = sparse([0.0+0.0im 0.0+0.0im 0.0+0.0im;
+    #standard tests#
+    result = [0.0+0.0im 0.0+0.0im 0.0+0.0im;
                           0.0+0.0im 1.0+0.0im 0.0+0.0im;
-                          0.0+0.0im 0.0+0.0im 0.0+0.0im])
+                          0.0+0.0im 0.0+0.0im 0.0+0.0im]
     @fact proj(2,3) -->  result
     @fact proj(1/sqrt(2) * (ket(1,3)+ket(3,3))) -->
                           roughly([0.5+0.0im 0.0+0.0im 0.5+0.0im;
                           0.0+0.0im 0.0+0.0im 0.0+0.0im;
                           0.5+0.0im 0.0+0.0im 0.5+0.0im])
+    #type tests
+    @fact typeof(proj(Complex128,2,3)) -->  typeof(proj(2,3))
+    @fact typeof(proj(Float64,2,3)) --> Matrix{Float64}
+    #error tests
+    @fact_throws ArgumentError, proj(2,-1)
+    @fact_throws AssertionError, proj(3,2)
   end
-  #=context("res") do
-    @fact res([0.0+0.0im 1.0+0.0im 2.0+0.0im;
-              3.0+0.0im 4.0+0.0im 5.0+0.0im;
-              6.0+0.0im 7.0+0.0im 8.0+0.0im]) --> [0.0+0.0im 1.0+0.0im 2.0+0.0im 3.0+0.0im 4.0+0.0im 5.0+0.0im 6.0+0.0im 7.0+0.0im 8.0+0.0im]
-  end=#
+  context("reshuffle and reshuffle") do
+    M = Matrix{Float64}(reshape(1:9, (3,3))')
+    v = Vector{Float64}(collect(1:9))
+    @fact reshuffle(M) --> v
+    @fact unreshuffle(v) --> M
+    @fact unreshuffle(reshuffle(M)) --> M
+    @fact reshuffle(unreshuffle(v)) --> v
+    @fact_throws ArgumentError unreshuffle(collect(1:8)*1.)
+  end
 end
 
 facts("Global operator preparation") do
-  context("globaloperator sparse") do
+  context("globaloperator") do
     #no locH case
-    H = sparse([1. 1.+im 3.; 1.-im 1. im; 3. -im 1.])
+    H = [1. 1.+im 3.; 1.-im 1. im; 3. -im 1.]
     L1 = sparse([1.+0im 2. 3.; 4. 5. 6.; 6. 7. -6.])
     L2 = sparse([ 0.+0im 0. 1. ; 0. 0. 0. ; 0. 0. 0.])
     resultnoomega = sparse([-52.0+0.0im  -29.0+1.0im    7.5+3.0im  -29.0-1.0im    4.0+0.0im     6.0+0.0im    7.5-3.0im     6.0+0.0im   10.0+0.0im;
- -29.0+1.0im  -60.5+0.0im   10.0+0.0im    8.0+0.0im  -21.0-1.0im    12.0+0.0im   12.0+0.0im    19.5-3.0im   18.0+0.0im;
-  10.5+3.0im    9.0+0.0im  -73.5+0.0im   12.0+0.0im   14.0+0.0im   -43.0-1.0im   18.0+0.0im    21.0+0.0im  -13.5-3.0im;
- -29.0-1.0im    8.0+0.0im   12.0+0.0im  -60.5+0.0im  -21.0+1.0im    19.5+3.0im   10.0+0.0im    12.0+0.0im   18.0+0.0im;
-  16.0+0.0im  -13.0-1.0im   24.0+0.0im  -13.0+1.0im  -53.0+0.0im    34.0+0.0im   24.0+0.0im    34.0+0.0im   36.0+0.0im;
-  24.0+0.0im   28.0+0.0im  -57.0-1.0im   34.5+3.0im   37.0+0.0im  -110.0+0.0im   36.0+0.0im    42.0+0.0im  -32.0+0.0im;
-  10.5-3.0im   12.0+0.0im   18.0+0.0im    9.0+0.0im   14.0+0.0im    21.0+0.0im  -73.5+0.0im   -43.0+1.0im  -13.5+3.0im;
-  24.0+0.0im   34.5-3.0im   36.0+0.0im   28.0+0.0im   37.0+0.0im    42.0+0.0im  -57.0+1.0im  -110.0+0.0im  -32.0+0.0im;
-  36.0+0.0im   42.0+0.0im  -31.5-3.0im   42.0+0.0im   49.0+0.0im   -40.0+0.0im  -31.5+3.0im   -40.0+0.0im  -46.0+0.0im])
+                            -29.0+1.0im  -60.5+0.0im   10.0+0.0im    8.0+0.0im  -21.0-1.0im    12.0+0.0im   12.0+0.0im    19.5-3.0im   18.0+0.0im;
+                             10.5+3.0im    9.0+0.0im  -73.5+0.0im   12.0+0.0im   14.0+0.0im   -43.0-1.0im   18.0+0.0im    21.0+0.0im  -13.5-3.0im;
+                            -29.0-1.0im    8.0+0.0im   12.0+0.0im  -60.5+0.0im  -21.0+1.0im    19.5+3.0im   10.0+0.0im    12.0+0.0im   18.0+0.0im;
+                             16.0+0.0im  -13.0-1.0im   24.0+0.0im  -13.0+1.0im  -53.0+0.0im    34.0+0.0im   24.0+0.0im    34.0+0.0im   36.0+0.0im;
+                             24.0+0.0im   28.0+0.0im  -57.0-1.0im   34.5+3.0im   37.0+0.0im  -110.0+0.0im   36.0+0.0im    42.0+0.0im  -32.0+0.0im;
+                             10.5-3.0im   12.0+0.0im   18.0+0.0im    9.0+0.0im   14.0+0.0im    21.0+0.0im  -73.5+0.0im   -43.0+1.0im  -13.5+3.0im;
+                             24.0+0.0im   34.5-3.0im   36.0+0.0im   28.0+0.0im   37.0+0.0im    42.0+0.0im  -57.0+1.0im  -110.0+0.0im  -32.0+0.0im;
+                             36.0+0.0im   42.0+0.0im  -31.5-3.0im   42.0+0.0im   49.0+0.0im   -40.0+0.0im  -31.5+3.0im   -40.0+0.0im  -46.0+0.0im])
     @fact globaloperator(H,[L1,L2]) --> resultnoomega
-    @fact globaloperator(H,[L1,L2],w=1/2) --> resultnoomega/2
-
+    @fact globaloperator(H,[L1,L2],1/2) --> resultnoomega/2
     #type test
-    @fact typeof(globaloperator(H,[L1,L2],w=1/2))<:SparseMatrixCSC{Complex128,Int} --> true
-    #locH case
+
+    #typeerrortest
+    @fact_throws ArgumentError, globaloperator(H,[L1,L2],1im)
+    @fact_throws ArgumentError, globaloperator(H,[L1,L2],-1)
+    @fact_throws ArgumentError, globaloperator(H,[L1,L2],3)
   end
 
-  context("globaloperator dense") do
-    #no locH case
-    H = [1. 1.+im 3.; 1.-im 1. im; 3. -im 1.]
-    L1 =[1.+0im 2. 3.; 4. 5. 6.; 6. 7. -6.]
-    L2 = [ 0.+0im 0. 1. ; 0. 0. 0. ; 0. 0. 0.]
-    resultnoomega = [-52.0+0.0im  -29.0+1.0im    7.5+3.0im  -29.0-1.0im    4.0+0.0im     6.0+0.0im    7.5-3.0im     6.0+0.0im   10.0+0.0im;
- -29.0+1.0im  -60.5+0.0im   10.0+0.0im    8.0+0.0im  -21.0-1.0im    12.0+0.0im   12.0+0.0im    19.5-3.0im   18.0+0.0im;
-  10.5+3.0im    9.0+0.0im  -73.5+0.0im   12.0+0.0im   14.0+0.0im   -43.0-1.0im   18.0+0.0im    21.0+0.0im  -13.5-3.0im;
- -29.0-1.0im    8.0+0.0im   12.0+0.0im  -60.5+0.0im  -21.0+1.0im    19.5+3.0im   10.0+0.0im    12.0+0.0im   18.0+0.0im;
-  16.0+0.0im  -13.0-1.0im   24.0+0.0im  -13.0+1.0im  -53.0+0.0im    34.0+0.0im   24.0+0.0im    34.0+0.0im   36.0+0.0im;
-  24.0+0.0im   28.0+0.0im  -57.0-1.0im   34.5+3.0im   37.0+0.0im  -110.0+0.0im   36.0+0.0im    42.0+0.0im  -32.0+0.0im;
-  10.5-3.0im   12.0+0.0im   18.0+0.0im    9.0+0.0im   14.0+0.0im    21.0+0.0im  -73.5+0.0im   -43.0+1.0im  -13.5+3.0im;
-  24.0+0.0im   34.5-3.0im   36.0+0.0im   28.0+0.0im   37.0+0.0im    42.0+0.0im  -57.0+1.0im  -110.0+0.0im  -32.0+0.0im;
-  36.0+0.0im   42.0+0.0im  -31.5-3.0im   42.0+0.0im   49.0+0.0im   -40.0+0.0im  -31.5+3.0im   -40.0+0.0im  -46.0+0.0im]
-    @fact globaloperator(H,[L1,L2]) --> resultnoomega
-    @fact globaloperator(H,[L1,L2],w=1/2) --> resultnoomega/2
-
-    #type test
-    @fact typeof(globaloperator(H,[L1,L2],w=1/2))<:Matrix{Complex128} --> true
-    #locH case
-  end
 end
+
 
 facts("User utils") do
   context("classicallindbladoperators") do
@@ -88,15 +102,18 @@ facts("User utils") do
               sparse([0.+0im 0 ; 1.-im 0 ])]
     @fact classicallindbladoperators(H) --> result
     @fact classicallindbladoperators(sparse(H)) --> result
-    @fact classicallindbladoperators(H,1.1) --> resultwithepsilon
-    @fact classicallindbladoperators(sparse(H),1.1) --> resultwithepsilon
-
-    @fact typeof(classicallindbladoperators(H))<:Vector{SparseMatrixCSC{Complex128,Int64}} --> true
-    @fact typeof(classicallindbladoperators(sparse(H)))<:Vector{SparseMatrixCSC{Complex128,Int64}} --> true
+    @fact classicallindbladoperators(H, epsilon=1.1) --> resultwithepsilon
+    @fact classicallindbladoperators(sparse(H), epsilon=1.1) --> resultwithepsilon
+    #type test
+    @fact typeof(classicallindbladoperators(H)) --> Vector{SparseMatrixCSC{Complex128}}
+    @fact typeof(classicallindbladoperators(sparse(H))) --> Vector{SparseMatrixCSC{Complex128}}
+    #error test
+    @fact_throws ArgumentError, classicallindbladoperators(H, -1.)
+    @fact_throws ArgumentError, classicallindbladoperators(H, -1im)
   end
 end
 
-facts("Demoralization user utils") do
+#=facts("Demoralization user utils") do
   context("partitionsize") do
     partition = [[1,4],[2,3,5],[6],[7,8]]
     @fact (QSWalk.partitionsize(partition)) --> 8
@@ -112,15 +129,13 @@ facts("Demoralization user utils") do
     @fact localhamiltonian([[1],[2,3]]) --> sparse([0.+0im 0 0;0 0 im;0 -im 0])
     @fact localhamiltonian([[1],[2],[3]]) --> spzeros(Complex128,3,3)
     #by size version
-    @fact localhamiltonian([[1,3],[2]], x->speye(x), "size") --> speye(Complex128,3)
-    @fact localhamiltonian([[1],[2],[3]], x->speye(x), "size") --> speye(Complex128,3)
+    @fact localhamiltonian([[1,3],[2]], x->speye(x)) --> speye(Complex128,3)
+    @fact localhamiltonian([[1],[2],[3]], x->speye(x)) --> speye(Complex128,3)
     #by index version
     M1 = [1. 2;3 5]
     M2 = zeros(1,1)+1.
-    @fact localhamiltonian([[1,3],[2]], x->[M1,M2][x], "index") -->
+    @fact localhamiltonian([[1,3],[2]], FunctionByIndex(x->[M1,M2][x])) -->
             sparse([ 1.0+0im 0 2; 0 1 0; 3 0 5 ])
-    #wrong mode
-    @fact_throws ArgumentError, localhamiltonian([[1,3],[2]], x->[M1,M2][x], "Alice")
   end
 
   context("Incidences lists") do
@@ -161,8 +176,6 @@ facts("Demoralization user utils") do
     @fact demoralizedlindbladian(A,eps(1.),(x,y)->symmetricl(x,y))[2] -->
                     QSWalk.makepartition(QSWalk.reversedincidencelist(A))
 
-    #wrong mode
-    @fact_throws ArgumentError, demoralizedlindbladian(A, eps(1.), (x,y)->rectangularfouriermatrix(x,y),"Alice")
   end
 end
 
@@ -221,3 +234,4 @@ facts("User compact functions") do
 
   end
 end
+=#

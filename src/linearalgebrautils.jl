@@ -3,20 +3,28 @@ export
   bra,
   ketbra,
   proj,
-  res,
-  unres
+  reshuffle,
+  unreshuffle
 
+typealias SparseDenseMatrix{T<:Number} Union{SparseMatrixCSC{T},Matrix{T}}
+typealias SparseDenseVector{T<:Number} Union{SparseVector{T},Vector{T}}
 
-typealias FieldType Union{Real,Complex}
-typealias SparseDenseMatrix{T<:FieldType} Union{SparseMatrixCSC{T},Matrix{T}}
-typealias SparseDenseVector{T<:FieldType} Union{SparseVector{T},Vector{T}}
+type Vertex
+  linearspace::Vector{Int}
+end
 
+macro argument(ex, msgs...)
+    local msg_body = isempty(msgs) ? ex : msgs[1]
+    local msg = string(msg_body)
+    return :($ex ? nothing : throw(ArgumentError($msg)))
+end
 
 """
-    ket(i,n)
+    ket([type, ]index, size)
 
-Return i-th base (column) vector in the n-dimensional vector space. To be consistent with
-Julia indexing, i=1,2,...,n.
+Return `index`-th base (column) vector in the `size`-dimensional vector space.
+To be consistent with Julia indexing, `index`=1,2,...,`size`. The `type` defaults
+to `Complex128` if not specified
 
 # Examples
 
@@ -26,54 +34,56 @@ julia> ket(1,2)
  1.0+0.0im
  0.0+0.0im
 
-julia> ket(Complex64,1,2)
-2-element Array{Complex{Float32},1}:
- 1.0+0.0im
- 0.0+0.0im
-
+julia> ket(Float64,1,2)
+2-element Array{Float64,1}:
+ 1.0
+ 0.0
 ```
 """
-function ket{T<:FieldType}(::Type{T}, i::Int, n::Int)
-  ret = zeros(T,n)
-  ret[i] = 1
+function ket{T<:Number}(::Type{T}, index::Int, size::Int)
+  @argument size > 0 "vector size must be positive"
+  @assert 1 <= index <= size "index must be greater than 0 and lower than vector size"
+
+  ret = zeros(T, size)
+  ret[index] = 1
   ret
 end
 
-ket(i::Int, n::Int) = ket(Complex128,i,n)
+ket(index::Int, size::Int) = ket(Complex128, index, size)
 
 """
-    bra(i,n)
+    bra([type, ]index, size)
 
-Return i-th row vector in the n-dimensional vector space, with i=1,2,...,n. This vector
-is defied as a complex conjugate of the column vector ket(i,n).
+Return `index`-th row vector in the `size`-dimensional vector space, with
+`index`=1,2,...,`size`. The `type` defaults to `Complex128` if not specified
 
 # Examples
 
 ```jldoctest
-julia> bra(2,2)
+julia> bra(1,2)
 1×2 Array{Complex{Float64},2}:
- 0.0-0.0im  1.0-0.0im
+ 1.0-0.0im  0.0-0.0im
 
-julia> bra(Complex64,2,2)
-1×2 Array{Complex{Float32},2}:
- 0.0-0.0im  1.0-0.0im
+ julia> bra(Float64,1,2)
+ 1×2 Array{Float64,2}:
+  1.0  0.0
 ```
 """
-function bra{T<:FieldType}(::Type{T}, i::Int, n::Int)
-  ket(T,i,n)'
+function bra{T<:Number}(::Type{T}, index::Int, size::Int)
+  ket(T, index, size)'
 end
 
-bra(i::Int, n::Int) = ket(Complex128,i,n)'
+bra(index::Int, size::Int) = ket(index, size)'
 
 """
-    ketbra(i,j,n)
+    ketbra([type,] indexrow, indexcolumn, size)
 
-Return matrix |i><j| acting on n-dimensional vector space, i,j=1,2,...n. By default this
-function returns matrix of type Array{Complex{Float64},2}.
+Return matrix acting on `size`-dimensional vector space,
+`indexrow`,`indexcolumn`=1,2,...,`size`. The matrix consists of single nonzero
+element equal to one at position (`indexrow`,`indexcolumn`). The `type` defaults to `Complex128` if not
+specified.
 
-If necessary it can be instructed to return matrix of type Array{Complex{Float32},2}.
-
-# Exmaples
+# Examples
 
 ```jldoctest
 julia> ketbra(1,2,3)
@@ -82,30 +92,35 @@ julia> ketbra(1,2,3)
  0.0+0.0im  0.0+0.0im  0.0+0.0im
  0.0+0.0im  0.0+0.0im  0.0+0.0im
 
-julia> ketbra(Complex64,2,1,3)
-3×3 Array{Complex{Float32},2}:
- 0.0+0.0im  0.0+0.0im  0.0+0.0im
- 1.0+0.0im  0.0+0.0im  0.0+0.0im
- 0.0+0.0im  0.0+0.0im  0.0+0.0im
-
+ julia> ketbra(Float64,2,1,3)
+ 3×3 Array{Float64,2}:
+  0.0  0.0  0.0
+  1.0  0.0  0.0
+  0.0  0.0  0.0
 ```
 """
-function ketbra{T<:FieldType}(::Type{T}, i::Int, j::Int, n::Int)
-  ket(T,i,n)*bra(T,j,n)
+function ketbra{T<:Number}(::Type{T},
+                              indexrow::Int,
+                              indexcolumn::Int,
+                              size::Int)
+  ket(T, indexrow, size)*bra(T, indexcolumn, size)
 end
 
-function ketbra(i::Int,j::Int,n::Int)
-  ketbra(Complex128,i,j,n)
+function ketbra(indexrow::Int, indexcolumn::Int, size::Int)
+  ketbra(Complex128, indexrow, indexcolumn, size)
 end
 
 """
-    proj(i,n)
+    proj([type,] index, size)
 
-Return projector onto i-th base vector in n-dimensional vector space.
+Return projector onto `index`-th base vector in `size`-dimensional vector space,
+with `index`=1,2,...,`size`. The `type` defaults to `Complex128` if not
+specified.
 
-    proj(v)
 
-Return projector onto the subspace spanned by vector v.
+    proj(vector)
+
+Return projector onto the subspace spanned by vector `vector`.
 
 # Examples
 ```jldoctest
@@ -114,11 +129,10 @@ julia> proj(1,2)
  1.0+0.0im  0.0+0.0im
  0.0+0.0im  0.0+0.0im
 
-julia> proj(Complex64,1,2)
-2×2 Array{Complex{Float32},2}:
- 1.0+0.0im  0.0+0.0im
- 0.0+0.0im  0.0+0.0im
-```
+julia> proj(Float64,1,2)
+2×2 Array{Float64,2}:
+ 1.0  0.0
+ 0.0  0.0
 
 julia> v = 1/sqrt(2) * (ket(1,3)+ket(3,3))
 3-element Array{Complex{Float64},1}:
@@ -131,59 +145,52 @@ julia> QSW.proj(v)
  0.5+0.0im  0.0+0.0im  0.5+0.0im
  0.0+0.0im  0.0+0.0im  0.0+0.0im
  0.5+0.0im  0.0+0.0im  0.5+0.0im
-
+```
 """
-function proj{T<:FieldType}(::Type{T}, i::Int, n::Int)
-  ketbra(T,i,i,n)
+function proj{T<:Number}(::Type{T}, index::Int, size::Int)
+  ketbra(T, index, index, size)
 end
 
-proj(i::Int,n::Int) = proj(Complex128,i,n)
+proj(index::Int, size::Int) = proj(Complex128, index, size)
 
-function proj(v::SparseDenseVector)
-  v*v'
+function proj{T<:Number}(vector::SparseDenseVector{T})
+  vector*vector'
 end
-
-
 
 """
 
-    res(mtx)
+    reshuffle(matrix)
 
-Return vectorization of the matrix mtx in the row order. This is equivalent to
-Base.vec(transpose(mtx).
+Return vectorization of the `matrix` in the row order. This is equivalent to
+`Base.vec(transpose(matrix)`.
 
 # Examples
 
 ```jldoctest
-julia> v = ketbra(1,2,4)
-4×4 Array{Complex{Float64},2}:
- 0.0+0.0im  1.0+0.0im  0.0+0.0im  0.0+0.0im
- 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im
- 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im
- 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im
+julia> M = Matrix{Float64}(reshape(1:9, (3,3))')
+3×3 Array{Float64,2}:
+ 1.0  2.0  3.0
+ 4.0  5.0  6.0
+ 7.0  8.0  9.0
 
-julia> res(v)
-16-element Array{Complex{Float64},1}:
- 0.0+0.0im
- 1.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
- 0.0+0.0im
+julia> reshuffle(M)
+9-element Array{Float64,1}:
+ 1.0
+ 2.0
+ 3.0
+ 4.0
+ 5.0
+ 6.0
+ 7.0
+ 8.0
+ 9.0
+
+julia> reshuffle(unreshuffle(v)) == v
+true
 ```
 
 """
-function res(matrix::SparseDenseMatrix)
+function reshuffle{T<:Number}(matrix::SparseDenseMatrix{T})
   Base.vec(transpose(matrix))
 end
 
@@ -191,39 +198,41 @@ end
 
 """
 
-    unres(vec,[dims])
+    unreshuffle(vector)
 
-Return matrix with dimension in dims and elements from vec. If the second argument is
-omitted, the vector is expected to have perfect square number of arguments to form
-square matrix.
+Return square matrix elements from `vector`. The `vector`
+is expected to have perfect square number of arguments to form square matrix.
 
 # Examples
 ```jldoctest
 
-julia> unres(ket(7,9))
-3×3 Array{Complex{Float64},2}:
- 0.0+0.0im  0.0+0.0im  0.0+0.0im
- 0.0+0.0im  0.0+0.0im  0.0+0.0im
- 1.0+0.0im  0.0+0.0im  0.0+0.0im
+julia> v = Vector{Float64}(collect(1:9))
+9-element Array{Float64,1}:
+ 1.0
+ 2.0
+ 3.0
+ 4.0
+ 5.0
+ 6.0
+ 7.0
+ 8.0
+ 9.0
 
-julia> res(unres(ket(7,9))) == ket(7,9)
+julia> unreshuffle(v)
+3×3 Array{Float64,2}:
+ 1.0  2.0  3.0
+ 4.0  5.0  6.0
+ 7.0  8.0  9.0
+
+julia> reshuffle(unreshuffle(v)) == v
 true
-
 ```
 
 """
 
-function unres(v::SparseDenseVector, dims::Tuple{Int,Int})
-  reshape(v,dims)
-end
+function unreshuffle{T<:Number}(vector::SparseDenseVector{T})
+  dim = floor(Int64,sqrt(length(vector)))
+  @argument dim*dim == length(vector) "Expected vector with perfect square number of elements."
 
-function unres(::Type, v::SparseDenseVector)
-  d = floor(Int64,sqrt(length(v)))
-  if d*d == length(v)
-    transpose(reshape(v,(d,d)))
-  else
-    throw(ArgumentError("Expected vector with perfect square number of elements."))
-  end
+  reshape(vector, (dim,dim))'
 end
-
-unres(v::SparseDenseVector) = unres(Complex128,v)
