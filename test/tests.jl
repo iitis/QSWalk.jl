@@ -1,6 +1,21 @@
 using FactCheck
 using QSWalk
 
+facts("Basic utils") do
+  context("Vertex test") do
+    @fact Vertex([1,2,3]).linspace --> [1,2,3]
+    @fact Vertex([1,2,3])() --> Vertex([1,2,3]).linspace
+    @fact_throws ArgumentError Vertex([1,2,0])
+  end
+  context("Vertex set") do
+    @fact VertexSet([Vertex([1,2,3]),Vertex([4,5])])() --> [Vertex([1,2,3]),Vertex([4,5])]
+    @fact VertexSet([Vertex([1,2,3]),Vertex([4,5])])() --> [Vertex([1,2,3]),Vertex([4,5])]
+    @fact VertexSet([[1,2,3],[4,5]])() --> [Vertex([1,2,3]),Vertex([4,5])]
+    @fact_throws ArgumentError VertexSet([Vertex([1,2,0])])
+    @fact_throws ArgumentError VertexSet([Vertex([1,2,3]),Vertex([3,4])])
+  end
+end
+
 facts("Basic linear util functions") do
   context("ket") do
     #standard tests
@@ -63,6 +78,7 @@ facts("Basic linear util functions") do
   end
 end
 
+
 facts("Global operator preparation") do
   context("globaloperator") do
     #no locH case
@@ -113,10 +129,14 @@ facts("User utils") do
   end
 end
 
-#=facts("Demoralization user utils") do
-  context("partitionsize") do
-    partition = [[1,4],[2,3,5],[6],[7,8]]
-    @fact (QSWalk.partitionsize(partition)) --> 8
+facts("Demoralization user utils") do
+  context("vertexsetsize") do
+    partition_int = [[1,4],[2,3,5],[6],[7,8]]
+    partition_vertex = VertexSet([Vertex(block) for block=partition_int])
+    @fact (QSWalk.vertexsetsize(partition_vertex)) --> 8
+    # error test
+    @fact_throws MethodError QSWalk.vertexsetsize(partition_int)
+
   end
 
   context("defaultlocalhamiltonian") do
@@ -126,60 +146,50 @@ end
 
   context("localhamiltonian") do
     #default option
-    @fact localhamiltonian([[1],[2,3]]) --> sparse([0.+0im 0 0;0 0 im;0 -im 0])
-    @fact localhamiltonian([[1],[2],[3]]) --> spzeros(Complex128,3,3)
+    @fact localhamiltonian(VertexSet([[1],[2,3]])) --> sparse([0.+0im 0 0;0 0 im;0 -im 0])
+    @fact localhamiltonian(VertexSet([[1],[2],[3]])) --> spzeros(Complex128,3,3)
     #by size version
-    @fact localhamiltonian([[1,3],[2]], x->speye(x)) --> speye(Complex128,3)
-    @fact localhamiltonian([[1],[2],[3]], x->speye(x)) --> speye(Complex128,3)
+    @fact localhamiltonian(VertexSet([[1,2],[3,4]]), Dict(2=>[0 1; 1 0])) --> sparse([0. 1 0 0; 1 0 0 0; 0 0 0 1; 0 0 1 0])
+    @fact localhamiltonian(VertexSet([[1],[2],[3]]), Dict(1=>ones(Float64,(1,1)))) --> speye(Complex128,3)
     #by index version
     M1 = [1. 2;3 5]
     M2 = zeros(1,1)+1.
-    @fact localhamiltonian([[1,3],[2]], FunctionByIndex(x->[M1,M2][x])) -->
+    dict = Dict(Vertex([1,3])=>M1, Vertex([2])=>M2)
+    @fact localhamiltonian(VertexSet([[1,3],[2]]), dict) -->
             sparse([ 1.0+0im 0 2; 0 1 0; 3 0 5 ])
   end
 
   context("Incidences lists") do
-
+    A = [1 2 3; 0 3. 4.; 0 0 5.]
+    @fact QSWalk.reversedincidencelist(A) --> [[1], [1,2], [1,2,3]]
+    @fact QSWalk.reversedincidencelist(A; epsilon=2.5) --> [Int64[], [2], [1,2,3]]
+    @fact QSWalk.incidencelist(A) --> [[1,2,3], [2,3], [3]]
+    @fact QSWalk.incidencelist(A; epsilon=2.5) --> [[3], [2,3], [3]]
+    #errors
+    @fact_throws ArgumentError QSWalk.incidencelist(A, epsilon=-1)
+    @fact_throws ArgumentError QSWalk.reversedincidencelist(A, epsilon=-1)
   end
 
-  context("makepartition") do
-    @fact QSWalk.makepartition([[1,3],[2,3],Int[],[4,6,1]]) --> [[1,2],[3,4],[5],[6,7,8]]
+  context("makevertexset") do
+    @fact QSWalk.makevertexset([[1,3],[2,3],Int[],[4,6,1]]) --> VertexSet([[1,2],[3,4],[5],[6,7,8]])
   end
 
-  context("fourier matrix") do
-    @fact QSWalk.rectangularfouriermatrix(2,1) --> roughly([1,1])
-    @fact QSWalk.rectangularfouriermatrix(1,1) --> roughly([1])
-    @fact QSWalk.rectangularfouriermatrix(4,2) --> roughly([1, 1im, -1, -1im])
+  context("Fourier matrix") do
+    @fact QSWalk.fouriermatrix(2) --> roughly([1 1; 1 -1.])
+    @fact QSWalk.fouriermatrix(1) --> roughly(ones(Float64,(1,1)))
   end
 
   context("demoralizedlindbladian") do
     A = sparse([0 1 0; 1 0 1; 0 1 0]+0im)*1.
-
-    function symmetricl(size, column) #działa tylko dla size<=2
-      if size == 1
-        return [1]
-      else
-        if column == 1
-          return [1,-1]
-        else
-          return [1, 1]
-        end
-      end
-    end
     #default
+    #needs to be roughly, since exp computing is inexact
     @fact demoralizedlindbladian(A)[1] --> roughly(sparse([0 1 1 0; 1 0 0 1; 1 0 0 -1; 0 1 1 0]))
-    @fact demoralizedlindbladian(A)[2] --> QSWalk.makepartition(QSWalk.reversedincidencelist(A))
-
-    #symmetric case
-    @fact demoralizedlindbladian(A,eps(1.),(x,y)->symmetricl(x,y))[1] -->
-                    roughly(sparse([0 1 1 0; 1 0 0 1; -1 0 0 1; 0 1 1 0]+0im)*1.)
-    @fact demoralizedlindbladian(A,eps(1.),(x,y)->symmetricl(x,y))[2] -->
-                    QSWalk.makepartition(QSWalk.reversedincidencelist(A))
+    @fact demoralizedlindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
 
   end
 end
 
-facts("evolution") do
+#=facts("evolution") do
   context("distributionsummation") do
     probability = [0.05,0.1,0.25,0.3,0.01,0.20,0.04,0.05]
     partition = [[1,4],[2,3,5],[6],[7,8]]

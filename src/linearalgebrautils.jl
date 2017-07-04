@@ -6,25 +6,12 @@ export
   reshuffle,
   unreshuffle
 
-typealias SparseDenseMatrix{T<:Number} Union{SparseMatrixCSC{T},Matrix{T}}
-typealias SparseDenseVector{T<:Number} Union{SparseVector{T},Vector{T}}
-
-type Vertex
-  linearspace::Vector{Int}
-end
-
-macro argument(ex, msgs...)
-    local msg_body = isempty(msgs) ? ex : msgs[1]
-    local msg = string(msg_body)
-    return :($ex ? nothing : throw(ArgumentError($msg)))
-end
-
 """
     ket([type, ]index, size)
 
 Return `index`-th base (column) vector in the `size`-dimensional vector space.
 To be consistent with Julia indexing, `index`=1,2,...,`size`. The `type` defaults
-to `Complex128` if not specified
+to `Complex128` if not specified.
 
 # Examples
 
@@ -55,7 +42,7 @@ ket(index::Int, size::Int) = ket(Complex128, index, size)
     bra([type, ]index, size)
 
 Return `index`-th row vector in the `size`-dimensional vector space, with
-`index`=1,2,...,`size`. The `type` defaults to `Complex128` if not specified
+`index`=1,2,...,`size`. The `type` defaults to `Complex128` if not specified.
 
 # Examples
 
