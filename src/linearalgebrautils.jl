@@ -221,5 +221,5 @@ function unreshuffle{T<:Number}(vector::SparseDenseVector{T})
   dim = floor(Int64,sqrt(length(vector)))
   @argument dim*dim == length(vector) "Expected vector with perfect square number of elements."
 
-  reshape(vector, (dim,dim))'
+  transpose(reshape(vector, (dim,dim)))
 end

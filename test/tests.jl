@@ -70,14 +70,15 @@ facts("Basic linear util functions") do
   context("reshuffle and reshuffle") do
     M = Matrix{Float64}(reshape(1:9, (3,3))')
     v = Vector{Float64}(collect(1:9))
+    A = Complex{Float64}[0.354177+0.0im 0.0891553-0.0251879im 0.0702961+0.0516828im 0.0708664+0.0767941im; 0.0891553+0.0251879im 0.336055+0.0im 0.0420202-0.0109173im 0.0683605-0.00692846im; 0.0702961-0.0516828im 0.0420202+0.0109173im 0.212401+0.0im 0.0939615+0.0553555im; 0.0708664-0.0767941im 0.0683605+0.00692846im 0.0939615-0.0553555im 0.0973671+0.0im]
     @fact reshuffle(M) --> v
     @fact unreshuffle(v) --> M
     @fact unreshuffle(reshuffle(M)) --> M
     @fact reshuffle(unreshuffle(v)) --> v
+    @fact unreshuffle(reshuffle(A)) --> A
     @fact_throws ArgumentError unreshuffle(collect(1:8)*1.)
   end
 end
-
 
 facts("Global operator preparation") do
   context("globaloperator") do
@@ -103,9 +104,7 @@ facts("Global operator preparation") do
     @fact_throws ArgumentError, globaloperator(H,[L1,L2],-1)
     @fact_throws ArgumentError, globaloperator(H,[L1,L2],3)
   end
-
 end
-
 
 facts("User utils") do
   context("classicallindbladoperators") do
@@ -171,7 +170,7 @@ facts("Demoralization user utils") do
   end
 
   context("makevertexset") do
-    @fact QSWalk.makevertexset([[1,3],[2,3],Int[],[4,6,1]]) --> VertexSet([[1,2],[3,4],[5],[6,7,8]])
+    @fact makevertexset([[1,3],[2,3],Int[],[4,6,1]]) --> VertexSet([[1,2],[3,4],[5],[6,7,8]])
   end
 
   context("Fourier matrix") do
@@ -189,39 +188,44 @@ facts("Demoralization user utils") do
   end
 end
 
-#=facts("evolution") do
+facts("evolution") do
   context("distributionsummation") do
     probability = [0.05,0.1,0.25,0.3,0.01,0.20,0.04,0.05]
-    partition = [[1,4],[2,3,5],[6],[7,8]]
+    partition = VertexSet([[1,4],[2,3,5],[6],[7,8]])
     result = [0.35,0.36,0.2,0.09]
     @fact distributionsummation(probability,partition) --> result
   end
 
   context("Initial states") do
-    @fact initialstate([1,3,4],[[1],[2,3,4],[5,6,7],[8,9]]) --> roughly(spdiagm([1./3,0,0,0,1./9,1./9,1./9,1./6,1./6]))
-    A1 = ones(1,1)/4
-    A2 = [ 1/5 0 1/5; 0 1/10 0 ; 1/5 0 1/5 ]
+    vset = VertexSet([[1],[2,3,4],[5,6,7],[8,9]])
+    @fact initialstate(vset[[1,3,4]],vset) --> roughly(spdiagm([1./3,0,0,0,1./9,1./9,1./9,1./6,1./6]))
+    A1 = ones(Complex128,1,1)/4
+    A2 = [ 1/5+0im 0 1/5; 0 1/10 0 ; 1/5 0 1/5 ]
     A3 = [0.125 -0.125+0im; -0.125 0.125]
-    @fact initialstate([A1,A2,A3]) -->
-          sparse([0.25+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im;
-           0.0+0.0im 0.2+0.0im 0.0+0.0im 0.2+0.0im 0.0+0.0im 0.0+0.0im;
-           0.0+0.0im 0.0+0.0im 0.1+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im;
-           0.0+0.0im 0.2+0.0im 0.0+0.0im 0.2+0.0im 0.0+0.0im 0.0+0.0im;
-           0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.125+0.0im -0.125+0.0im;
-           0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im -0.125+0.0im 0.125+0.0im])
+    dict = Dict(vset[1]=>A1, vset[3]=>A2, vset[4]=>A3 )
+    @fact initialstate(dict, vset) -->
+          sparse([ 0.25+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
+                  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
+                  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
+                  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
+                  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.2+0.0im  0.0+0.0im  0.2+0.0im     0.0+0.0im     0.0+0.0im
+                  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.1+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
+                  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.2+0.0im  0.0+0.0im  0.2+0.0im     0.0+0.0im     0.0+0.0im
+                  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im   0.125+0.0im  -0.125+0.0im
+                  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  -0.125+0.0im   0.125+0.0im
+])
   end
 
   context("Simple evolution functions") do
     #size 4x4
     A = Complex{Float64}[0.354177+0.0im 0.0891553-0.0251879im 0.0702961+0.0516828im 0.0708664+0.0767941im; 0.0891553+0.0251879im 0.336055+0.0im 0.0420202-0.0109173im 0.0683605-0.00692846im; 0.0702961-0.0516828im 0.0420202+0.0109173im 0.212401+0.0im 0.0939615+0.0553555im; 0.0708664-0.0767941im 0.0683605+0.00692846im 0.0939615-0.0553555im 0.0973671+0.0im]
-    #expm
+    #trivial evolutions
     @fact simpleevolve(zeros(16,16), A, 0.) --> roughly(A)
     @fact simpleevolve(zeros(16,16), sparse(A), 0.) --> roughly(A)
     @fact simpleevolve(zeros(16,16), A, [0.,5.,10.]) --> [A,A,A]
 
     @fact simpleevolve(rand(16,16), A, 0.) --> roughly(A)
 
-    #expmv
     @fact simpleevolve(spzeros(16,16), A, 0.) --> roughly(A)
     @fact simpleevolve(spzeros(16,16), A, [0.,5.,10.])[1] --> roughly(A)
     @fact simpleevolve(spzeros(16,16), A, [0.,5.,10.])[2] --> roughly(A)
@@ -230,18 +234,3 @@ end
     @fact simpleevolve(sparse(rand(16,16)), A, 0.) --> roughly(A)
   end
 end
-
-facts("User compact functions") do
-  context("expmv evolution") do
-
-  end
-
-  context("expm evolution") do
-
-  end
-
-  context("partition") do
-
-  end
-end
-=#
