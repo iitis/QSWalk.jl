@@ -96,7 +96,7 @@ function globaloperatorutil{T1<:Number,S<:SparseDenseMatrix,T3<:Number}(
         F += kron(L[i],conj(L[i]))-0.5*kron(L[i]'*L[i],id)-0.5*kron(id,transpose(L[i])*conj(L[i]))
     end
     F += im*(kron(id,conj(localH))-kron(localH,id))
-    F = α*F + β*im*(kron(id,conj(H))-kron(H,id))
+    F = α*im*(kron(id,conj(H))-kron(H,id)) + β*F
     F
 end
 
