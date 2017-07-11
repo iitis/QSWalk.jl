@@ -189,7 +189,7 @@ facts("Demoralization user utils") do
                 0 0 0 0 0;
                 0 1 1 0 0;
                 0 0 0 0 0])
-    @fact demoralizedlindbladian(A)[1] --> roughly([0.0 0.0 0.0 0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0 1.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 1.0 1.0 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 1.0 0.0 -1.0 0.0 0.0; 0.0 1.0 -1.0 0.0 0.0 1.0 0.0])
+    @fact demoralizedlindbladian(A)[1] --> roughly([0 0 0 0 0 0 1; 0 0 0 1 0 0 1; 0 0 0 1 0 0 -1; 0 0 0 0 0 0 0; 0 1 1 1 0 0 0; 0 1 1 -1 0 0 0; 0 0 0 0 0 0 0])
     @fact demoralizedlindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
 
     A = [0 0 0; 0 0 0; 1 1 0]

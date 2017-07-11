@@ -155,7 +155,7 @@ julia> QSWalk.incidencelist(A, epsilon=2.5)
 """
 function incidencelist{T<:Number}(A::SparseMatrixCSC{T}; epsilon::Real=eps())
   @argument epsilon >= 0 "epsilon needs to be nonnegative"
-  [(A[:,i].nzind)[find(x -> abs(x)>=epsilon, A[:,i].nzind)] for i=1:size(A,1)]
+  [filter(x -> abs(A[x,i])>=epsilon, A[:,i].nzind) for i=1:size(A,1)]
 end
 
 function incidencelist{T<:Number}(A::Matrix{T}; epsilon::Real=eps())
@@ -194,7 +194,7 @@ julia> QSWalk.reversedincidencelist(A, epsilon=2.5)
 """
 function reversedincidencelist{T<:Number}(A::SparseMatrixCSC{T}; epsilon::Real=eps())
   @argument epsilon >= 0 "epsilon needs to be nonnegative"
-  [(A[:,i].nzind)[find(x -> abs(x)>=epsilon, A[i,:].nzind)] for i=1:size(A,1)]
+  [filter(x -> abs(A[i,x])>=epsilon, A[i,:].nzind) for i=1:size(A,1)]
 end
 
 function reversedincidencelist{T<:Number}(A::Matrix{T}; epsilon::Real=eps())
