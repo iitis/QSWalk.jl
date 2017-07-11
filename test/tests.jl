@@ -160,13 +160,13 @@ facts("Demoralization user utils") do
 
   context("Incidences lists") do
     A = [1 2 3; 0 3. 4.; 0 0 5.]
-    @fact QSWalk.reversedincidencelist(A) --> [[1], [1,2], [1,2,3]]
-    @fact QSWalk.reversedincidencelist(A; epsilon=2.5) --> [Int64[], [2], [1,2,3]]
-    @fact QSWalk.incidencelist(A) --> [[1,2,3], [2,3], [3]]
-    @fact QSWalk.incidencelist(A; epsilon=2.5) --> [[3], [2,3], [3]]
+    @fact QSWalk.incidencelist(A) --> [[1], [1,2], [1,2,3]]
+    @fact QSWalk.incidencelist(A; epsilon=2.5) --> [Int64[], [2], [1,2,3]]
+    @fact QSWalk.reversedincidencelist(A) --> [[1,2,3], [2,3], [3]]
+    @fact QSWalk.reversedincidencelist(A; epsilon=2.5) --> [[3], [2,3], [3]]
     #errors
-    @fact_throws ArgumentError QSWalk.incidencelist(A, epsilon=-1)
     @fact_throws ArgumentError QSWalk.reversedincidencelist(A, epsilon=-1)
+    @fact_throws ArgumentError QSWalk.incidencelist(A, epsilon=-1)
   end
 
   context("makevertexset") do
@@ -191,6 +191,11 @@ facts("Demoralization user utils") do
                 0 0 0 0 0])
     @fact demoralizedlindbladian(A)[1] --> roughly([0.0 0.0 0.0 0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0 1.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 1.0 1.0 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 1.0 0.0 -1.0 0.0 0.0; 0.0 1.0 -1.0 0.0 0.0 1.0 0.0])
     @fact demoralizedlindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
+
+    A = [0 0 0; 0 0 0; 1 1 0]
+    @fact demoralizedlindbladian(A)[1] --> roughly([0 0 0 0; 0 0 0 0; 1 1 0 0; 1 -1 0 0])
+    @fact demoralizedlindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
+
 
   end
 end

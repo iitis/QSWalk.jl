@@ -124,7 +124,7 @@ end
 
 """
 
-    reversedincidencelist(A[; epsilon])
+    incidencelist(A[; epsilon])
 
 For given matrix `A` the function returns list of indices. The `i`-th element of
 result list is the vector of indices for which `abs(A[j,i]) >= epsilon`.
@@ -138,13 +138,13 @@ julia> A = [1 2 3; 0 3. 4.; 0 0 5.]
  0.0  3.0  4.0
  0.0  0.0  5.0
 
-julia> QSWalk.reversedincidencelist(A)
+julia> QSWalk.incidencelist(A)
 3-element Array{Array{Int64,1},1}:
  [1]
  [1,2]
  [1,2,3]
 
-julia> QSWalk.reversedincidencelist(A, epsilon=2.5)
+julia> QSWalk.incidencelist(A, epsilon=2.5)
 3-element Array{Array{Int64,1},1}:
   Int64[]
   [2]
@@ -153,19 +153,19 @@ julia> QSWalk.reversedincidencelist(A, epsilon=2.5)
 
 ```
 """
-function reversedincidencelist{T<:Number}(A::SparseMatrixCSC{T}; epsilon::Real=eps())
+function incidencelist{T<:Number}(A::SparseMatrixCSC{T}; epsilon::Real=eps())
   @argument epsilon >= 0 "epsilon needs to be nonnegative"
   [(A[:,i].nzind)[find(x -> abs(x)>=epsilon, A[:,i].nzind)] for i=1:size(A,1)]
 end
 
-function reversedincidencelist{T<:Number}(A::Matrix{T}; epsilon::Real=eps())
+function incidencelist{T<:Number}(A::Matrix{T}; epsilon::Real=eps())
   @argument epsilon >= 0 "epsilon needs to be nonnegative"
   [find(x -> abs(x)>=epsilon, A[:,i]) for i=1:size(A,1)]
 end
 
 """
 
-    incidencelist(A[; epsilon])
+    reversedincidencelist(A[; epsilon])
 
 For given matrix `A` the function returns list of indices. The `i`-th element of
 result list is the vector of indices for which `abs(A[i,j]) >= epsilon`.
@@ -179,25 +179,25 @@ julia> A = [1 2 3; 0 3. 4.; 0 0 5.]
  0.0  3.0  4.0
  0.0  0.0  5.0
 
-julia> QSWalk.incidencelist(A)
+julia> QSWalk.reversedincidencelist(A)
 3-element Array{Array{Int64,1},1}:
  [1,2,3]
  [2,3]
  [3]
 
-julia> QSWalk.incidencelist(A, epsilon=2.5)
+julia> QSWalk.reversedincidencelist(A, epsilon=2.5)
 3-element Array{Array{Int64,1},1}:
  [3]
  [2,3]
  [3]
 ```
 """
-function incidencelist{T<:Number}(A::SparseMatrixCSC{T}; epsilon::Real=eps())
+function reversedincidencelist{T<:Number}(A::SparseMatrixCSC{T}; epsilon::Real=eps())
   @argument epsilon >= 0 "epsilon needs to be nonnegative"
   [(A[:,i].nzind)[find(x -> abs(x)>=epsilon, A[i,:].nzind)] for i=1:size(A,1)]
 end
 
-function incidencelist{T<:Number}(A::Matrix{T}; epsilon::Real=eps())
+function reversedincidencelist{T<:Number}(A::Matrix{T}; epsilon::Real=eps())
   @argument epsilon >= 0 "epsilon needs to be nonnegative"
   [find(x -> abs(x)>=epsilon, A[i,:]) for i=1:size(A,1)]
 end
