@@ -34,8 +34,8 @@ facts("Basic linear util functions") do
     @fact typeof(bra(Complex128,1,2)) --> typeof(bra(1,2))
     @fact typeof(bra(Float64,1,2)) --> Matrix{Float64}
     #error tests
-    @fact_throws AssertionError, bra(4,2)
-    @fact_throws ArgumentError, bra(-4,-2)
+    @fact_throws AssertionError bra(4,2)
+    @fact_throws ArgumentError bra(-4,-2)
   end
   context("ketbra") do
     #standard tests
@@ -46,9 +46,9 @@ facts("Basic linear util functions") do
     @fact typeof(ketbra(Complex128,1,2,3)) --> typeof(ketbra(1,2,3))
     @fact typeof(ketbra(Float64,1,2,3)) --> Matrix{Float64}
     #error tests
-    @fact_throws AssertionError, ketbra(3,2,2)
-    @fact_throws AssertionError, ketbra(2,3,2)
-    @fact_throws ArgumentError, ketbra(-4,-2,-1)
+    @fact_throws AssertionError ketbra(3,2,2)
+    @fact_throws AssertionError ketbra(2,3,2)
+    @fact_throws ArgumentError ketbra(-4,-2,-1)
   end
   context("proj") do
     #standard tests#
@@ -64,10 +64,10 @@ facts("Basic linear util functions") do
     @fact typeof(proj(Complex128,2,3)) -->  typeof(proj(2,3))
     @fact typeof(proj(Float64,2,3)) --> Matrix{Float64}
     #error tests
-    @fact_throws ArgumentError, proj(2,-1)
-    @fact_throws AssertionError, proj(3,2)
+    @fact_throws ArgumentError proj(2,-1)
+    @fact_throws AssertionError proj(3,2)
   end
-  context("reshuffle and reshuffle") do
+  context("reshuffle and unreshuffle") do
     M = Matrix{Float64}(reshape(1:9, (3,3))')
     v = Vector{Float64}(collect(1:9))
     A = Complex{Float64}[0.354177+0.0im 0.0891553-0.0251879im 0.0702961+0.0516828im 0.0708664+0.0767941im; 0.0891553+0.0251879im 0.336055+0.0im 0.0420202-0.0109173im 0.0683605-0.00692846im; 0.0702961-0.0516828im 0.0420202+0.0109173im 0.212401+0.0im 0.0939615+0.0553555im; 0.0708664-0.0767941im 0.0683605+0.00692846im 0.0939615-0.0553555im 0.0973671+0.0im]
@@ -100,9 +100,9 @@ facts("Global operator preparation") do
     #type test
 
     #typeerrortest
-    @fact_throws ArgumentError, globaloperator(H,[L1,L2],1im)
-    @fact_throws ArgumentError, globaloperator(H,[L1,L2],-1)
-    @fact_throws ArgumentError, globaloperator(H,[L1,L2],3)
+    @fact_throws MethodError globaloperator(H,[L1,L2],1im)
+    @fact_throws ArgumentError globaloperator(H,[L1,L2],-1)
+    @fact_throws ArgumentError globaloperator(H,[L1,L2],3)
   end
 end
 
@@ -123,8 +123,8 @@ facts("User utils") do
     @fact typeof(classicallindbladoperators(H)) --> Vector{SparseMatrixCSC{Complex128}}
     @fact typeof(classicallindbladoperators(sparse(H))) --> Vector{SparseMatrixCSC{Complex128}}
     #error test
-    @fact_throws ArgumentError, classicallindbladoperators(H, -1.)
-    @fact_throws ArgumentError, classicallindbladoperators(H, -1im)
+    @fact_throws ArgumentError classicallindbladoperators(H, epsilon=-1.)
+    @fact_throws TypeError classicallindbladoperators(H, epsilon=-1im)
   end
 end
 
@@ -179,10 +179,17 @@ facts("Demoralization user utils") do
   end
 
   context("demoralizedlindbladian") do
-    A = sparse([0 1 0; 1 0 1; 0 1 0]+0im)*1.
+    A = sparse([0.+0.0im 1 0; 1 0 1; 0 1 0])
     #default
     #needs to be roughly, since exp computing is inexact
-    @fact demoralizedlindbladian(A)[1] --> roughly(sparse([0 1 1 0; 1 0 0 1; 1 0 0 -1; 0 1 1 0]))
+    @fact demoralizedlindbladian(A)[1] --> roughly([0 1 1 0; 1 0 0 1; 1 0 0 -1; 0 1 1 0])
+    @fact demoralizedlindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
+    A = sparse([0.+0.0im 0 0 0 1;
+                0 0 1 0 1;
+                0 0 0 0 0;
+                0 1 1 0 0;
+                0 0 0 0 0])
+    @fact demoralizedlindbladian(A)[1] --> roughly([0.0 0.0 0.0 0.0 1.0 0.0 0.0; 0.0 0.0 1.0 0.0 1.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 1.0 1.0 0.0 0.0 1.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 1.0 0.0 -1.0 0.0 0.0; 0.0 1.0 -1.0 0.0 0.0 1.0 0.0])
     @fact demoralizedlindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
 
   end
