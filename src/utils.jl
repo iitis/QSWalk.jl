@@ -6,8 +6,8 @@ export
 
 import Base: ==, hash, getindex, length
 
-typealias SparseDenseMatrix{T<:Number} Union{SparseMatrixCSC{T},Matrix{T}}
-typealias SparseDenseVector{T<:Number} Union{SparseVector{T},Vector{T}}
+SparseDenseMatrix{T<:Number} = Union{SparseMatrixCSC{T},Matrix{T}}
+SparseDenseVector{T<:Number} = Union{SparseVector{T},Vector{T}}
 
 """
     type Vertex
@@ -87,7 +87,17 @@ end
 
 
 macro argument(ex, msgs...)
-    local msg_body = isempty(msgs) ? ex : msgs[1]
-    local msg = string(msg_body)
-    return :($ex ? nothing : throw(ArgumentError($msg)))
+    msg = isempty(msgs) ? ex : msgs[1]
+    if isa(msg, AbstractString)
+        msg = msg # pass-through
+    elseif !isempty(msgs) && (isa(msg, Expr) || isa(msg, Symbol))
+        # message is an expression needing evaluating
+        msg = :(Main.Base.string($(esc(msg))))
+    elseif isdefined(Main, :Base) && isdefined(Main.Base, :string) && applicable(Main.Base.string, msg)
+        msg = Main.Base.string(msg)
+    else
+        # string() might not be defined during bootstrap
+        msg = :(Main.Base.string($(Expr(:quote,msg))))
+    end
+    return :($(esc(ex)) ? $(nothing) : throw(Main.Base.ArgumentError($msg)))
 end

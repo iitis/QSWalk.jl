@@ -32,7 +32,7 @@ facts("Basic linear util functions") do
     @fact bra(1,2) --> [1.0+0.0im 0.0+0.0im]
     #type tests
     @fact typeof(bra(Complex128,1,2)) --> typeof(bra(1,2))
-    @fact typeof(bra(Float64,1,2)) --> Matrix{Float64}
+    @fact typeof(bra(Float64,1,2)) --> RowVector{Float64,Vector{Float64}}
     #error tests
     @fact_throws AssertionError bra(4,2)
     @fact_throws ArgumentError bra(-4,-2)
@@ -224,8 +224,7 @@ facts("evolution") do
                   0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.1+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
                   0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.2+0.0im  0.0+0.0im  0.2+0.0im     0.0+0.0im     0.0+0.0im
                   0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im   0.125+0.0im  -0.125+0.0im
-                  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  -0.125+0.0im   0.125+0.0im
-])
+                  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  -0.125+0.0im   0.125+0.0im])
   end
 
   context("Simple evolution functions") do
