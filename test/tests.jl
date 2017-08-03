@@ -22,7 +22,7 @@ facts("Basic linear util functions") do
     @fact ket(1,2) --> [1.0+0.0im;0.0+0.0im]
     #type tests
     @fact typeof(ket(Complex128,1,2)) --> typeof(ket(1,2))
-    @fact typeof(ket(Float64,1,2)) --> Vector{Float64}
+    @fact typeof(ket(Float64,1,2)) <: SparseVector{Float64} --> true
     #error tests
     @fact_throws AssertionError ket(4,2)
     @fact_throws ArgumentError ket(-4,-2)
@@ -32,7 +32,7 @@ facts("Basic linear util functions") do
     @fact bra(1,2) --> [1.0+0.0im 0.0+0.0im]
     #type tests
     @fact typeof(bra(Complex128,1,2)) --> typeof(bra(1,2))
-    @fact typeof(bra(Float64,1,2)) --> RowVector{Float64,Vector{Float64}}
+    @fact typeof(bra(Float64,1,2)) <: RowVector{Float64,SparseVector{Float64,Int64}} --> true
     #error tests
     @fact_throws AssertionError bra(4,2)
     @fact_throws ArgumentError bra(-4,-2)
@@ -44,7 +44,7 @@ facts("Basic linear util functions") do
                               0.0+0.0im 0.0+0.0im 0.0+0.0im]
     #type tests
     @fact typeof(ketbra(Complex128,1,2,3)) --> typeof(ketbra(1,2,3))
-    @fact typeof(ketbra(Float64,1,2,3)) --> Matrix{Float64}
+    @fact typeof(ketbra(Float64,1,2,3)) <: SparseMatrixCSC{Float64} --> true
     #error tests
     @fact_throws AssertionError ketbra(3,2,2)
     @fact_throws AssertionError ketbra(2,3,2)
@@ -62,21 +62,21 @@ facts("Basic linear util functions") do
                           0.5+0.0im 0.0+0.0im 0.5+0.0im])
     #type tests
     @fact typeof(proj(Complex128,2,3)) -->  typeof(proj(2,3))
-    @fact typeof(proj(Float64,2,3)) --> Matrix{Float64}
+    @fact typeof(proj(Float64,2,3)) <: SparseMatrixCSC{Float64} --> true
     #error tests
     @fact_throws ArgumentError proj(2,-1)
     @fact_throws AssertionError proj(3,2)
   end
-  context("reshuffle and unreshuffle") do
+  context("res and unres") do
     M = Matrix{Float64}(reshape(1:9, (3,3))')
     v = Vector{Float64}(collect(1:9))
     A = Complex{Float64}[0.354177+0.0im 0.0891553-0.0251879im 0.0702961+0.0516828im 0.0708664+0.0767941im; 0.0891553+0.0251879im 0.336055+0.0im 0.0420202-0.0109173im 0.0683605-0.00692846im; 0.0702961-0.0516828im 0.0420202+0.0109173im 0.212401+0.0im 0.0939615+0.0553555im; 0.0708664-0.0767941im 0.0683605+0.00692846im 0.0939615-0.0553555im 0.0973671+0.0im]
-    @fact reshuffle(M) --> v
-    @fact unreshuffle(v) --> M
-    @fact unreshuffle(reshuffle(M)) --> M
-    @fact reshuffle(unreshuffle(v)) --> v
-    @fact unreshuffle(reshuffle(A)) --> A
-    @fact_throws ArgumentError unreshuffle(collect(1:8)*1.)
+    @fact res(M) --> v
+    @fact unres(v) --> M
+    @fact unres(res(M)) --> M
+    @fact res(unres(v)) --> v
+    @fact unres(res(A)) --> A
+    @fact_throws ArgumentError unres(collect(1:8)*1.)
   end
 end
 
@@ -98,6 +98,8 @@ facts("Global operator preparation") do
     @fact globaloperator(H,[L1,L2]) --> resultnoomega
     @fact globaloperator(H,[L1,L2],1/2) --> resultnoomega/2
     #type test
+    @fact typeof(globaloperator(zeros(2,2),[zeros(2,2),spzeros(2,2)])) <:Matrix --> true
+    @fact typeof(globaloperator(zeros(2,2),[zeros(2,2),spzeros(Complex128,2,2)])) <:Matrix{Complex128} --> true
 
     #typeerrortest
     @fact_throws MethodError globaloperator(H,[L1,L2],1im)
@@ -227,21 +229,29 @@ facts("evolution") do
                   0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  -0.125+0.0im   0.125+0.0im])
   end
 
-  context("Simple evolution functions") do
+  context("Exponent function") do
+    @fact evolveoperator(zeros(4,4), 1.) --> roughly(eye(4))
+
+    # tyoe check
+    @fact_throws MethodError evolveoperator(spzeros(4,4), 1.)
+  end
+
+
+  context("Evolution functions") do
     #size 4x4
     A = Complex{Float64}[0.354177+0.0im 0.0891553-0.0251879im 0.0702961+0.0516828im 0.0708664+0.0767941im; 0.0891553+0.0251879im 0.336055+0.0im 0.0420202-0.0109173im 0.0683605-0.00692846im; 0.0702961-0.0516828im 0.0420202+0.0109173im 0.212401+0.0im 0.0939615+0.0553555im; 0.0708664-0.0767941im 0.0683605+0.00692846im 0.0939615-0.0553555im 0.0973671+0.0im]
     #trivial evolutions
-    @fact simpleevolve(zeros(16,16), A, 0.) --> roughly(A)
-    @fact simpleevolve(zeros(16,16), sparse(A), 0.) --> roughly(A)
-    @fact simpleevolve(zeros(16,16), A, [0.,5.,10.]) --> [A,A,A]
+    @fact evolve(zeros(16,16), A, 0.) --> roughly(A)
+    @fact evolve(zeros(16,16), sparse(A), 0.) --> roughly(A)
+    @fact evolve(zeros(16,16), A, [0.,5.,10.]) --> [A,A,A]
 
-    @fact simpleevolve(rand(16,16), A, 0.) --> roughly(A)
+    @fact evolve(rand(16,16), A, 0.) --> roughly(A)
 
-    @fact simpleevolve(spzeros(16,16), A, 0.) --> roughly(A)
-    @fact simpleevolve(spzeros(16,16), A, [0.,5.,10.])[1] --> roughly(A)
-    @fact simpleevolve(spzeros(16,16), A, [0.,5.,10.])[2] --> roughly(A)
-    @fact simpleevolve(spzeros(16,16), A, [0.,5.,10.])[3] --> roughly(A)
+    @fact evolve(spzeros(16,16), A, 0.) --> roughly(A)
+    @fact evolve(spzeros(16,16), A, [0.,5.,10.])[1] --> roughly(A)
+    @fact evolve(spzeros(16,16), A, [0.,5.,10.])[2] --> roughly(A)
+    @fact evolve(spzeros(16,16), A, [0.,5.,10.])[3] --> roughly(A)
 
-    @fact simpleevolve(sparse(rand(16,16)), A, 0.) --> roughly(A)
+    @fact evolve(sparse(rand(16,16)), A, 0.) --> roughly(A)
   end
 end

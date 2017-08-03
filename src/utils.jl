@@ -6,8 +6,8 @@ export
 
 import Base: ==, hash, getindex, length
 
-SparseDenseMatrix{T<:Number} = Union{SparseMatrixCSC{T},Matrix{T}}
-SparseDenseVector{T<:Number} = Union{SparseVector{T},Vector{T}}
+SparseDenseMatrix = Union{SparseMatrixCSC{T} where T<:Number, Matrix{S} where S<:Number}
+SparseDenseVector = Union{SparseVector{T} where T<:Number, Vector{S} where S<:Number}
 
 """
     type Vertex
@@ -60,6 +60,7 @@ type VertexSet
   VertexSet{T<:Vertex}(vset::Vector{T}) = checkVertexSet(vset) ? new(vset) : throw(ArgumentError("Vertices should correspond to orthogonal linear spaces"))
   VertexSet(vset::Vector{Vector{Int}}) = checkVertexSet(vset) ? new([Vertex(v) for v=vset]) : throw(ArgumentError("Vertices should correspond to orthogonal linear spaces"))
 end
+
 
 (v::VertexSet)() = v.vertices
 

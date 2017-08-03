@@ -104,17 +104,22 @@ julia> localhamiltonian(VertexSet([[1,2],[3,4]]), Dict(2 => [0 1; 1 0]))
 
 ```
 """
-function localhamiltonian{T<:SparseDenseMatrix}(
-                                  vertexset::VertexSet,
-                                  hamiltonians::Dict{Int,T}
-                                      =Dict(length(v)=>defaultlocalhamiltonian(length(v)) for v=vertexset()))
+function localhamiltonian(vertexset::VertexSet,
+                          hamiltonians::Dict{Int,T} where T
+                            =Dict(l=>defaultlocalhamiltonian(l) for l=length.(vertexset())))
+
+  #TODO: assert whether for all vertices there is a key
+  @argument all([typeof(hamiltonians[k])<:SparseDenseMatrix for k=keys(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(hamiltonians[k])<:Number for k=keys(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
   hamiltonianlist = Dict{Vertex,SparseDenseMatrix}(v=>hamiltonians[length(v)] for v=vertexset())
   localhamiltonian(vertexset, hamiltonianlist)
 end
 
-function localhamiltonian{T<:SparseDenseMatrix}(vertexset::VertexSet,
-                                                hamiltonians::Dict{Vertex,T})
-  @assert length(vertexset) == length(hamiltonians) "The length of vertexset and hamiltonians should match"
+function localhamiltonian(vertexset::VertexSet,
+                          hamiltonians::Dict{Vertex,T} where T)
+  #TODO: assert whether for all vertices there is a key
+  @argument all([typeof(hamiltonians[k])<:SparseDenseMatrix for k=keys(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(hamiltonians[k])<:Number for k=keys(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
   result = spzeros(Complex128,vertexsetsize(vertexset),vertexsetsize(vertexset))
   for vertex=vertexset()
     result[vertex(),vertex()] = hamiltonians[vertex]
@@ -153,13 +158,17 @@ julia> QSWalk.incidencelist(A, epsilon=2.5)
 
 ```
 """
-function incidencelist{T<:Number}(A::SparseMatrixCSC{T}; epsilon::Real=eps())
+function incidencelist(A::SparseMatrixCSC{T} where T<:Number;
+                       epsilon::Real=eps())
   @argument epsilon >= 0 "epsilon needs to be nonnegative"
+  @argument size(A,1) == size(A,2) "A matrix must be square"
   [filter(x -> abs(A[x,i])>=epsilon, A[:,i].nzind) for i=1:size(A,1)]
 end
 
-function incidencelist{T<:Number}(A::Matrix{T}; epsilon::Real=eps())
+function incidencelist(A::Matrix{T} where T<:Number;
+                       epsilon::Real=eps())
   @argument epsilon >= 0 "epsilon needs to be nonnegative"
+  @argument size(A,1) == size(A,2) "A matrix must be square"
   [find(x -> abs(x)>=epsilon, A[:,i]) for i=1:size(A,1)]
 end
 
@@ -192,13 +201,17 @@ julia> QSWalk.reversedincidencelist(A, epsilon=2.5)
  [3]
 ```
 """
-function reversedincidencelist{T<:Number}(A::SparseMatrixCSC{T}; epsilon::Real=eps())
+function reversedincidencelist(A::SparseMatrixCSC{T} where T<:Number;
+                               epsilon::Real=eps())
   @argument epsilon >= 0 "epsilon needs to be nonnegative"
+  @argument size(A,1) == size(A,2) "A matrix must be square"
   [filter(x -> abs(A[i,x])>=epsilon, A[i,:].nzind) for i=1:size(A,1)]
 end
 
-function reversedincidencelist{T<:Number}(A::Matrix{T}; epsilon::Real=eps())
+function reversedincidencelist(A::Matrix{T} where T<:Number;
+                               epsilon::Real=eps())
   @argument epsilon >= 0 "epsilon needs to be nonnegative"
+  @argument size(A,1) == size(A,2) "A matrix must be square"
   [find(x -> abs(x)>=epsilon, A[i,:]) for i=1:size(A,1)]
 end
 
@@ -229,6 +242,7 @@ julia> QSWalk.makevertexset(vset)()
 ```
 """
 function makevertexset(revincidencelist::Vector{Vector{Int}})
+  #TODO: Zrobić testy typu @argument
   vertexset = Vector{Int}[]
   start = 1
   for i=revincidencelist
@@ -312,10 +326,11 @@ QSWalk.VertexSet(QSWalk.Vertex[QSWalk.Vertex([1]),QSWalk.Vertex([2,3]),QSWalk.Ve
 ```
 """
 
-function demoralizedlindbladian{T<:Number,S<:SparseDenseMatrix}(
-                                A::SparseDenseMatrix{T},
-                                lindbladians::Dict{Int,S};
+function demoralizedlindbladian(A::SparseDenseMatrix,
+                                lindbladians::Dict{Int,S} where S;
                                 epsilon::Real=eps())
+  @argument all([typeof(lindbladians[k])<:SparseDenseMatrix for k=keys(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(lindbladians[k])<:Number for k=keys(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"
   revincidencelist = reversedincidencelist(A, epsilon=epsilon)
   vset = makevertexset(revincidencelist)
 
@@ -327,8 +342,7 @@ function demoralizedlindbladian{T<:Number,S<:SparseDenseMatrix}(
   L, vset
 end
 
-function demoralizedlindbladian{T<:Number}(
-                                A::SparseDenseMatrix{T};
+function demoralizedlindbladian(A::SparseDenseMatrix;
                                 epsilon::Real=eps())
   vset = makevertexset(reversedincidencelist(A, epsilon=epsilon))
   degrees = [length(v) for v=vset()]
@@ -336,10 +350,11 @@ function demoralizedlindbladian{T<:Number}(
   demoralizedlindbladian(A, Dict( d=>fouriermatrix(d) for d=degrees), epsilon=epsilon)
 end
 
-function demoralizedlindbladian{T<:Number,S<:SparseDenseMatrix}(
-                                A::SparseDenseMatrix{T},
-                                lindbladians::Dict{Tuple{Vertex,Vertex},S};
+function demoralizedlindbladian(A::SparseDenseMatrix,
+                                lindbladians::Dict{Tuple{Vertex,Vertex},S} where S;
                                 epsilon::Real=eps())
+  @argument all([typeof(lindbladians[k])<:SparseDenseMatrix for k=keys(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(lindbladians[k])<:Number for k=keys(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"                            
   revincidencelist = reversedincidencelist(A, epsilon)
   vset = makevertexset(revincidencelist)
 

@@ -41,12 +41,25 @@ julia> classicallindbladoperators(A, epsilon=1.5)
 
 ```
 """
-function classicallindbladoperators{T<:Number}(A::SparseDenseMatrix{T}; epsilon::Real=eps())
+function classicallindbladoperators(A::Matrix{T} where T<:Number;
+                                    epsilon::Real=eps())
   @argument epsilon>=0 "epsilon should be nonegative"
   L = SparseMatrixCSC{eltype(A)}[]
   for i=1:size(A,1), j=1:size(A,2)
     if abs(A[i,j]) >= epsilon
-        push!(L, sparse(A[i,j]*ketbra(eltype(A),i,j,size(A,1))))
+        push!(L, A[i,j]*ketbra(eltype(A),i,j,size(A,1)))
+    end
+  end
+  L
+end
+
+function classicallindbladoperators(A::SparseMatrixCSC{T} where T<:Number;
+                                    epsilon::Real=eps())
+  @argument epsilon>=0 "epsilon should be nonegative"
+  L = SparseMatrixCSC{eltype(A)}[]
+  for i=1:size(A,1), j=A[i,:].nzind
+    if abs(A[i,j]) >= epsilon
+        push!(L, A[i,j]*ketbra(eltype(A),i,j,size(A,1)))
     end
   end
   L
@@ -66,6 +79,8 @@ parameters `α` and `β` the function computes
 their values are simply ignored, in the second they correspond to evolution used
 in [1].
 
+The function does not check whether `H` or `localH` are Hermitian operators.
+
 [1] Domino, K., Glos, A., & Ostaszewski, M. (2017). Spontaneous moralization
 problem in quantum stochastic walk. arXiv preprint arXiv:1701.04624.
 
@@ -84,20 +99,26 @@ The function return global operator used for evolution.
 julia>
 ```
 """
-function globaloperatorutil{T1<:Number,S<:SparseDenseMatrix,T3<:Number}(
-                                          H::SparseDenseMatrix{T1},
-                                          L::Vector{S},
-                                          localH::SparseDenseMatrix{T3},
-                                          α::Real,
-                                          β::Real)
-    F = spzeros(size(H,1)^2,size(H,1)^2)
-    id = speye(size(H,1),size(H,1))
-    for i = 1:length(L)
-        F += kron(L[i],conj(L[i]))-0.5*kron(L[i]'*L[i],id)-0.5*kron(id,transpose(L[i])*conj(L[i]))
-    end
-    F += im*(kron(id,conj(localH))-kron(localH,id))
-    F = α*im*(kron(id,conj(H))-kron(H,id)) + β*F
-    F
+function globaloperatorutil(H::SparseDenseMatrix,
+                            L::Vector{T} where T<:AbstractArray,
+                            localH::SparseDenseMatrix,
+                            α::Real,
+                            β::Real)
+  @argument size(H) != (0,0) "H must not be sizeless"
+  @assert all([size(lindbladian) == size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
+  @argument all([eltype(el)<:Number for el in L]) "Lindblad operators elements must be numbers"
+  @argument all([typeof(el)<:SparseDenseMatrix for el in L]) "Lindblad operators must be SparseMatrixCSC or Matrix"
+  @assert size(H) == size(localH) "localH must be of the same size as H"
+  @argument 0 <= α <= 1 && 0 <= β <= 1 "ω must be nonngeative and smaller than one"
+
+  F = spzeros(Complex128,(size(H).^2)...)
+  id = eye(H)
+  for i = 1:length(L)
+      F += kron(L[i],conj(L[i]))-0.5*kron(L[i]'*L[i],id)-0.5*kron(id,transpose(L[i])*conj(L[i]))
+  end
+  F += im*(kron(id,conj(localH))-kron(localH,id))
+  F = α*im*(kron(id,conj(H))-kron(H,id)) + β*F
+  F
 end
 
 """
@@ -146,42 +167,21 @@ julia> globaloperator(H, [L], localH, 1/2)
 
 ```
 """
-function globaloperator{T1<:Number,S<:SparseDenseMatrix,T3<:Number}(
-                                          H::SparseDenseMatrix{T1},
-                                          L::Vector{S},
-                                          localH::SparseDenseMatrix{T3},
-                                          ω::Real)
- @argument size(H) != (0,0) "H must not be sizeless"
- @argument ishermitian(H) "H must be hermitian"
- @assert all([size(lindbladian) == size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
- @argument ishermitian(localH) "`localH` must be hermitian"
- @assert size(H) == size(localH) "localH must be of the same size as H"
- @argument 0 <= ω <= 1 "ω must be nonngeative and smaller than one"
-
+function globaloperator(H::SparseDenseMatrix,
+                        L::Vector{T} where T<:AbstractArray,
+                        localH::SparseDenseMatrix,
+                        ω::Real)
  globaloperatorutil(H, L, localH, 1-ω, ω)
 end
 
-function globaloperator{T1<:Number,S<:SparseDenseMatrix, T3<:Number}(
-                            H::SparseDenseMatrix{T1},
-                            L::Vector{S},
-                            localH::SparseDenseMatrix{T3}=spzeros(eltype(H),size(H,1),size(H,1)))
- @argument size(H) != (0,0) "H must not be sizeless"
- @argument ishermitian(H) "H must be hermitian"
- @assert all([ size(lindbladian) == size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
- @argument ishermitian(localH) "`localH` must be hermitian"
- @assert size(H) == size(localH) "localH must be of the same size as H"
-
+function globaloperator(H::SparseDenseMatrix,
+                        L::Vector{T} where T<:AbstractArray,
+                        localH::SparseDenseMatrix=spzeros(eltype(H),size(H)...))
  globaloperatorutil(H, L, localH, 1., 1.)
 end
 
-function globaloperator{T1<:Number, S<:SparseDenseMatrix}(
-                                              H::SparseDenseMatrix{T1},
-                                              L::Vector{S},
-                                              ω::Real)
- @argument size(H) != (0,0) "H must not be sizeless"
- @argument ishermitian(H) "H must be hermitian"
- @assert all([ size(lindbladian) == size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
- @argument 0 <= ω <= 1 "ω must be nonngeative and smaller than one"
-
- globaloperatorutil(H, L, spzeros(eltype(H),size(H,1),size(H,1)), 1-ω , ω)
+function globaloperator(H::SparseDenseMatrix,
+                        L::Vector{T} where T<:AbstractArray,
+                        ω::Real)
+ globaloperatorutil(H, L, spzeros(eltype(H),size(H)...), 1-ω , ω)
 end

@@ -46,14 +46,14 @@ julia> distributionsummation(probability, VertexSet([[1,4],[2,3,5],[6],[7,8]]))
   0.666667
 ```
 """
-function distributionsummation{T<:Real}(probability::Vector{T},
-                                        vertexset::VertexSet)
-    [sum(probability[vertex()]) for vertex=vertexset()]
+function distributionsummation(probability::Vector{T} where T<:Number,
+                               vertexset::VertexSet)
+  [sum(probability[vertex()]) for vertex=vertexset()]
 end
 
-function distributionsummation{T<:Number}(state::SparseDenseMatrix{T},
-                                          vertexset::VertexSet)
-    distributionsummation(real.(diag(state)),vertexset)
+function distributionsummation(state::SparseDenseMatrix,
+                               vertexset::VertexSet)
+  distributionsummation(real.(diag(state)),vertexset)
 end
 
 """
@@ -121,8 +121,10 @@ function initialstate(initialvertices::Vector{Vertex}, vertexset::VertexSet)
   L
 end
 
-function initialstate{T<:SparseDenseMatrix}(initialstates::Dict{Vertex,T},
-                                            vertexset::VertexSet)
+function initialstate(initialstates::Dict{Vertex,T} where T,
+                      vertexset::VertexSet)
+  @argument all([typeof(initialstates[k])<:SparseDenseMatrix for k=keys(initialstates)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(initialstates[k])<:Number for k=keys(initialstates)]) "All elements of elements in `hamiltonians` must be Number"
   L = spzeros(Complex128, vertexsetsize(vertexset), vertexsetsize(vertexset))
   for vertex=keys(initialstates)
     L[vertex(),vertex()] = initialstates[vertex]

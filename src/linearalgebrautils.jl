@@ -3,8 +3,8 @@ export
   bra,
   ketbra,
   proj,
-  reshuffle,
-  unreshuffle
+  res,
+  unres
 
 """
     ket([type, ]index, size)
@@ -27,11 +27,11 @@ julia> ket(Float64,1,2)
  0.0
 ```
 """
-function ket{T<:Number}(::Type{T}, index::Int, size::Int)
+function ket(::Type{T}, index::Int, size::Int) where T<:Number
   @argument size > 0 "vector size must be positive"
   @assert 1 <= index <= size "index must be greater than 0 and lower than vector size"
 
-  ret = zeros(T, size)
+  ret = spzeros(T, size)
   ret[index] = 1
   ret
 end
@@ -56,7 +56,7 @@ julia> bra(1,2)
   1.0  0.0
 ```
 """
-function bra{T<:Number}(::Type{T}, index::Int, size::Int)
+function bra(::Type{T}, index::Int, size::Int) where T<:Number
   ket(T, index, size)'
 end
 
@@ -86,10 +86,10 @@ julia> ketbra(1,2,3)
   0.0  0.0  0.0
 ```
 """
-function ketbra{T<:Number}(::Type{T},
-                              indexrow::Int,
-                              indexcolumn::Int,
-                              size::Int)
+function ketbra(::Type{T},
+                indexrow::Int,
+                indexcolumn::Int,
+                size::Int) where T<:Number
   ket(T, indexrow, size)*bra(T, indexcolumn, size)
 end
 
@@ -134,19 +134,19 @@ julia> QSW.proj(v)
  0.5+0.0im  0.0+0.0im  0.5+0.0im
 ```
 """
-function proj{T<:Number}(::Type{T}, index::Int, size::Int)
+function proj(::Type{T}, index::Int, size::Int) where T<:Number
   ketbra(T, index, index, size)
 end
 
 proj(index::Int, size::Int) = proj(Complex128, index, size)
 
-function proj{T<:Number}(vector::SparseDenseVector{T})
+function proj(vector::SparseDenseVector)
   vector*vector'
 end
 
 """
 
-    reshuffle(matrix)
+    res(matrix)
 
 Return vectorization of the `matrix` in the row order. This is equivalent to
 `Base.vec(transpose(matrix)`.
@@ -160,7 +160,7 @@ julia> M = Matrix{Float64}(reshape(1:9, (3,3))')
  4.0  5.0  6.0
  7.0  8.0  9.0
 
-julia> reshuffle(M)
+julia> res(M)
 9-element Array{Float64,1}:
  1.0
  2.0
@@ -172,20 +172,20 @@ julia> reshuffle(M)
  8.0
  9.0
 
-julia> reshuffle(unreshuffle(v)) == v
+julia> res(unres(v)) == v
 true
 ```
 
 """
-function reshuffle{T<:Number}(matrix::SparseDenseMatrix{T})
-  Base.vec(transpose(matrix))
+function res(matrix::SparseDenseMatrix)
+  Base.vec(matrix.')
 end
 
 
 
 """
 
-    unreshuffle(vector)
+    unres(vector)
 
 Return square matrix elements from `vector`. The `vector`
 is expected to have perfect square number of arguments to form square matrix.
@@ -205,21 +205,21 @@ julia> v = Vector{Float64}(collect(1:9))
  8.0
  9.0
 
-julia> unreshuffle(v)
+julia> unres(v)
 3×3 Array{Float64,2}:
  1.0  2.0  3.0
  4.0  5.0  6.0
  7.0  8.0  9.0
 
-julia> reshuffle(unreshuffle(v)) == v
+julia> res(unres(v)) == v
 true
 ```
 
 """
 
-function unreshuffle{T<:Number}(vector::SparseDenseVector{T})
+function unres(vector::SparseDenseVector)
   dim = floor(Int64,sqrt(length(vector)))
   @argument dim*dim == length(vector) "Expected vector with perfect square number of elements."
 
-  transpose(reshape(vector, (dim,dim)))
+  reshape(vector, (dim,dim)).'
 end
