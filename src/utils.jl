@@ -50,11 +50,12 @@ checkVertexSet(vset::Vector{Vertex}) = checkVertexSet([vertex.linspace for verte
 """
     type VertexSet
 
-The type consists of list of `Vertex` which describes the partition of
-linear subspace, see [1]
+Type consisting of a list of `Vertex` objects. It describes the partition of
+linear subspace.
 
-[1] Domino, K., Glos, A., & Ostaszewski, M. (2017). Spontaneous moralization
-problem in quantum stochastic walk. arXiv preprint arXiv:1701.04624.
+[1] K. Domino, A. Glos, M. Ostaszewski, Superdiffusive quantum stochastic walk
+definable on arbitrary directed graph, Quantum Information & Computation,
+Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 """
 type VertexSet
   vertices::Vector{Vertex}
