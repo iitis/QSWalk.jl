@@ -6,7 +6,7 @@ QSWalk provides package for [Julia programming language](https://julialang.org/)
 
 ## Installation
 
-QSWalk requires Expokit package (), implementing some routines contained in [EXPOKIT](http://www.maths.uq.edu.au/expokit). This package can be installed as:
+QSWalk requires [Expokit package for Julia](https://github.com/acroy/Expokit.jl), implementing some routines contained in [EXPOKIT](http://www.maths.uq.edu.au/expokit). This package can be installed as:
 
 ```julia
 Pkg.clone("git://github.com/acroy/Expokit.jl.git")
