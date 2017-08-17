@@ -1,6 +1,6 @@
 export
   classicallindbladoperators,
-  globaloperator
+  global_operator
 
 """
     classicallindbladoperators(A[; epsilon])
@@ -67,7 +67,7 @@ end
 
 """
 
-    globaloperatorutil(H, L, localH, α, β)
+    global_operator_util(H, L, localH, α, β)
 
 Util function creating global operator for evolution. Given Hamiltonian `H`,
 collection of Lindblad operator `L`, local Hamiltonian `localH` and scaling
@@ -99,7 +99,7 @@ The function return global operator used for evolution.
 julia>
 ```
 """
-function globaloperatorutil(H::SparseDenseMatrix,
+function global_operator_util(H::SparseDenseMatrix,
                             L::Vector{T} where T<:AbstractArray,
                             localH::SparseDenseMatrix,
                             α::Real,
@@ -122,7 +122,7 @@ function globaloperatorutil(H::SparseDenseMatrix,
 end
 
 """
-    globaloperator(H, L[, localH][, ω])
+    global_operator(H, L[, localH][, ω])
 
 The function creates global operator for evolution. Given Hamiltonian `H`,
 collection of Lindblad operator `L`, local Hamiltonian `localH` and scaling
@@ -158,7 +158,7 @@ Complex{Int64}[0+0im 1+1im; 1-1im 0+0im],
 
 [1.0 0.0; 0.0 1.0])
 
-julia> globaloperator(H, [L], localH, 1/2)
+julia> global_operator(H, [L], localH, 1/2)
 4×4 Array{Complex{Float64},2}:
   0.0+0.0im    0.5+0.5im    0.5-0.5im   0.5+0.0im
  -0.5+0.5im  -0.25+0.0im    0.0+0.0im   0.5-0.5im
@@ -167,21 +167,21 @@ julia> globaloperator(H, [L], localH, 1/2)
 
 ```
 """
-function globaloperator(H::SparseDenseMatrix,
+function global_operator(H::SparseDenseMatrix,
                         L::Vector{T} where T<:AbstractArray,
                         localH::SparseDenseMatrix,
                         ω::Real)
- globaloperatorutil(H, L, localH, 1-ω, ω)
+ global_operatorutil(H, L, localH, 1-ω, ω)
 end
 
-function globaloperator(H::SparseDenseMatrix,
+function global_operator(H::SparseDenseMatrix,
                         L::Vector{T} where T<:AbstractArray,
                         localH::SparseDenseMatrix=spzeros(eltype(H),size(H)...))
- globaloperatorutil(H, L, localH, 1., 1.)
+ global_operator_util(H, L, localH, 1., 1.)
 end
 
-function globaloperator(H::SparseDenseMatrix,
+function global_operator(H::SparseDenseMatrix,
                         L::Vector{T} where T<:AbstractArray,
                         ω::Real)
- globaloperatorutil(H, L, spzeros(eltype(H),size(H)...), 1-ω , ω)
+ global_operatorutil(H, L, spzeros(eltype(H),size(H)...), 1-ω , ω)
 end
