@@ -17,3 +17,9 @@ QSWalk can be installed directly form GitHub repository.
 ```julia
 Pkg.clone("git://github.com/ZKSI/QSWalk.jl.git")
 ```
+
+Package can be updated using ```Pkg.update``` function.
+
+```julia
+Pkg.update("QSWalk")
+```
