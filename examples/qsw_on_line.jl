@@ -11,8 +11,8 @@ adjmtx = spdiagm((ones(dim-1),ones(dim-1)),(-1,1))
 
 # Case 1: classical Lindbladian
 ham = adjmtx
-lin = classicallindbladoperators(adjmtx)
-evo = globaloperator(ham, lin)
+lin = classical_lindblad_operators(adjmtx)
+evo = global_operator(ham, lin)
 init = proj(s0, dim)
 time_step = 1.0
 time_points = collect(0:10)*time_step

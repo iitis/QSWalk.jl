@@ -1,14 +1,14 @@
 export
-  classicallindbladoperators,
+  classical_lindblad_operators,
   global_operator
 
 """
-    classicallindbladoperators(A[; epsilon])
+    classical_lindblad_operators(A[; epsilon])
 
-The function splits the elements of the matrix `A` into collection of single-nonzero
-element sparse matrices. Martices are added if the absolute value of the nonzero element
-is not smaller than `epsilon`, hence `epsilon` should be nonnegative. The `epsilon`
-defaults to `eps()` if not specified.
+The function splits the elements of the matrix `A` into collection of
+single-nonzero element sparse matrices. Martices are added if the absolute value
+of the nonzero element is not smaller than `epsilon`, hence `epsilon` should be
+nonnegative. The `epsilon` defaults to `eps()` if not specified.
 
 # Examples
 
@@ -18,7 +18,7 @@ julia> A = [1. 2.; 3. 4.]
  1.0  2.0
  3.0  4.0
 
-julia> classicallindbladoperators(A)
+julia> classical_lindblad_operators(A)
 4-element Array{SparseMatrixCSC{Float64,Ti<:Integer},1}:
 
 	[1, 1]  =  1.0
@@ -29,7 +29,7 @@ julia> classicallindbladoperators(A)
 
 	[2, 2]  =  4.0
 
-julia> classicallindbladoperators(A, epsilon=1.5)
+julia> classical_lindblad_operators(A, epsilon=1.5)
 3-element Array{SparseMatrixCSC{Float64,Ti<:Integer},1}:
 
 	[1, 2]  =  2.0
@@ -37,11 +37,9 @@ julia> classicallindbladoperators(A, epsilon=1.5)
 	[2, 1]  =  3.0
 
 	[2, 2]  =  4.0
-
-
 ```
 """
-function classicallindbladoperators(A::Matrix{T} where T<:Number;
+function classical_lindblad_operators(A::Matrix{T} where T<:Number;
                                     epsilon::Real=eps())
   @argument epsilon>=0 "epsilon should be nonegative"
   L = SparseMatrixCSC{eltype(A)}[]
@@ -53,7 +51,7 @@ function classicallindbladoperators(A::Matrix{T} where T<:Number;
   L
 end
 
-function classicallindbladoperators(A::SparseMatrixCSC{T} where T<:Number;
+function classical_lindblad_operators(A::SparseMatrixCSC{T} where T<:Number;
                                     epsilon::Real=eps())
   @argument epsilon>=0 "epsilon should be nonegative"
   L = SparseMatrixCSC{eltype(A)}[]
@@ -135,10 +133,11 @@ The `localH` defaults to sparse zero matrix of the size `H` if not specified. If
 
 ``-i (H ⊗ 1 - 1 ⊗ H) + (-i(localH ⊗ 1-1 ⊗ localH)+∑ (L ⊗ L̄ - 1/2(L\^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
 
-The formulas comes from [1].
+The formulas were given in [1].
 
-[1] Domino, K., Glos, A., & Ostaszewski, M. (2017). Spontaneous moralization
-problem in quantum stochastic walk. arXiv preprint arXiv:1701.04624.
+[1] K. Domino, A. Glos, M. Ostaszewski, Superdiffusive quantum stochastic walk
+definable on arbitrary directed graph, Quantum Information & Computation,
+Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 
 # Arguments
 - `H`: Hamiltonian, must be hermitian,
