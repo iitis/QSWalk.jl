@@ -10,8 +10,8 @@ export
     ket([type, ]index, size)
 
 Return `index`-th base (column) vector in the `size`-dimensional vector space.
-To be consistent with Julia indexing, `index`=1,2,...,`size`. The `type` defaults
-to `Complex128` if not specified.
+To be consistent with Julia indexing, `index`=1,2,...,`size`. The `type`
+defaults to `Complex128` if not specified.
 
 # Examples
 
@@ -65,10 +65,10 @@ bra(index::Int, size::Int) = ket(index, size)'
 """
     ketbra([type,] indexrow, indexcolumn, size)
 
-Return matrix acting on `size`-dimensional vector space,
-`indexrow`,`indexcolumn`=1,2,...,`size`. The matrix consists of single nonzero
-element equal to one at position (`indexrow`,`indexcolumn`). The `type` defaults to `Complex128` if not
-specified.
+Return matrix acting on `size`-dimensional vector space, `indexrow`,
+`indexcolumn` = 1,2,...,`size`. The matrix consists of single nonzero element
+equal to one at position (`indexrow`,`indexcolumn`). The `type` defaults to
+`Complex128` if not specified.
 
 # Examples
 
@@ -101,9 +101,8 @@ end
     proj([type,] index, size)
 
 Return projector onto `index`-th base vector in `size`-dimensional vector space,
-with `index`=1,2,...,`size`. The `type` defaults to `Complex128` if not
-specified.
-
+with `index` = 1,2,...,`size`. This is equivalent to ketbra(type, index, index,
+size) The `type` defaults to `Complex128` if not specified.
 
     proj(vector)
 
@@ -181,14 +180,12 @@ function res(matrix::SparseDenseMatrix)
   Base.vec(matrix.')
 end
 
-
-
 """
 
     unres(vector)
 
-Return square matrix elements from `vector`. The `vector`
-is expected to have perfect square number of arguments to form square matrix.
+Return square matrix elements from `vector`. The `vector` is expected to have
+perfect square number of arguments to form square matrix.
 
 # Examples
 ```jldoctest
