@@ -56,7 +56,7 @@ time_point = 1.
 ##
 
 # ------------------------------------------------------------------------------
-# Case 2: stochastic case with demoralization procedure
+# Case 3: stochastic case with demoralization procedure
 # ------------------------------------------------------------------------------
 
 lin, vset = demoralized_lindbladian(adjmtx)
@@ -67,4 +67,10 @@ omg = 0.5
 evo = global_operator(ham, [lin], ham_local, omg)
 init = initialstate([vset[s0]], vset)
 
-timepoint = 1.
+time_point = 1.
+##
+result = evolve(evo, init, time_point)
+distribution = distributionsummation(result, vset)
+plot(distribution)
+
+##
