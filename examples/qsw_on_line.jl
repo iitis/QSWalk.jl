@@ -1,3 +1,6 @@
+# ------------------------------------------------------------------------------
+# Initialisation
+# ------------------------------------------------------------------------------
 using QSWalk
 
 # Dimension of the system
@@ -8,8 +11,11 @@ s0 = Int((dim+1)/2)
 
 # Adjency matrix for the line
 adjmtx = spdiagm((ones(dim-1),ones(dim-1)),(-1,1))
+##
 
+# ------------------------------------------------------------------------------
 # Case 1: classical Lindbladian
+# ------------------------------------------------------------------------------
 ham = adjmtx
 lin = classical_lindblad_operators(adjmtx)
 evo = global_operator(ham, lin)
@@ -27,3 +33,27 @@ time_points = collect(0:10)*time_step
 #@time evolve(full(evo), init, time_step)
 
 evolve_operator(full(evo), time_step)
+##
+
+# ------------------------------------------------------------------------------
+# Case 2: stochastic case with moralization
+# ------------------------------------------------------------------------------
+
+ham = adjmtx
+lin = [adjmtx]
+omg = 0.5
+evo = global_operator(ham, lin, omg)
+init = proj(s0, n)
+time_point = 1.
+##
+
+@time evolve(evo, init, time_point)
+
+@time evolve(full(evo), init, time_point)
+
+
+##
+
+# ------------------------------------------------------------------------------
+# Case 2: stochastic case with demoralization procedure
+# ------------------------------------------------------------------------------
