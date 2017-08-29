@@ -79,8 +79,9 @@ in [1].
 
 The function does not check whether `H` or `localH` are Hermitian operators.
 
-[1] Domino, K., Glos, A., & Ostaszewski, M. (2017). Spontaneous moralization
-problem in quantum stochastic walk. arXiv preprint arXiv:1701.04624.
+[1] K. Domino, A. Glos, M. Ostaszewski, Superdiffusive quantum stochastic walk
+definable on arbitrary directed graph, Quantum Information & Computation,
+Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 
 # Arguments
 - `H`: Hamiltonian, must be hermitian,
