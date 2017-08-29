@@ -170,7 +170,7 @@ function global_operator(H::SparseDenseMatrix,
                         L::Vector{T} where T<:AbstractArray,
                         localH::SparseDenseMatrix,
                         ω::Real)
- global_operatorutil(H, L, localH, 1-ω, ω)
+ global_operator_util(H, L, localH, 1-ω, ω)
 end
 
 function global_operator(H::SparseDenseMatrix,
@@ -182,5 +182,5 @@ end
 function global_operator(H::SparseDenseMatrix,
                         L::Vector{T} where T<:AbstractArray,
                         ω::Real)
- global_operatorutil(H, L, spzeros(eltype(H),size(H)...), 1-ω , ω)
+ global_operator_util(H, L, spzeros(eltype(H),size(H)...), 1-ω , ω)
 end
