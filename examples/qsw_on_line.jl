@@ -32,7 +32,7 @@ time_points = collect(0:10)*time_step
 #@time evolve(full(evo), full(init), time_step)
 #@time evolve(full(evo), init, time_step)
 
-evolve_operator(full(evo), time_step)
+#evolve_operator(full(evo), time_step)
 ##
 
 # ------------------------------------------------------------------------------
@@ -42,8 +42,10 @@ evolve_operator(full(evo), time_step)
 ham = adjmtx
 lin = [adjmtx]
 omg = 0.5
+
 evo = global_operator(ham, lin, omg)
-init = proj(s0, n)
+
+init = proj(s0, dim)
 time_point = 1.
 ##
 
@@ -51,9 +53,18 @@ time_point = 1.
 
 @time evolve(full(evo), init, time_point)
 
-
 ##
 
 # ------------------------------------------------------------------------------
 # Case 2: stochastic case with demoralization procedure
 # ------------------------------------------------------------------------------
+
+lin, vset = demoralized_lindbladian(adjmtx)
+ham = (x-> if x!=0 1 else 0 end).(lin) # makes 0-1 matrix
+ham_local = local_hamiltonian(vset)
+
+omg = 0.5
+evo = global_operator(ham, [lin], ham_local, omg)
+init = initialstate([vset[s0]], vset)
+
+timepoint = 1.
