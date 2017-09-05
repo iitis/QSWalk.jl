@@ -10,6 +10,7 @@ notifications:
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia -e 'Pkg.clone("git://github.com/acroy/Expokit.jl.git")'
+  - julia -e 'Pkg.add("FactCheck")'
   - julia -e 'Pkg.clone("https://github.com/ZKSI/QSWalk.jl.git")'
   - julia -e 'Pkg.build("QSWalk")'
   - julia -e 'Pkg.test("QSWalk"; coverage=true)'
