@@ -1,3 +1,5 @@
+![Build Status](https://travis-ci.org/ZKSI/QSWalk.jl.svg?branch=master)](https://travis-ci.org/ZKSI/QSWalk.jl)
+
 # QSWalk
 
 ## Package description
