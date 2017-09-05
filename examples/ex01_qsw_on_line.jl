@@ -66,12 +66,12 @@ ham_local = local_hamiltonian(vset)
 
 omg = 0.5
 evo = global_operator(ham, [lin], ham_local, omg)
-init = initialstate([vset[s0]], vset)
+init = init_nonmoralized([vset[s0]], vset)
 
 time_point = 1.
 ##
 result = evolve(evo, init, time_point)
-distribution = distributionsummation(result, vset)
+distribution = measurement_nonmoralized(result, vset)
 plot(distribution)
 
 ##
