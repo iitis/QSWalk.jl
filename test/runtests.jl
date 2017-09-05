@@ -255,3 +255,6 @@ facts("evolution") do
     @fact evolve(sparse(rand(16,16)), A, 0.) --> roughly(A)
   end
 end
+
+
+FactCheck.exitstatus()
