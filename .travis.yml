@@ -9,8 +9,8 @@ notifications:
   email: false
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e --depwarn=no 'Pkg.clone("git://github.com/acroy/Expokit.jl.git")'
-  - julia -e --depwarn=no 'Pkg.add("FactCheck")'
+  - julia --depwarn=no -e 'Pkg.clone("git://github.com/acroy/Expokit.jl.git")'
+  - julia --depwarn=no -e 'Pkg.add("FactCheck")'
   - julia -e 'Pkg.clone("https://github.com/ZKSI/QSWalk.jl.git"); Pkg.build("QSWalk"); Pkg.test("QSWalk"; coverage=true)'
 after_success:
-- julia -e --depwarn=no --'cd(Pkg.dir("QSWalk")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
+- julia --depwarn=no -e 'cd(Pkg.dir("QSWalk")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
