@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/ZKSI/QSWalk.jl.svg?branch=master)](https://travis-ci.org/ZKSI/QSWalk.jl)
+[![Coverage Status](https://coveralls.io/repos/github/ZKSI/QSWalk.jl/badge.svg?branch=master)](https://coveralls.io/github/ZKSI/QSWalk.jl?branch=master)
 
 # QSWalk
 
