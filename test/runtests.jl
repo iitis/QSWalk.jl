@@ -81,7 +81,7 @@ facts("Basic linear util functions") do
 end
 
 facts("Global operator preparation") do
-  context("globaloperator") do
+  context("global_operator") do
     #no locH case
     H = [1. 1.+im 3.; 1.-im 1. im; 3. -im 1.]
     L1 = sparse([1.+0im 2. 3.; 4. 5. 6.; 6. 7. -6.])
@@ -95,21 +95,21 @@ facts("Global operator preparation") do
                              10.5-3.0im   12.0+0.0im   18.0+0.0im    9.0+0.0im   14.0+0.0im    21.0+0.0im  -73.5+0.0im   -43.0+1.0im  -13.5+3.0im;
                              24.0+0.0im   34.5-3.0im   36.0+0.0im   28.0+0.0im   37.0+0.0im    42.0+0.0im  -57.0+1.0im  -110.0+0.0im  -32.0+0.0im;
                              36.0+0.0im   42.0+0.0im  -31.5-3.0im   42.0+0.0im   49.0+0.0im   -40.0+0.0im  -31.5+3.0im   -40.0+0.0im  -46.0+0.0im])
-    @fact globaloperator(H,[L1,L2]) --> resultnoomega
-    @fact globaloperator(H,[L1,L2],1/2) --> resultnoomega/2
+    @fact global_operator(H,[L1,L2]) --> resultnoomega
+    @fact global_operator(H,[L1,L2],1/2) --> resultnoomega/2
     #type test
-    @fact typeof(globaloperator(zeros(2,2),[zeros(2,2),spzeros(2,2)])) <:Matrix --> true
-    @fact typeof(globaloperator(zeros(2,2),[zeros(2,2),spzeros(Complex128,2,2)])) <:Matrix{Complex128} --> true
+    @fact typeof(global_operator(zeros(2,2),[zeros(2,2),spzeros(2,2)])) <:Matrix --> true
+    @fact typeof(global_operator(zeros(2,2),[zeros(2,2),spzeros(Complex128,2,2)])) <:Matrix{Complex128} --> true
 
     #typeerrortest
-    @fact_throws MethodError globaloperator(H,[L1,L2],1im)
-    @fact_throws ArgumentError globaloperator(H,[L1,L2],-1)
-    @fact_throws ArgumentError globaloperator(H,[L1,L2],3)
+    @fact_throws MethodError global_operator(H,[L1,L2],1im)
+    @fact_throws ArgumentError global_operator(H,[L1,L2],-1)
+    @fact_throws ArgumentError global_operator(H,[L1,L2],3)
   end
 end
 
 facts("User utils") do
-  context("classicallindbladoperators") do
+  context("classical_lindblad_operators") do
     H = [1. 1.+im ; 1.-im im]
     result = [sparse([1.+0im 0 ; 0 0 ]),
               sparse([0.+0im 1.+im ; 0 0 ]),
@@ -117,16 +117,16 @@ facts("User utils") do
               sparse([0.+0im 0 ; 0 im ])]
     resultwithepsilon = [sparse([0.+0im 1.+im ; 0 0 ]),
               sparse([0.+0im 0 ; 1.-im 0 ])]
-    @fact classicallindbladoperators(H) --> result
-    @fact classicallindbladoperators(sparse(H)) --> result
-    @fact classicallindbladoperators(H, epsilon=1.1) --> resultwithepsilon
-    @fact classicallindbladoperators(sparse(H), epsilon=1.1) --> resultwithepsilon
+    @fact classical_lindblad_operators(H) --> result
+    @fact classical_lindblad_operators(sparse(H)) --> result
+    @fact classical_lindblad_operators(H, epsilon=1.1) --> resultwithepsilon
+    @fact classical_lindblad_operators(sparse(H), epsilon=1.1) --> resultwithepsilon
     #type test
-    @fact typeof(classicallindbladoperators(H)) --> Vector{SparseMatrixCSC{Complex128}}
-    @fact typeof(classicallindbladoperators(sparse(H))) --> Vector{SparseMatrixCSC{Complex128}}
+    @fact typeof(classical_lindblad_operators(H)) --> Vector{SparseMatrixCSC{Complex128}}
+    @fact typeof(classical_lindblad_operators(sparse(H))) --> Vector{SparseMatrixCSC{Complex128}}
     #error test
-    @fact_throws ArgumentError classicallindbladoperators(H, epsilon=-1.)
-    @fact_throws TypeError classicallindbladoperators(H, epsilon=-1im)
+    @fact_throws ArgumentError classical_lindblad_operators(H, epsilon=-1.)
+    @fact_throws TypeError classical_lindblad_operators(H, epsilon=-1im)
   end
 end
 
@@ -140,23 +140,23 @@ facts("Demoralization user utils") do
 
   end
 
-  context("defaultlocalhamiltonian") do
-    @fact QSWalk.defaultlocalhamiltonian(1) --> spzeros(Complex128,1,1)
-    @fact QSWalk.defaultlocalhamiltonian(3) --> sparse([0. im 0.; -im 0 im; 0 -im 0])
+  context("default_local_hamiltonian") do
+    @fact QSWalk.default_local_hamiltonian(1) --> spzeros(Complex128,1,1)
+    @fact QSWalk.default_local_hamiltonian(3) --> sparse([0. im 0.; -im 0 im; 0 -im 0])
   end
 
-  context("localhamiltonian") do
+  context("local_hamiltonian") do
     #default option
-    @fact localhamiltonian(VertexSet([[1],[2,3]])) --> sparse([0.+0im 0 0;0 0 im;0 -im 0])
-    @fact localhamiltonian(VertexSet([[1],[2],[3]])) --> spzeros(Complex128,3,3)
+    @fact local_hamiltonian(VertexSet([[1],[2,3]])) --> sparse([0.+0im 0 0;0 0 im;0 -im 0])
+    @fact local_hamiltonian(VertexSet([[1],[2],[3]])) --> spzeros(Complex128,3,3)
     #by size version
-    @fact localhamiltonian(VertexSet([[1,2],[3,4]]), Dict(2=>[0 1; 1 0])) --> sparse([0. 1 0 0; 1 0 0 0; 0 0 0 1; 0 0 1 0])
-    @fact localhamiltonian(VertexSet([[1],[2],[3]]), Dict(1=>ones(Float64,(1,1)))) --> speye(Complex128,3)
+    @fact local_hamiltonian(VertexSet([[1,2],[3,4]]), Dict(2=>[0 1; 1 0])) --> sparse([0. 1 0 0; 1 0 0 0; 0 0 0 1; 0 0 1 0])
+    @fact local_hamiltonian(VertexSet([[1],[2],[3]]), Dict(1=>ones(Float64,(1,1)))) --> speye(Complex128,3)
     #by index version
     M1 = [1. 2;3 5]
     M2 = zeros(1,1)+1.
     dict = Dict(Vertex([1,3])=>M1, Vertex([2])=>M2)
-    @fact localhamiltonian(VertexSet([[1,3],[2]]), dict) -->
+    @fact local_hamiltonian(VertexSet([[1,3],[2]]), dict) -->
             sparse([ 1.0+0im 0 2; 0 1 0; 3 0 5 ])
   end
 
@@ -180,44 +180,44 @@ facts("Demoralization user utils") do
     @fact QSWalk.fouriermatrix(1) --> roughly(ones(Float64,(1,1)))
   end
 
-  context("demoralizedlindbladian") do
+  context("demoralized_lindbladian") do
     A = sparse([0.+0.0im 1 0; 1 0 1; 0 1 0])
     #default
     #needs to be roughly, since exp computing is inexact
-    @fact demoralizedlindbladian(A)[1] --> roughly([0 1 1 0; 1 0 0 1; 1 0 0 -1; 0 1 1 0])
-    @fact demoralizedlindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
+    @fact demoralized_lindbladian(A)[1] --> roughly([0 1 1 0; 1 0 0 1; 1 0 0 -1; 0 1 1 0])
+    @fact demoralized_lindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
     A = sparse([0.+0.0im 0 0 0 1;
                 0 0 1 0 1;
                 0 0 0 0 0;
                 0 1 1 0 0;
                 0 0 0 0 0])
-    @fact demoralizedlindbladian(A)[1] --> roughly([0 0 0 0 0 0 1; 0 0 0 1 0 0 1; 0 0 0 1 0 0 -1; 0 0 0 0 0 0 0; 0 1 1 1 0 0 0; 0 1 1 -1 0 0 0; 0 0 0 0 0 0 0])
-    @fact demoralizedlindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
+    @fact demoralized_lindbladian(A)[1] --> roughly([0 0 0 0 0 0 1; 0 0 0 1 0 0 1; 0 0 0 1 0 0 -1; 0 0 0 0 0 0 0; 0 1 1 1 0 0 0; 0 1 1 -1 0 0 0; 0 0 0 0 0 0 0])
+    @fact demoralized_lindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
 
     A = [0 0 0; 0 0 0; 1 1 0]
-    @fact demoralizedlindbladian(A)[1] --> roughly([0 0 0 0; 0 0 0 0; 1 1 0 0; 1 -1 0 0])
-    @fact demoralizedlindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
+    @fact demoralized_lindbladian(A)[1] --> roughly([0 0 0 0; 0 0 0 0; 1 1 0 0; 1 -1 0 0])
+    @fact demoralized_lindbladian(A)[2] --> QSWalk.makevertexset(QSWalk.reversedincidencelist(A))
 
 
   end
 end
 
 facts("evolution") do
-  context("distributionsummation") do
+  context("measurement_nonmoralized") do
     probability = [0.05,0.1,0.25,0.3,0.01,0.20,0.04,0.05]
     partition = VertexSet([[1,4],[2,3,5],[6],[7,8]])
     result = [0.35,0.36,0.2,0.09]
-    @fact distributionsummation(probability,partition) --> result
+    @fact measurement_nonmoralized(probability,partition) --> result
   end
 
   context("Initial states") do
     vset = VertexSet([[1],[2,3,4],[5,6,7],[8,9]])
-    @fact initialstate(vset[[1,3,4]],vset) --> roughly(spdiagm([1./3,0,0,0,1./9,1./9,1./9,1./6,1./6]))
+    @fact init_nonmoralized(vset[[1,3,4]],vset) --> roughly(spdiagm([1./3,0,0,0,1./9,1./9,1./9,1./6,1./6]))
     A1 = ones(Complex128,1,1)/4
     A2 = [ 1/5+0im 0 1/5; 0 1/10 0 ; 1/5 0 1/5 ]
     A3 = [0.125 -0.125+0im; -0.125 0.125]
     dict = Dict(vset[1]=>A1, vset[3]=>A2, vset[4]=>A3 )
-    @fact initialstate(dict, vset) -->
+    @fact init_nonmoralized(dict, vset) -->
           sparse([ 0.25+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
                   0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
                   0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
@@ -230,10 +230,10 @@ facts("evolution") do
   end
 
   context("Exponent function") do
-    @fact evolveoperator(zeros(4,4), 1.) --> roughly(eye(4))
+    @fact evolve_operator(zeros(4,4), 1.) --> roughly(eye(4))
 
     # tyoe check
-    @fact_throws MethodError evolveoperator(spzeros(4,4), 1.)
+    @fact_throws MethodError evolve_operator_fake_error(spzeros(4,4), 1.)
   end
 
 
