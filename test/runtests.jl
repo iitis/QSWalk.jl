@@ -147,7 +147,7 @@ facts("Demoralization user utils") do
 
   context("local_hamiltonian") do
     #default option
-    @fact local_hamiltonian_fake(VertexSet([[1],[2,3]])) --> sparse([0.+0im 0 0;0 0 im;0 -im 0])
+    @fact local_hamiltonian(VertexSet([[1],[2,3]])) --> sparse([0.+0im 0 0;0 0 im;0 -im 0])
     @fact local_hamiltonian(VertexSet([[1],[2],[3]])) --> spzeros(Complex128,3,3)
     #by size version
     @fact local_hamiltonian(VertexSet([[1,2],[3,4]]), Dict(2=>[0 1; 1 0])) --> sparse([0. 1 0 0; 1 0 0 0; 0 0 0 1; 0 0 1 0])
