@@ -176,8 +176,8 @@ facts("Demoralization user utils") do
   end
 
   context("Fourier matrix") do
-    @fact QSWalk.fouriermatrix(2) --> roughly([1 1; 1 -1.])
-    @fact QSWalk.fouriermatrix(1) --> roughly(ones(Float64,(1,1)))
+    @fact QSWalk.fourier_matrix(2) --> roughly([1 1; 1 -1.])
+    @fact QSWalk.fourier_matrix(1) --> roughly(ones(Float64,(1,1)))
   end
 
   context("demoralized_lindbladian") do
@@ -233,7 +233,7 @@ facts("evolution") do
     @fact evolve_operator(zeros(4,4), 1.) --> roughly(eye(4))
 
     # tyoe check
-    @fact_throws MethodError evolve_operator_fake_error(spzeros(4,4), 1.)
+    @fact_throws MethodError evolve_operator(spzeros(4,4), 1.)
   end
 
 
