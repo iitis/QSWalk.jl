@@ -17,6 +17,9 @@ Type consisting of list of `Int`, describing the labels of vectors from the
 cannonical basis which correspond to the `Vertex`. See [1] for the more
 information and usage exmaples.
 
+To get the vector label one can use `Vertex()` function, or `Vertex[i]` for
+unique label.
+
 [1] K. Domino, A. Glos, M. Ostaszewski, Superdiffusive quantum stochastic walk
 definable on arbitrary directed graph, Quantum Information & Computation,
 Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
@@ -52,7 +55,10 @@ checkVertexSet(vset::Vector{Vertex}) = checkVertexSet([vertex.linspace for verte
     type VertexSet
 
 Type consisting of a list of `Vertex` objects. It describes the partition of the
-linear subspace.
+linear subspace. Should be constructed by `make_vertex_set` or by `demoralized_lindbladian`
+functions. In order to get list of the vertices of the object `vertexset`, one
+should use the function `vertexset()`, of for concrete `Vertex` an getindex function
+`vertexset[i]`.
 
 [1] K. Domino, A. Glos, M. Ostaszewski, Superdiffusive quantum stochastic walk
 definable on arbitrary directed graph, Quantum Information & Computation,
