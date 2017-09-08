@@ -119,7 +119,8 @@ julia> init_nonmoralized(Dict(vset[1]=>A1, vset[3]=>A2, vset[4]=>A3), vset)
 	[9, 9]  =  0.125+0.0im
 ```
 """
-function init_nonmoralized(initialvertices::Vector{Vertex}, vertexset::VertexSet)
+function init_nonmoralized(initialvertices::Vector{Vertex},
+                           vertexset::VertexSet)
   @assert all([v in vertexset() for v=initialvertices]) "initialvertices is not a subset of vertexset"
 
   L = spzeros(Complex128, vertexsetsize(vertexset),vertexsetsize(vertexset))
@@ -135,6 +136,7 @@ function init_nonmoralized(initialstates::Dict{Vertex,T} where T,
   @argument all([typeof(initialstates[k])<:SparseDenseMatrix for k=keys(initialstates)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argument all([eltype(initialstates[k])<:Number for k=keys(initialstates)]) "All elements of elements in `hamiltonians` must be Number"
   @assert all([size(initialstates[k], 1) == length(k) for k=keys(initialstates)]) "The size of initial state and the vertex do not match"
+  @assert all([k in vertexset() for k=keys(initialstates)]) "keys of initialstates is not a subset of vertexset"
 
   L = spzeros(Complex128, vertexsetsize(vertexset), vertexsetsize(vertexset))
   for vertex=keys(initialstates)

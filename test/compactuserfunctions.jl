@@ -3,6 +3,13 @@ facts("Cannonical measurement") do
   vset = VertexSet([[1,4],[2,3,5],[6],[7,8]])
   result = [0.35,0.36,0.2,0.09]
   @fact measurement_nonmoralized(probability, vset) --> result
+
+  state = [1/6 1.0 1/6; 1. 2/3 1im; 1/6 -1im 1/6]
+  vset = VertexSet([[1,3],[2]])
+  @fact measurement_nonmoralized(state, vset) --> roughly([1./3,2./3])
+  @fact_throws AssertionError measurement_nonmoralized(eye(2)/2., vset)
+  @fact_throws AssertionError measurement_nonmoralized([1./2,1./3,1./6, 0.], vset)
+
 end
 
 facts("Initial states creation") do
@@ -22,4 +29,8 @@ facts("Initial states creation") do
                 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.2+0.0im  0.0+0.0im  0.2+0.0im     0.0+0.0im     0.0+0.0im
                 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im   0.125+0.0im  -0.125+0.0im
                 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  -0.125+0.0im   0.125+0.0im])
+
+  dictwrong = Dict(vset[1]=>A2, vset[3]=>A2, vset[4]=>A3 )
+  @fact_throws AssertionError init_nonmoralized(VertexSet([[1,2,3],[4,5]])(), vset)
+  @fact_throws AssertionError init_nonmoralized(dictwrong, vset)
 end

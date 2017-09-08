@@ -31,12 +31,18 @@ facts("Demoralization user utils") do
   context("Incidence and reverse incidence lists") do
     A = [1 2 3; 0 3. 4.; 0 0 5.]
     @fact QSWalk.incidence_list(A) --> [[1], [1,2], [1,2,3]]
+    @fact QSWalk.incidence_list(sparse(A)) --> QSWalk.incidence_list(A)
     @fact QSWalk.incidence_list(A; epsilon=2.5) --> [Int64[], [2], [1,2,3]]
+    @fact QSWalk.incidence_list(sparse(A)) --> QSWalk.incidence_list(A)
     @fact QSWalk.reversed_incidence_list(A) --> [[1,2,3], [2,3], [3]]
+    @fact QSWalk.reversed_incidence_list(sparse(A)) --> QSWalk.reversed_incidence_list(A)
     @fact QSWalk.reversed_incidence_list(A; epsilon=2.5) --> [[3], [2,3], [3]]
+    @fact QSWalk.reversed_incidence_list(sparse(A); epsilon=2.5) --> QSWalk.reversed_incidence_list(A; epsilon=2.5)
     #errors
     @fact_throws ArgumentError QSWalk.reversed_incidence_list(A, epsilon=-1)
     @fact_throws ArgumentError QSWalk.incidence_list(A, epsilon=-1)
+    @fact_throws ArgumentError QSWalk.reversed_incidence_list(sparse(A), epsilon=-1)
+    @fact_throws ArgumentError QSWalk.incidence_list(sparse(A), epsilon=-1)
   end
 
   context("vertexset creation") do
@@ -58,6 +64,7 @@ facts("Demoralization user utils") do
                                                      1 0 0 -1;
                                                      0 1 1 0])
     @fact demoralized_lindbladian(A)[2] --> make_vertex_set(A)
+
     A = sparse([0.+0.0im 0 0 0 1;
                 0 0 1 0 1;
                 0 0 0 0 0;
