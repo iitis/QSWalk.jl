@@ -7,11 +7,13 @@ export
     measurement_nonmoralized(probability, vertexset)
     measurement_nonmoralized(state, vertexset)
 
-Returns joint probabilty of `probability`, which is real-valued probability vector
+Returns joint probability of `probability`, which is real-valued probability vector
 according to `vertexset`.
 
-Returns joint probabilty of cannonical measurement of density matrix `state`,
+Returns joint probability of cannonical measurement of density matrix `state`,
 according to `vertexset`.
+
+*note* It is up to user to provide proper probability vector/density state.
 
 # Examples
 
@@ -47,19 +49,24 @@ julia> measurement_nonmoralized(probability, VertexSet([[1,4],[2,3,5],[6],[7,8]]
 ```
 """
 function measurement_nonmoralized(probability::Vector{T} where T<:Number,
-                               vertexset::VertexSet)
+                                  vertexset::VertexSet)
+  @assert vertexsetsize(vertexset) == length(probability) "vertexset size and probability vector length do not match"
+
   [sum(probability[vertex()]) for vertex=vertexset()]
 end
 
 function measurement_nonmoralized(state::SparseDenseMatrix,
-                               vertexset::VertexSet)
+                                  vertexset::VertexSet)
+  @argument size(state, 1) == size(state, 2) "state should be square matrix"
+  @assert vertexsetsize(vertexset) == size(state, 1) "vertexset size and state size do not match"
+
   measurement_nonmoralized(real.(diag(state)),vertexset)
 end
 
 """
 
     init_nonmoralized(initialvertices, vertexset)
-    init_nonmoralized(init_nonmoralizeds, vertexset)
+    init_nonmoralized(initialstates, vertexset)
 
 Function creating initial state in the case of demoralized evolution. It returns
 a block diagonal matrix, where each block correspond to vertex from `vertexset`.
@@ -69,8 +76,8 @@ example for more details).
 If first argument is of type `Dict{Vertex,SparseDenseMatrix}`,
 then for each given vertex a block from dictionary is used, otherwise zero matrix
 is chosen. Each matrix from dictionary should be nonnegative and sum of all traces
-should equal one. The keys of `init_nonmoralizeds` shuold be a subset of `vertexset()`.
-Note that matrix from `init_nonmoralizeds` corresponding to vertex `v` should be of
+should equal one. The keys of `initialvertices` should be a subset of `vertexset()`.
+Note that matrix from `initialstates` corresponding to vertex `v` should be of
 size `length(v)`×`length(v)`.
 
 The function returns sparse matrix with `Complex128` field type.
@@ -113,6 +120,8 @@ julia> init_nonmoralized(Dict(vset[1]=>A1, vset[3]=>A2, vset[4]=>A3), vset)
 ```
 """
 function init_nonmoralized(initialvertices::Vector{Vertex}, vertexset::VertexSet)
+  @assert all([v in vertexset() for v=initialvertices]) "initialvertices is not a subset of vertexset"
+
   L = spzeros(Complex128, vertexsetsize(vertexset),vertexsetsize(vertexset))
   for vertex=initialvertices
     normalization = length(vertex)*length(initialvertices)
@@ -122,9 +131,11 @@ function init_nonmoralized(initialvertices::Vector{Vertex}, vertexset::VertexSet
 end
 
 function init_nonmoralized(initialstates::Dict{Vertex,T} where T,
-                      vertexset::VertexSet)
+                           vertexset::VertexSet)
   @argument all([typeof(initialstates[k])<:SparseDenseMatrix for k=keys(initialstates)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argument all([eltype(initialstates[k])<:Number for k=keys(initialstates)]) "All elements of elements in `hamiltonians` must be Number"
+  @assert all([size(initialstates[k], 1) == length(k) for k=keys(initialstates)]) "The size of initial state and the vertex do not match"
+
   L = spzeros(Complex128, vertexsetsize(vertexset), vertexsetsize(vertexset))
   for vertex=keys(initialstates)
     L[vertex(),vertex()] = initialstates[vertex]

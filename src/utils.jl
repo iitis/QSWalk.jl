@@ -2,7 +2,8 @@ export
   SparseDenseMatrix,
   SparseDenseVector,
   Vertex,
-  VertexSet
+  VertexSet,
+  vertexsetsize
 
 import Base: ==, hash, getindex, length
 
@@ -73,14 +74,14 @@ getindex(vset::VertexSet, veci::Vector{Int}) = vset()[veci]
 length(vset::VertexSet) = length(vset())
 
 """
-    partitionsize(vertexset)
+    vertexsetsize(vertexset)
 
 Return the dimenion of the linearspace corresponding to given `vertexset'.
 
 # Examples
 
 ```jldoctest
-julia> QSWalk.partitionsize(VertexSet([[1,2,3],[4,5]]))
+julia> vertexsetsize(VertexSet([[1,2,3],[4,5]]))
 5
 ```
 """

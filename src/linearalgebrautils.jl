@@ -7,102 +7,73 @@ export
   unres
 
 """
-    ket([type, ]index, size)
+    ket(index, size)
 
 Return `index`-th base (column) vector in the `size`-dimensional vector space.
-To be consistent with Julia indexing, `index`=1,2,...,`size`. The `type`
-defaults to `Complex128` if not specified.
+To be consistent with Julia indexing, `index`=1,2,...,`size`.
 
 # Examples
 
 ```jldoctest
 julia> ket(1,2)
-2-element Array{Complex{Float64},1}:
- 1.0+0.0im
- 0.0+0.0im
+2-element SparseVector{Int64,Int64} with 1 stored entry:
+  [1]  =  1
 
-julia> ket(Float64,1,2)
-2-element Array{Float64,1}:
- 1.0
- 0.0
 ```
 """
-function ket(::Type{T}, index::Int, size::Int) where T<:Number
+function ket(index::Int, size::Int)
   @argument size > 0 "vector size must be positive"
   @assert 1 <= index <= size "index must be greater than 0 and lower than vector size"
 
-  ret = spzeros(T, size)
+  ret = spzeros(Int, size)
   ret[index] = 1
   ret
 end
 
-ket(index::Int, size::Int) = ket(Complex128, index, size)
-
 """
-    bra([type, ]index, size)
+    bra(index, size)
 
 Return `index`-th row vector in the `size`-dimensional vector space, with
-`index`=1,2,...,`size`. The `type` defaults to `Complex128` if not specified.
+`index`=1,2,...,`size`.
 
 # Examples
 
 ```jldoctest
 julia> bra(1,2)
-1×2 Array{Complex{Float64},2}:
- 1.0-0.0im  0.0-0.0im
-
- julia> bra(Float64,1,2)
- 1×2 Array{Float64,2}:
-  1.0  0.0
+1×2 RowVector{Int64,SparseVector{Int64,Int64}}:
+ 1  0
 ```
 """
-function bra(::Type{T}, index::Int, size::Int) where T<:Number
-  ket(T, index, size)'
+function bra(index::Int, size::Int)
+  ket(index, size)'
 end
 
-bra(index::Int, size::Int) = ket(index, size)'
-
 """
-    ketbra([type,] indexrow, indexcolumn, size)
+    ketbra(indexrow, indexcolumn, size)
 
 Return matrix acting on `size`-dimensional vector space, `indexrow`,
 `indexcolumn` = 1,2,...,`size`. The matrix consists of single nonzero element
-equal to one at position (`indexrow`,`indexcolumn`). The `type` defaults to
-`Complex128` if not specified.
+equal to one at position (`indexrow`,`indexcolumn`).
 
 # Examples
 
 ```jldoctest
 julia> ketbra(1,2,3)
-3×3 Array{Complex{Float64},2}:
- 0.0+0.0im  1.0+0.0im  0.0+0.0im
- 0.0+0.0im  0.0+0.0im  0.0+0.0im
- 0.0+0.0im  0.0+0.0im  0.0+0.0im
+3×3 SparseMatrixCSC{Int64,Int64} with 1 stored entry:
+  [1, 2]  =  1
 
- julia> ketbra(Float64,2,1,3)
- 3×3 Array{Float64,2}:
-  0.0  0.0  0.0
-  1.0  0.0  0.0
-  0.0  0.0  0.0
 ```
 """
-function ketbra(::Type{T},
-                indexrow::Int,
-                indexcolumn::Int,
-                size::Int) where T<:Number
-  ket(T, indexrow, size)*bra(T, indexcolumn, size)
-end
-
 function ketbra(indexrow::Int, indexcolumn::Int, size::Int)
-  ketbra(Complex128, indexrow, indexcolumn, size)
+  ket(indexrow, size)*bra(indexcolumn, size)
 end
 
 """
-    proj([type,] index, size)
+    proj(index, size)
 
 Return projector onto `index`-th base vector in `size`-dimensional vector space,
-with `index` = 1,2,...,`size`. This is equivalent to ketbra(type, index, index,
-size) The `type` defaults to `Complex128` if not specified.
+with `index` = 1,2,...,`size`. This is equivalent to `ketbra(index, index,
+size)`.
 
     proj(vector)
 
@@ -111,33 +82,25 @@ Return projector onto the subspace spanned by vector `vector`.
 # Examples
 ```jldoctest
 julia> proj(1,2)
-2×2 Array{Complex{Float64},2}:
- 1.0+0.0im  0.0+0.0im
- 0.0+0.0im  0.0+0.0im
-
-julia> proj(Float64,1,2)
-2×2 Array{Float64,2}:
- 1.0  0.0
- 0.0  0.0
+2×2 SparseMatrixCSC{Int64,Int64} with 1 stored entry:
+  [1, 1]  =  1
 
 julia> v = 1/sqrt(2) * (ket(1,3)+ket(3,3))
-3-element Array{Complex{Float64},1}:
- 0.707107+0.0im
-      0.0+0.0im
- 0.707107+0.0im
+3-element SparseVector{Float64,Int64} with 2 stored entries:
+  [1]  =  0.707107
+  [3]  =  0.707107
 
-julia> QSW.proj(v)
-3×3 Array{Complex{Float64},2}:
- 0.5+0.0im  0.0+0.0im  0.5+0.0im
- 0.0+0.0im  0.0+0.0im  0.0+0.0im
- 0.5+0.0im  0.0+0.0im  0.5+0.0im
+julia> proj(v)
+3×3 SparseMatrixCSC{Float64,Int64} with 4 stored entries:
+  [1, 1]  =  0.5
+  [3, 1]  =  0.5
+  [1, 3]  =  0.5
+  [3, 3]  =  0.5
 ```
 """
-function proj(::Type{T}, index::Int, size::Int) where T<:Number
-  ketbra(T, index, index, size)
+function proj(index::Int, size::Int)
+  ketbra(index, index, size)
 end
-
-proj(index::Int, size::Int) = proj(Complex128, index, size)
 
 function proj(vector::SparseDenseVector)
   vector*vector'
@@ -153,28 +116,27 @@ Return vectorization of the `matrix` in the row order. This is equivalent to
 # Examples
 
 ```jldoctest
-julia> M = Matrix{Float64}(reshape(1:9, (3,3))')
-3×3 Array{Float64,2}:
- 1.0  2.0  3.0
- 4.0  5.0  6.0
- 7.0  8.0  9.0
+julia> M = reshape(1:9, (3,3))'*1im
+3×3 Array{Complex{Int64},2}:
+ 0+1im  0+2im  0+3im
+ 0+4im  0+5im  0+6im
+ 0+7im  0+8im  0+9im
 
-julia> res(M)
-9-element Array{Float64,1}:
- 1.0
- 2.0
- 3.0
- 4.0
- 5.0
- 6.0
- 7.0
- 8.0
- 9.0
+julia> v = res(M)
+9-element Array{Complex{Int64},1}:
+ 0+1im
+ 0+2im
+ 0+3im
+ 0+4im
+ 0+5im
+ 0+6im
+ 0+7im
+ 0+8im
+ 0+9im
 
 julia> res(unres(v)) == v
 true
 ```
-
 """
 function res(matrix::SparseDenseMatrix)
   Base.vec(matrix.')
@@ -189,31 +151,28 @@ perfect square number of arguments to form square matrix.
 
 # Examples
 ```jldoctest
-
-julia> v = Vector{Float64}(collect(1:9))
-9-element Array{Float64,1}:
- 1.0
- 2.0
- 3.0
- 4.0
- 5.0
- 6.0
- 7.0
- 8.0
- 9.0
+julia> v = res(M)
+9-element Array{Complex{Int64},1}:
+ 0+1im
+ 0+2im
+ 0+3im
+ 0+4im
+ 0+5im
+ 0+6im
+ 0+7im
+ 0+8im
+ 0+9im
 
 julia> unres(v)
-3×3 Array{Float64,2}:
- 1.0  2.0  3.0
- 4.0  5.0  6.0
- 7.0  8.0  9.0
+3×3 Array{Complex{Int64},2}:
+ 0+1im  0+2im  0+3im
+ 0+4im  0+5im  0+6im
+ 0+7im  0+8im  0+9im
 
 julia> res(unres(v)) == v
 true
 ```
-
 """
-
 function unres(vector::SparseDenseVector)
   dim = floor(Int64,sqrt(length(vector)))
   @argument dim*dim == length(vector) "Expected vector with perfect square number of elements."
