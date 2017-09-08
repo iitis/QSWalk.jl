@@ -7,10 +7,14 @@ facts("Vertex test") do
 
   context("Basic Vertex functionality") do
     v = Vertex([3,4,5])
-    v2 = Vertex([3,4,5])
+    vcopy = Vertex([3,4,5])
+    v1=Vertex([1,2])
+    v1copy=Vertex([1,2])
     @fact v() --> [3,4,5]
     @fact hash(v) --> hash(v())
-    @fact v --> v2
+    @fact hash((v,vcopy)) --> hash([v(),vcopy()])
+    @fact (v,v1) == (vcopy, v1copy) --> true
+    @fact v --> vcopy
     @fact v[2] --> 4
     @fact length(v) --> 3
   end
