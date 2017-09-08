@@ -66,7 +66,7 @@ end
 """
 
     init_nonmoralized(initialvertices, vertexset)
-    init_nonmoralized(initialstates, vertexset)
+    init_nonmoralized(initial_states, vertexset)
 
 Function creating initial state in the case of demoralized evolution. It returns
 a block diagonal matrix, where each block correspond to vertex from `vertexset`.
@@ -77,7 +77,7 @@ If first argument is of type `Dict{Vertex,SparseDenseMatrix}`,
 then for each given vertex a block from dictionary is used, otherwise zero matrix
 is chosen. Each matrix from dictionary should be nonnegative and sum of all traces
 should equal one. The keys of `initialvertices` should be a subset of `vertexset()`.
-Note that matrix from `initialstates` corresponding to vertex `v` should be of
+Note that matrix from `initial_states` corresponding to vertex `v` should be of
 size `length(v)`×`length(v)`.
 
 The function returns sparse matrix with `Complex128` field type.
@@ -131,16 +131,16 @@ function init_nonmoralized(initialvertices::Vector{Vertex},
   L
 end
 
-function init_nonmoralized(initialstates::Dict{Vertex,T} where T,
+function init_nonmoralized(initial_states::Dict{Vertex,T} where T,
                            vertexset::VertexSet)
-  @argument all([typeof(initialstates[k])<:SparseDenseMatrix for k=keys(initialstates)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argument all([eltype(initialstates[k])<:Number for k=keys(initialstates)]) "All elements of elements in `hamiltonians` must be Number"
-  @assert all([size(initialstates[k], 1) == length(k) for k=keys(initialstates)]) "The size of initial state and the vertex do not match"
-  @assert all([k in vertexset() for k=keys(initialstates)]) "keys of initialstates is not a subset of vertexset"
+  @argument all([typeof(initial_states[k])<:SparseDenseMatrix for k=keys(initial_states)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(initial_states[k])<:Number for k=keys(initial_states)]) "All elements of elements in `hamiltonians` must be Number"
+  @assert all([size(initial_states[k], 1) == length(k) for k=keys(initial_states)]) "The size of initial state and the vertex do not match"
+  @assert all([k in vertexset() for k=keys(initial_states)]) "keys of initial_states is not a subset of vertexset"
 
   L = spzeros(Complex128, vertexsetsize(vertexset), vertexsetsize(vertexset))
-  for vertex=keys(initialstates)
-    L[vertex(),vertex()] = initialstates[vertex]
+  for vertex=keys(initial_states)
+    L[vertex(),vertex()] = initial_states[vertex]
   end
   L
 end

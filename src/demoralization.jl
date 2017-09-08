@@ -16,6 +16,7 @@ function.
 # Examples
 
 ```jldoctest
+julia> QSWalk.default_local_hamiltonian(4)
 4×4 SparseMatrixCSC{Complex{Float64},Int64} with 6 stored entries:
   [2, 1]  =  0.0-1.0im
   [1, 2]  =  0.0+1.0im
@@ -59,7 +60,10 @@ Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 # Examples
 
 ```jldoctest
-julia> full(local_hamiltonian(VertexSet([[1,2],[3,4]])))
+julia> vset = VertexSet([[1,2],[3,4]])
+QSWalk.VertexSet(QSWalk.Vertex[QSWalk.Vertex([1, 2]), QSWalk.Vertex([3, 4])])
+
+julia> full(local_hamiltonian(vset))
 4×4 Array{Complex{Float64},2}:
  0.0+0.0im  0.0+1.0im  0.0+0.0im  0.0+0.0im
  0.0-1.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im
@@ -67,29 +71,34 @@ julia> full(local_hamiltonian(VertexSet([[1,2],[3,4]])))
  0.0+0.0im  0.0+0.0im  0.0-1.0im  0.0+0.0im
 
 julia> A, B = rand(2,2), rand(2,2)
-(
-[0.218292 0.0335109; 0.855375 0.138592],
+([0.358914 0.183322; 0.379927 0.671986], [0.26643 0.969279; 0.313752 0.636789])
 
-[0.643301 0.945834; 0.879102 0.669621])
+julia> v1, v2 = vset()
+2-element Array{QSWalk.Vertex,1}:
+ QSWalk.Vertex([1, 2])
+ QSWalk.Vertex([3, 4])
 
-julia> local_hamiltonian(VertexSet([[1,2],[3,4]]), [A, B])
-4×4 sparse matrix with 8 Complex{Float64} nonzero entries:
-	[1, 1]  =  0.218292+0.0im
-	[2, 1]  =  0.855375+0.0im
-	[1, 2]  =  0.0335109+0.0im
-	[2, 2]  =  0.138592+0.0im
-	[3, 3]  =  0.643301+0.0im
-	[4, 3]  =  0.879102+0.0im
-	[3, 4]  =  0.945834+0.0im
-	[4, 4]  =  0.669621+0.0im
+julia> local_hamiltonian(vset, Dict(v1 => A, v2 => B))
+4×4 SparseMatrixCSC{Complex{Float64},Int64} with 8 stored entries:
+  [1, 1]  =  0.358914+0.0im
+  [2, 1]  =  0.379927+0.0im
+  [1, 2]  =  0.183322+0.0im
+  [2, 2]  =  0.671986+0.0im
+  [3, 3]  =  0.26643+0.0im
+  [4, 3]  =  0.313752+0.0im
+  [3, 4]  =  0.969279+0.0im
+  [4, 4]  =  0.636789+0.0im
 
-julia> local_hamiltonian(VertexSet([[1,2],[3,4]]), Dict(2 => [0 1; 1 0]))
-4×4 sparse matrix with 4 Complex{Float64} nonzero entries:
-	[2, 1]  =  1.0+0.0im
-	[1, 2]  =  1.0+0.0im
-	[4, 3]  =  1.0+0.0im
-	[3, 4]  =  1.0+0.0im
-
+julia> local_hamiltonian(VertexSet([[1,2],[3,4]]), Dict(2 => A))
+4×4 SparseMatrixCSC{Complex{Float64},Int64} with 8 stored entries:
+  [1, 1]  =  0.358914+0.0im
+  [2, 1]  =  0.379927+0.0im
+  [1, 2]  =  0.183322+0.0im
+  [2, 2]  =  0.671986+0.0im
+  [3, 3]  =  0.358914+0.0im
+  [4, 3]  =  0.379927+0.0im
+  [3, 4]  =  0.183322+0.0im
+  [4, 4]  =  0.671986+0.0im
 ```
 """
 function local_hamiltonian(vertexset::VertexSet,
@@ -97,7 +106,7 @@ function local_hamiltonian(vertexset::VertexSet,
                              =Dict(l=>default_local_hamiltonian(l) for l=length.(vertexset())))
   @argument all([typeof(hamiltonians[k])<:SparseDenseMatrix for k=keys(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argument all([eltype(hamiltonians[k])<:Number for k=keys(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
-  @argument all([size(hamiltonians[k])[1] == size(hamiltonians[k])[2] for k=keys(hamiltonians)])  "hamiltonians must consists of square matrices"
+  @argument all([size(hamiltonians[k], 1) == size(hamiltonians[k], 2) for k=keys(hamiltonians)])  "hamiltonians must consists of square matrices"
   verticeslengths = length.(vertexset())
   @assert all([l in keys(hamiltonians) for l=verticeslengths]) "Missing degree in the Dictionary: $verticeslengths needed"
 
@@ -346,7 +355,7 @@ julia> A = [0 1 0; 1 0 1; 0 1 0]
  1  0  1
  0  1  0
 
-julia> demoralized_lindbladian(A)
+julia> L, vset = demoralized_lindbladian(A)
 (
   [2, 1]  =  1.0+0.0im
   [3, 1]  =  1.0+0.0im
@@ -356,14 +365,43 @@ julia> demoralized_lindbladian(A)
   [4, 3]  =  1.0+0.0im
   [2, 4]  =  1.0+0.0im
   [3, 4]  =  -1.0+1.22465e-16im, QSWalk.VertexSet(QSWalk.Vertex[QSWalk.Vertex([1]), QSWalk.Vertex([2, 3]), QSWalk.Vertex([4])]))
+
+julia> B1, B2 = 2*eye(1), 3*ones(2,2)
+([2.0], [3.0 3.0; 3.0 3.0])
+
+julia> demoralized_lindbladian(A, Dict(1 => B1, 2=>B2 ))
+(
+  [2, 1]  =  3.0+0.0im
+  [3, 1]  =  3.0+0.0im
+  [1, 2]  =  2.0+0.0im
+  [4, 2]  =  2.0+0.0im
+  [1, 3]  =  2.0+0.0im
+  [4, 3]  =  2.0+0.0im
+  [2, 4]  =  3.0+0.0im
+  [3, 4]  =  3.0+0.0im, QSWalk.VertexSet(QSWalk.Vertex[QSWalk.Vertex([1]), QSWalk.Vertex([2, 3]), QSWalk.Vertex([4])]))
+
+julia> v1, v2, v3 = vset()
+3-element Array{QSWalk.Vertex,1}:
+ QSWalk.Vertex([1])
+ QSWalk.Vertex([2, 3])
+ QSWalk.Vertex([4])
+
+ julia> demoralized_lindbladian(A, Dict((v1,v2) => ones(1,1), (v2,v1) => 2*ones(2,1), (v2,v3)=>3*ones(2,1),(v3,v2)=>4*ones(1,1)))[1] |> full
+ 4×4 Array{Complex{Float64},2}:
+  0.0+0.0im  1.0+0.0im  1.0+0.0im  0.0+0.0im
+  2.0+0.0im  0.0+0.0im  0.0+0.0im  3.0+0.0im
+  2.0+0.0im  0.0+0.0im  0.0+0.0im  3.0+0.0im
+  0.0+0.0im  4.0+0.0im  4.0+0.0im  0.0+0.0im
+
 ```
 """
 
 function demoralized_lindbladian(A::SparseDenseMatrix,
-                                 lindbladians::Dict{Int,S} where S<:SparseDenseMatrix;
+                                 lindbladians::Dict{Int,S} where S;
                                  epsilon::Real=eps())
   @argument all([typeof(lindbladians[k])<:SparseDenseMatrix for k=keys(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argument all([eltype(lindbladians[k])<:Number for k=keys(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"
+  @argument epsilon>=0 "epsilon needs to be nonnegative"
 
   revincidence_list = reversed_incidence_list(A, epsilon=epsilon)
   vset = revinc_to_vertexset(revincidence_list)
@@ -387,16 +425,19 @@ function demoralized_lindbladian(A::SparseDenseMatrix;
 end
 
 function demoralized_lindbladian(A::SparseDenseMatrix,
-                                 lindbladians::Dict{Tuple{Vertex,Vertex},S} where S<:SparseDenseMatrix;
+                                 lindbladians::Dict{Tuple{Vertex,Vertex},S} where S;
                                  epsilon::Real=eps())
   @argument all([typeof(lindbladians[k])<:SparseDenseMatrix for k=keys(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argument all([eltype(lindbladians[k])<:Number for k=keys(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"
-  revincidence_list = reversed_incidence_list(A, epsilon)
+  @argument epsilon>=0 "epsilon needs to be nonnegative"
+
+  revincidence_list = reversed_incidence_list(A; epsilon=epsilon)
   vset = revinc_to_vertexset(revincidence_list)
 
   L = spzeros(Complex128,vertexsetsize(vset),vertexsetsize(vset))
   for i=1:size(A,1), (index,j)=enumerate(revincidence_list[i]), k in vset[j]()
-      L[vset[i](),k] = A[i,j]*lindbladians[(vset[i],vset[j])][:,index]
+    @assert (vset[i],vset[j]) in keys(lindbladians) "Missing $((vset[i],vset[j])) key in lindbladians"
+    L[vset[i](),k] = A[i,j]*lindbladians[(vset[i],vset[j])]
   end
   L, vset
 end

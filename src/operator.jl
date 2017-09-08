@@ -104,7 +104,7 @@ function global_operator_util(H::SparseDenseMatrix,
                               α::Real,
                               β::Real)
   @argument size(H) != (0,0) "H must not be sizeless"
-  @argument size(H)[1] == size(H)[2] "H must be square"
+  @argument size(H, 1) == size(H, 2) "H must be square"
   @assert all([size(lindbladian) == size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
   @argument all([eltype(el)<:Number for el in L]) "Lindblad operators elements must be numbers"
   @argument all([typeof(el)<:SparseDenseMatrix for el in L]) "Lindblad operators must be SparseMatrixCSC or Matrix"

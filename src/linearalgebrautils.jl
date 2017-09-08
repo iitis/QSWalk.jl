@@ -23,7 +23,7 @@ julia> ket(1,2)
 """
 function ket(index::Int, size::Int)
   @argument size > 0 "vector size must be positive"
-  @assert 1 <= index <= size "index must be greater than 0 and lower than vector size"
+  @assert 1 <= index <= size "index must be positive and not bigger than vector size"
 
   ret = spzeros(Int, size)
   ret[index] = 1
@@ -151,7 +151,7 @@ perfect square number of arguments to form square matrix.
 
 # Examples
 ```jldoctest
-julia> v = res(M)
+julia> v = collect(1:9)*im
 9-element Array{Complex{Int64},1}:
  0+1im
  0+2im
