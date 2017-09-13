@@ -22,7 +22,7 @@ export
   classical_lindblad_operators,
   global_operator,
   local_hamiltonian,
-  demoralized_lindbladian,
+  nonmoralizing_lindbladian,
   make_vertex_set,
   init_nonmoralized,
   measurement_nonmoralized,

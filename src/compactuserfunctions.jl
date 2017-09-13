@@ -68,7 +68,7 @@ end
     init_nonmoralized(initialvertices, vertexset)
     init_nonmoralized(initial_states, vertexset)
 
-Function creating initial state in the case of demoralized evolution. It returns
+Function creating initial state in the case of nonmoralizing evolution. It returns
 a block diagonal matrix, where each block correspond to vertex from `vertexset`.
 If first argument is of type `Vector{Vertex}`, then default block matrix `eye` (see
 example for more details).

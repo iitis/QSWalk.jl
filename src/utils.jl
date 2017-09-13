@@ -55,7 +55,7 @@ checkVertexSet(vset::Vector{Vertex}) = checkVertexSet([vertex.linspace for verte
     type VertexSet
 
 Type consisting of a list of `Vertex` objects. It describes the partition of the
-linear subspace. Should be constructed by `make_vertex_set` or by `demoralized_lindbladian`
+linear subspace. Should be constructed by `make_vertex_set` or by `nonmoralizing_lindbladian`
 functions. In order to get list of the vertices of the object `vertexset`, one
 should use the function `vertexset()`, of for concrete `Vertex` an getindex function
 `vertexset[i]`.

@@ -60,7 +60,7 @@ time_point = 1.
 # Case 3: stochastic case with demoralization procedure
 # ------------------------------------------------------------------------------
 
-lin, vset = demoralized_lindbladian(adjmtx)
+lin, vset = nonmoralizing_lindbladian(adjmtx)
 ham = (x-> if x!=0 1 else 0 end).(lin) # makes 0-1 matrix
 ham_local = local_hamiltonian(vset)
 

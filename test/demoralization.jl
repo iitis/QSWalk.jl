@@ -55,36 +55,36 @@ facts("Demoralization user utils") do
     @fact QSWalk.fourier_matrix(1) --> roughly(ones(Float64,(1,1)))
   end
 
-  context("demoralized_lindbladian") do
+  context("nonmoralizing_lindbladian") do
     A = sparse([0.+0.0im 1 0; 1 0 1; 0 1 0])
     #default
     #needs to be roughly, since exp computing is inexact
-    @fact demoralized_lindbladian(A)[1] --> roughly([0 1 1 0;
+    @fact nonmoralizing_lindbladian(A)[1] --> roughly([0 1 1 0;
                                                      1 0 0 1;
                                                      1 0 0 -1;
                                                      0 1 1 0])
-    @fact demoralized_lindbladian(A)[2] --> make_vertex_set(A)
+    @fact nonmoralizing_lindbladian(A)[2] --> make_vertex_set(A)
 
     A = sparse([0.+0.0im 0 0 0 1;
                 0 0 1 0 1;
                 0 0 0 0 0;
                 0 1 1 0 0;
                 0 0 0 0 0])
-    @fact demoralized_lindbladian(A)[1] --> roughly([0 0 0 0 0 0 1;
+    @fact nonmoralizing_lindbladian(A)[1] --> roughly([0 0 0 0 0 0 1;
                                                      0 0 0 1 0 0 1;
                                                      0 0 0 1 0 0 -1;
                                                      0 0 0 0 0 0 0;
                                                      0 1 1 1 0 0 0;
                                                      0 1 1 -1 0 0 0;
                                                      0 0 0 0 0 0 0])
-    @fact demoralized_lindbladian(A)[2] --> make_vertex_set(A)
+    @fact nonmoralizing_lindbladian(A)[2] --> make_vertex_set(A)
 
     A = [0 0 0; 0 0 0; 1 1 0]
-    @fact demoralized_lindbladian(A)[1] --> roughly([0 0 0 0;
+    @fact nonmoralizing_lindbladian(A)[1] --> roughly([0 0 0 0;
                                                      0 0 0 0;
                                                      1 1 0 0;
                                                      1 -1 0 0])
-    @fact demoralized_lindbladian(A)[2] --> make_vertex_set(A)
+    @fact nonmoralizing_lindbladian(A)[2] --> make_vertex_set(A)
 
 
   end
