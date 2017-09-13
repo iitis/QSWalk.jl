@@ -332,9 +332,10 @@ the connection between the cannonical subspaces similar as adjacency matrix.
 Parameter `epsilon`, with the default value `eps()`, determines the relevant
 values by `abs(A[i,j]) >= epsilon` formula. List `lindbladians` describes the
 elementary matrices used (see [1]). It can be `Dict{Int,SparseDenseMatrix}`,
-which returns the matrix by the indegree, or `Dict{Tuple{Vertex,Vertex},
-SparseDenseMatrix}` which, for different pairs of vertices, may return different
-matrices. As default the function uses Fourier matrices.
+which returns the matrix by the indegree, or `Dict{Vertex, SparseDenseMatrix}`
+which, for different verticex, may return different
+matrix. The matrix should have orthogonal columns and be of the size
+outdeg of the vertex. As default the function uses Fourier matrices.
 
 *Note* It is expected that for all pair of vertices there exists a matrix in the
 `lindbladians` list.
@@ -386,12 +387,13 @@ julia> v1, v2, v3 = vset()
  QSWalk.Vertex([2, 3])
  QSWalk.Vertex([4])
 
- julia> nonmoralizing_lindbladian(A, Dict((v1,v2) => ones(1,1), (v2,v1) => 2*ones(2,1), (v2,v3)=>3*ones(2,1),(v3,v2)=>4*ones(1,1)))[1] |> full
+ julia> nonmoralizing_lindbladian(A, Dict(v1 => ones(1,1), v2 => [2 2; 2 -2], v3=>3*ones(1,1)))[1] |> full
  4×4 Array{Complex{Float64},2}:
-  0.0+0.0im  1.0+0.0im  1.0+0.0im  0.0+0.0im
-  2.0+0.0im  0.0+0.0im  0.0+0.0im  3.0+0.0im
-  2.0+0.0im  0.0+0.0im  0.0+0.0im  3.0+0.0im
-  0.0+0.0im  4.0+0.0im  4.0+0.0im  0.0+0.0im
+  0.0+0.0im  1.0+0.0im  1.0+0.0im   0.0+0.0im
+  2.0+0.0im  0.0+0.0im  0.0+0.0im   2.0+0.0im
+  2.0+0.0im  0.0+0.0im  0.0+0.0im  -2.0+0.0im
+  0.0+0.0im  3.0+0.0im  3.0+0.0im   0.0+0.0im
+
 
 ```
 """
@@ -425,19 +427,19 @@ function nonmoralizing_lindbladian(A::SparseDenseMatrix;
 end
 
 function nonmoralizing_lindbladian(A::SparseDenseMatrix,
-                                 lindbladians::Dict{Tuple{Vertex,Vertex},S} where S;
+                                 lindbladians::Dict{Vertex,S} where S;
                                  epsilon::Real=eps())
   @argument all([typeof(lindbladians[k])<:SparseDenseMatrix for k=keys(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argument all([eltype(lindbladians[k])<:Number for k=keys(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"
+  @argument all([])
   @argument epsilon>=0 "epsilon needs to be nonnegative"
 
   revincidence_list = reversed_incidence_list(A; epsilon=epsilon)
   vset = revinc_to_vertexset(revincidence_list)
 
   L = spzeros(Complex128,vertexsetsize(vset),vertexsetsize(vset))
-  for i=1:size(A,1), (index,j)=enumerate(revincidence_list[i]), k in vset[j]()
-    @assert (vset[i],vset[j]) in keys(lindbladians) "Missing $((vset[i],vset[j])) key in lindbladians"
-    L[vset[i](),k] = A[i,j]*lindbladians[(vset[i],vset[j])]
+  for i=1:size(A,1), (index,j)=enumerate(revincidence_list[i]), l in vset[j]()
+    L[vset[i](),l] = A[i,j]*lindbladians[vset[i]][:,index]
   end
   L, vset
 end
