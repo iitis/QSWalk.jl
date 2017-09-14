@@ -1,7 +1,8 @@
 export
   local_hamiltonian,
   nonmoralizing_lindbladian,
-  make_vertex_set
+  make_vertex_set,
+  global_hamiltonian
 
 """
 
@@ -104,9 +105,9 @@ julia> local_hamiltonian(VertexSet([[1,2],[3,4]]), Dict(2 => A))
 function local_hamiltonian(vertexset::VertexSet,
                            hamiltonians::Dict{Int,T} where T<:AbstractArray
                              =Dict(l=>default_local_hamiltonian(l) for l=length.(vertexset())))
-  @argument all([typeof(hamiltonians[k])<:SparseDenseMatrix for k=keys(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argument all([eltype(hamiltonians[k])<:Number for k=keys(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
-  @argument all([size(hamiltonians[k], 1) == size(hamiltonians[k], 2) for k=keys(hamiltonians)])  "hamiltonians must consists of square matrices"
+  @argument all([typeof(h)<:SparseDenseMatrix for h=values(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(h)<:Number for h=values(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
+  @argument all([size(h, 1) == size(h, 2) for h=values(hamiltonians)])  "hamiltonians must consists of square matrices"
   verticeslengths = length.(vertexset())
   @assert all([l in keys(hamiltonians) for l=verticeslengths]) "Missing degree in the Dictionary: $verticeslengths needed"
 
@@ -116,9 +117,9 @@ end
 
 function local_hamiltonian(vertexset::VertexSet,
                            hamiltonians::Dict{Vertex,T} where T)
-  @argument all([typeof(hamiltonians[k])<:SparseDenseMatrix for k=keys(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argument all([eltype(hamiltonians[k])<:Number for k=keys(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
-  @argument all([size(hamiltonians[k], 1) == size(hamiltonians[k], 2) for k=keys(hamiltonians)])  "hamiltonians must consists of square matrices"
+  @argument all([typeof(h)<:SparseDenseMatrix for h=values(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(h)<:Number for h=values(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
+  @argument all([size(h, 1) == size(h, 2) for h=values(hamiltonians)])  "hamiltonians must consists of square matrices"
   @assert all([v in keys(hamiltonians) for v=vertexset()]) "Missing hamiltonian for some vertex"
   @assert all([length(v)==size(hamiltonians[v], 1) for v=vertexset()]) "The vertex length and hamiltonian size do no match"
 
@@ -342,6 +343,9 @@ outdeg of the vertex. As default the function uses Fourier matrices.
 
 *Note* The orthogonality of matrices in `lindbladians` is not verified.
 
+*Note* The submatrices of the result matrix are multiplied by corresponding `A`
+element.
+
 [1] K. Domino, A. Glos, M. Ostaszewski, Superdiffusive quantum stochastic walk
 definable on arbitrary directed graph, Quantum Information & Computation,
 Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
@@ -399,10 +403,10 @@ julia> v1, v2, v3 = vset()
 """
 
 function nonmoralizing_lindbladian(A::SparseDenseMatrix,
-                                 lindbladians::Dict{Int,S} where S;
-                                 epsilon::Real=eps())
-  @argument all([typeof(lindbladians[k])<:SparseDenseMatrix for k=keys(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argument all([eltype(lindbladians[k])<:Number for k=keys(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"
+                                   lindbladians::Dict{Int,S} where S;
+                                   epsilon::Real=eps())
+  @argument all([typeof(l)<:SparseDenseMatrix for l=values(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(l)<:Number for l=values(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"
   @argument epsilon>=0 "epsilon needs to be nonnegative"
 
   revincidence_list = reversed_incidence_list(A, epsilon=epsilon)
@@ -419,7 +423,7 @@ function nonmoralizing_lindbladian(A::SparseDenseMatrix,
 end
 
 function nonmoralizing_lindbladian(A::SparseDenseMatrix;
-                                 epsilon::Real=eps())
+                                   epsilon::Real=eps())
   vset = make_vertex_set(A, epsilon=epsilon)
   degrees = [length(v) for v=vset()]
 
@@ -427,19 +431,141 @@ function nonmoralizing_lindbladian(A::SparseDenseMatrix;
 end
 
 function nonmoralizing_lindbladian(A::SparseDenseMatrix,
-                                 lindbladians::Dict{Vertex,S} where S;
-                                 epsilon::Real=eps())
-  @argument all([typeof(lindbladians[k])<:SparseDenseMatrix for k=keys(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argument all([eltype(lindbladians[k])<:Number for k=keys(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"
-  @argument all([])
+                                   lindbladians::Dict{Vertex,S} where S;
+                                   epsilon::Real=eps())
+  @argument all([typeof(l)<:SparseDenseMatrix for l=values(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(l)<:Number for l=values(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"
+  @argument all([size(l, 1) == size(l, 2) for l=values(lindbladians)])  "lindbladians should consist of square matrix"
   @argument epsilon>=0 "epsilon needs to be nonnegative"
 
   revincidence_list = reversed_incidence_list(A; epsilon=epsilon)
   vset = revinc_to_vertexset(revincidence_list)
 
+  @argument all([ v in keys(lindbladians) for v=vset()]) "Some vertex is missing in lindbladians"
+  @argument all([ length(v) in size(lindbladians, 1) for v=vset()]) "Size of the lindbladians should equal to indegree of the vertex"
+
   L = spzeros(Complex128,vertexsetsize(vset),vertexsetsize(vset))
-  for i=1:size(A,1), (index,j)=enumerate(revincidence_list[i]), l in vset[j]()
-    L[vset[i](),l] = A[i,j]*lindbladians[vset[i]][:,index]
+  for i=1:size(A,1), (index,j)=enumerate(revincidence_list[i]), l=vset[j]()
+      L[vset[i](),l] = A[i,j]*lindbladians[vset[i]][:,index]
   end
   L, vset
+end
+
+
+"""
+
+    global_hamiltonian(A[, hamiltonians][, epsilon])
+
+Creates global hamiltonian for moralization procedure. The function constructs
+upper-diagonl of result matrix by upper-diagonal of `A` matrix and after
+symmetrizes it. The result matrix is then always exactly hermitian. `hamiltonians`
+is an optional argument which is a Dictionary with keys of type `Tuple{Int,Int}`
+or `Tuple{Vertex,Vertex}`. First collects the submatrices according to its
+shape, while the second collect according to each pair of vertices. As default
+all-one submatrices are chosen. Only those elements for which `abs(A[i,j]) >= epsilon`
+are considered.
+
+*Note* The submatrices of the result matrix are scaled by corresponding `A`
+element.
+
+# Examples
+
+```jldoctest
+julia> A = [ 0 1 0; 1 0 1; 0 1 0]
+3×3 Array{Int64,2}:
+ 0  1  0
+ 1  0  1
+ 0  1  0
+
+julia> global_hamiltonian(A) |> full
+4×4 Array{Complex{Float64},2}:
+ 0.0+0.0im  1.0+0.0im  1.0+0.0im  0.0+0.0im
+ 1.0+0.0im  0.0+0.0im  0.0+0.0im  1.0+0.0im
+ 1.0+0.0im  0.0+0.0im  0.0+0.0im  1.0+0.0im
+ 0.0+0.0im  1.0+0.0im  1.0+0.0im  0.0+0.0im
+
+julia> global_hamiltonian(A, Dict((1,2)=> (2+1im)*ones(1,2), (2,1)=>1im*ones(2,1))) |> full
+4×4 Array{Complex{Float64},2}:
+ 0.0+0.0im  2.0+1.0im  2.0+1.0im  0.0+0.0im
+ 2.0-1.0im  0.0+0.0im  0.0+0.0im  0.0+1.0im
+ 2.0-1.0im  0.0+0.0im  0.0+0.0im  0.0+1.0im
+ 0.0+0.0im  0.0-1.0im  0.0-1.0im  0.0+0.0im
+
+julia> v1, v2, v3 = make_vertex_set(A)()
+3-element Array{QSWalk.Vertex,1}:
+^[[A QSWalk.Vertex([1])
+ QSWalk.Vertex([2, 3])
+ QSWalk.Vertex([4])
+
+julia> global_hamiltonian(A, Dict((v1,v2)=>2*ones(1,2), (v2,v3)=>[1im 2im;]')) |> full
+4×4 Array{Complex{Float64},2}:
+ 0.0+0.0im  2.0+0.0im  2.0+0.0im  0.0+0.0im
+ 2.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+1.0im
+ 2.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+2.0im
+ 0.0+0.0im  0.0-1.0im  0.0-2.0im  0.0+0.0im
+```
+"""
+
+
+
+function global_hamiltonian(A::SparseDenseMatrix,
+                            hamiltonians::Dict{Tuple{Int,Int},S} where S;
+                            epsilon::Real=eps())
+  @argument all([typeof(h)<:SparseDenseMatrix for h=values(hamiltonians)]) "All elements in hamiltonians must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(h)<:Number for h=values(hamiltonians)]) "All elements of elements in hamiltonians must be Number"
+  @argument epsilon>=0 "epsilon needs to be nonnegative"
+
+
+  revincidence_list = reversed_incidence_list(A, epsilon=epsilon)
+  vset = revinc_to_vertexset(revincidence_list)
+
+
+  H = spzeros(Complex128, vertexsetsize(vset), vertexsetsize(vset))
+  for (index, i)=enumerate(revincidence_list), j=i
+    if index < j
+      hamiltonianshape = length.((vset[index](), vset[j]()))
+      @argument hamiltonianshape in keys(hamiltonians) "hamiltonian of size $hamiltonianshape not found"
+      @argument hamiltonianshape == size(hamiltonians[hamiltonianshape]) "hamiltonian for key $(hamiltonianshape) shoud have shape $(hamiltonianshape)"
+      H[vset[index](),vset[j]()] = A[index,j]*hamiltonians[hamiltonianshape]
+    end
+  end
+  H + H'
+end
+
+function global_hamiltonian(A::SparseDenseMatrix;
+                            epsilon::Real=eps())
+  #indlist = incidence_list(A, epsilon=epsilon)
+  revindlist = reversed_incidence_list(A, epsilon=epsilon)
+
+  alloneshamiltonians = Dict{Tuple{Int,Int},SparseMatrixCSC}()
+  for v=revindlist, w=v
+
+    alloneshamiltonians[length.((v,w))] = ones(length(v), length(w))
+    alloneshamiltonians[length.((w,v))] = ones(length(w), length(v))
+  end
+  global_hamiltonian(A, alloneshamiltonians, epsilon=epsilon)
+end
+
+function global_hamiltonian(A::SparseDenseMatrix,
+                            hamiltonians::Dict{Tuple{Vertex,Vertex},S} where S;
+                            epsilon::Real=eps())
+  @argument all([typeof(h)<:SparseDenseMatrix for h=values(hamiltonians)]) "All elements in hamiltonians must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(h)<:Number for h=values(hamiltonians)]) "All elements of elements in hamiltonians must be Number"
+  @argument epsilon>=0 "epsilon needs to be nonnegative"
+
+
+  revincidence_list = reversed_incidence_list(A, epsilon=epsilon)
+  vset = revinc_to_vertexset(revincidence_list)
+
+
+  H = spzeros(Complex128, vertexsetsize(vset), vertexsetsize(vset))
+  for (index, i)=enumerate(revincidence_list), j=i
+    if index < j
+      key = (vset[index], vset[j])
+      @argument key in keys(hamiltonians) "hamiltonian for $key not found"
+      @argument length.(key) == size(hamiltonians[key]) "hamiltonian for key $key shoud have shape $(length.(key))"
+      H[vset[j](),vset[index]()] = A[index,j]*hamiltonians[key].'
+    end
+  end
+  H + H'
 end

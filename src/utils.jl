@@ -95,8 +95,18 @@ function vertexsetsize(vertexset::VertexSet)
   sum([length(vertex()) for vertex=vertexset()])
 end
 
-
 macro argument(ex, msgs...)
     msg = isempty(msgs) ? ex : msgs[1]
+    if isa(msg, AbstractString)
+        msg = msg # pass-through
+    elseif !isempty(msgs) && (isa(msg, Expr) || isa(msg, Symbol))
+        #message is an expression needing evaluating
+        msg = :(Main.Base.string($(esc(msg))))
+    #elseif isdefined(Main, :Base) && isdefined(Main.Base, :string) && applicable(Main.Base.string, msg)
+        #msg = Main.Base.string(msg)
+    #else
+        # string() might not be defined during bootstrap
+        #msg = :(Main.Base.string($(Expr(:quote,msg))))
+    end
     return :($(esc(ex)) ? $(nothing) : throw(Main.Base.ArgumentError($msg)))
 end

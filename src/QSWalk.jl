@@ -27,6 +27,7 @@ export
   init_nonmoralized,
   measurement_nonmoralized,
   evolve_operator,
-  evolve
+  evolve,
+  global_hamiltonian
 
 end

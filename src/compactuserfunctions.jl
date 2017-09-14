@@ -133,9 +133,9 @@ end
 
 function init_nonmoralized(initial_states::Dict{Vertex,T} where T,
                            vertexset::VertexSet)
-  @argument all([typeof(initial_states[k])<:SparseDenseMatrix for k=keys(initial_states)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argument all([eltype(initial_states[k])<:Number for k=keys(initial_states)]) "All elements of elements in `hamiltonians` must be Number"
-  @assert all([size(initial_states[k], 1) == length(k) for k=keys(initial_states)]) "The size of initial state and the vertex do not match"
+  @argument all([typeof(state)<:SparseDenseMatrix for state=values(initial_states)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
+  @argument all([eltype(state)<:Number for state=values(initial_states)]) "All elements of elements in `hamiltonians` must be Number"
+  @assert all([size(state, 1) == length(k) for (k,state)=initial_states]) "The size of initial state and the vertex do not match"
   @assert all([k in vertexset() for k=keys(initial_states)]) "keys of initial_states is not a subset of vertexset"
 
   L = spzeros(Complex128, vertexsetsize(vertexset), vertexsetsize(vertexset))
