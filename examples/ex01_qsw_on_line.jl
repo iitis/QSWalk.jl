@@ -27,20 +27,19 @@ time_points = collect(0:10)*time_step
 
 # Versions using sparse evolution
 @time evolve(evo, full(init), time_step)
-@time evolve(evo, init, time_step)
-
+@time res = evolve(evo, init, time_step)
+plot(diag(res)
 # Versions using dense evolution
 #@time evolve(full(evo), full(init), time_step)
 #@time evolve(full(evo), init, time_step)
 
 #evolve_operator(full(evo), time_step)
 ##
-
 # ------------------------------------------------------------------------------
 # Case 2: stochastic case with moralization
 # ------------------------------------------------------------------------------
 
-ham = adjmtx
+ham = adjmt
 lin = [adjmtx]
 omg = 0.5
 
