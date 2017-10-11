@@ -1,7 +1,7 @@
 QSWalk.jl is licensed under the MIT License (MIT)
 
 Copyright (c) 2016-2017 Adam Glos, Jarosław Adam Miszczak, Mateusz Ostaszewski, 
-Institute of Theoretical and Applied Informatics, Polish Academy of Sciences
+Institute of Theoretical and Applied Informatics, Polish Academy of Sciences.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
