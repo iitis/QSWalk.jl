@@ -104,11 +104,11 @@ julia> evolve(ev_op, proj(1,2))
 """
 function evolve(exp_global_operator::Matrix{T} where T<:Number,
                 initial_state::SparseDenseMatrix)
-  @argument size(exponentglobal_operator, 1) == size(exponentglobal_operator, 2) "exponentglobal_operator should be square"
+  @argument size(exp_global_operator, 1) == size(exp_global_operator, 2) "exp_global_operator should be square"
   @argument size(initial_state, 1) == size(initial_state, 2) "initial_state should be square"
-  @assert size(exponentglobal_operator, 1) == size(initial_state, 1)^2 "The initial state size should be square root of exponentglobal_operator size"
+  @assert size(exp_global_operator, 1) == size(initial_state, 1)^2 "The initial state size should be square root of exp_global_operator size"
 
-  unres(exponentglobal_operator*res(initial_state))
+  unres(exp_global_operator*res(initial_state))
 end
 
 function evolve(global_operator::Matrix{T} where T<:Number,

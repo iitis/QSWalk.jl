@@ -539,7 +539,7 @@ function global_hamiltonian(A::SparseDenseMatrix;
 
   alloneshamiltonians = Dict{Tuple{Int,Int},SparseMatrixCSC}()
   for v=revindlist, w=v
-
+    w = revindlist[w]
     alloneshamiltonians[length.((v,w))] = ones(length(v), length(w))
     alloneshamiltonians[length.((w,v))] = ones(length(w), length(v))
   end
