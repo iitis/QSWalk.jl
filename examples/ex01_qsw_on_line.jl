@@ -1,8 +1,12 @@
 # ------------------------------------------------------------------------------
-# Initialisation
+# Imports
 # ------------------------------------------------------------------------------
+
 using QSWalk
-using PyPlot
+
+#
+using PyPlot # for plot
+using LightGraphs # for PathGraph
 
 # Dimension of the system
 dim = 51
@@ -11,7 +15,9 @@ dim = 51
 s0 = Int((dim+1)/2)
 
 # Adjency matrix for the line
-adjmtx = spdiagm((ones(dim-1),ones(dim-1)),(-1,1))
+adjmtx = adjacency_matrix(PathGraph(dim))
+# this is equvalent to 
+#adjmtx = spdiagm((ones(dim-1),ones(dim-1)),(-1,1))
 ##
 
 # ------------------------------------------------------------------------------
