@@ -19,6 +19,10 @@ println(diag(rho))
 lnonmoral, vset = nonmoralizing_lindbladian(adjacency)
 hlocal = local_hamiltonian(vset)
 opnonmoral = global_operator(zero(lnonmoral), [lnonmoral], hlocal)
+
+println(vertexsetsize(vset))
+println(vset)
+
 rhoinit = init_nonmoralized(vset[[1]], vset)
 rho = evolve(opnonmoral, rhoinit, time)
 println(measurement_nonmoralized(rho, vset))
