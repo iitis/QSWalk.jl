@@ -442,7 +442,7 @@ function nonmoralizing_lindbladian(A::SparseDenseMatrix,
   vset = revinc_to_vertexset(revincidence_list)
 
   @argument all([ v in keys(lindbladians) for v=vset()]) "Some vertex is missing in lindbladians"
-  @argument all([ length(v) in size(lindbladians, 1) for v=vset()]) "Size of the lindbladians should equal to indegree of the vertex"
+  @argument all([ length(v) == size(lindbladians[v], 1) for v=vset()]) "Size of the lindbladians should equal to indegree of the vertex"
 
   L = spzeros(Complex128,vertexsetsize(vset),vertexsetsize(vset))
   for i=1:size(A,1), (index,j)=enumerate(revincidence_list[i]), l=vset[j]()
