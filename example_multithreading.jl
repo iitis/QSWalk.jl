@@ -35,9 +35,9 @@ function comptime(linesizes::Vector{Int},
   for p=threadnumbers
     data["$p"] = Float64[]
     BLAS.set_num_threads(p)
-    addprocs(p)
+    #addprocs(p)
     println("number of workers = ", nworkers())
-    eval(Expr(:toplevel, :(@everywhere using QSWalk)))
+    #eval(Expr(:toplevel, :(@everywhere using QSWalk)))
 
     for n=linesizes
       println("line size: $n")
@@ -48,7 +48,7 @@ function comptime(linesizes::Vector{Int},
       end
     end
 
-    rmprocs(workers())
+    #rmprocs(workers())
   end
 
   data
@@ -57,8 +57,8 @@ end
 ## data generation
 
 linesizes = 100:100:1300
-threadnumbers = collect(1:8)
-filename = "multithreading_data_global.jld"
+threadnumbers = [1,2,4,8] # collect(1:8)
+filename = "multithreading_data_global_noaddproc.jld"
 repeat = 1
 t = 100.
 ω = 0.5

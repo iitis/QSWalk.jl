@@ -8,7 +8,7 @@ using PyPlot
 
 ##
 
-filename = "multithreading_data_global.jld"
+filename = "multithreading_data_global_noaddproc.jld"
 data = load(filename)
 
 ns = Float64[]
@@ -24,4 +24,4 @@ ylabel("t")
 
 legend(loc="upper left",fancybox="true")
 show()
-savefig("time.pdf")
+savefig("$(filename[1:end-4]).pdf")
