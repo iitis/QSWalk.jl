@@ -74,7 +74,7 @@ julia> full(local_hamiltonian(vset))
 julia> A, B = rand(2, 2), rand(2, 2)
 ([0.358914 0.183322; 0.379927 0.671986], [0.26643 0.969279; 0.313752 0.636789])
 
-julia> v1, v2 = vertices(vset)
+julia> v1, v2 = vlist(vset)
 2-element Array{QSWalk.Vertex, 1}:
  QSWalk.Vertex([1, 2])
  QSWalk.Vertex([3, 4])
@@ -104,14 +104,14 @@ julia> local_hamiltonian(VertexSet([[1, 2], [3, 4]]), Dict(2  => A))
 """
 function local_hamiltonian(vset::VertexSet,
                            hamiltonians::Dict{Int, T} where T<:AbstractArray
-                              = Dict(l =>default_local_hamiltonian(l) for l = length.(vertices(vset))))
+                              = Dict(l =>default_local_hamiltonian(l) for l = length.(vlist(vset))))
   @argumentcheck all([typeof(h)<:SparseDenseMatrix for h = values(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argumentcheck all([eltype(h)<:Number for h = values(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
   @argumentcheck all([size(h, 1) ==  size(h, 2) for h = values(hamiltonians)])  "hamiltonians must consists of square matrices"
-  verticeslengths = length.(vertices(vset))
+  verticeslengths = length.(vlist(vset))
   @assert all([l in keys(hamiltonians) for l = verticeslengths]) "Missing degree in the Dictionary: $verticeslengths needed"
 
-  hamiltonianlist = Dict{Vertex, SparseDenseMatrix}(v =>hamiltonians[length(v)] for v = vertices(vset))
+  hamiltonianlist = Dict{Vertex, SparseDenseMatrix}(v =>hamiltonians[length(v)] for v = vlist(vset))
   local_hamiltonian(vset, hamiltonianlist)
 end
 
@@ -120,11 +120,11 @@ function local_hamiltonian(vset::VertexSet,
   @argumentcheck all([typeof(h)<:SparseDenseMatrix for h = values(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argumentcheck all([eltype(h)<:Number for h = values(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
   @argumentcheck all([size(h, 1) ==  size(h, 2) for h = values(hamiltonians)])  "hamiltonians must consists of square matrices"
-  @assert all([v in keys(hamiltonians) for v = vertices(vset)]) "Missing hamiltonian for some vertex"
-  @assert all([length(v) == size(hamiltonians[v], 1) for v = vertices(vset)]) "The vertex length and hamiltonian size do no match"
+  @assert all([v in keys(hamiltonians) for v = vlist(vset)]) "Missing hamiltonian for some vertex"
+  @assert all([length(v) == size(hamiltonians[v], 1) for v = vlist(vset)]) "The vertex length and hamiltonian size do no match"
 
   result = spzeros(Complex128, vertexsetsize(vset), vertexsetsize(vset))
-  for v = vertices(vset)
+  for v = vlist(vset)
     result[subspace(v), subspace(v)] = hamiltonians[v]
   end
   result
@@ -377,7 +377,7 @@ julia> nonmoralizing_lindbladian(A, Dict(1  => B1, 2 =>B2 ))
   [2, 4] = 3.0+0.0im
   [3, 4] = 3.0+0.0im, QSWalk.VertexSet(QSWalk.Vertex[QSWalk.Vertex([1]), QSWalk.Vertex([2, 3]), QSWalk.Vertex([4])]))
 
-julia> v1, v2, v3 = vertices(vset)
+julia> v1, v2, v3 = vlist(vset)
 3-element Array{QSWalk.Vertex, 1}:
  QSWalk.Vertex([1])
  QSWalk.Vertex([2, 3])
@@ -403,7 +403,7 @@ function nonmoralizing_lindbladian(A::SparseDenseMatrix,
 
   revincidence_list = reversed_incidence_list(A, epsilon = epsilon)
   vset = revinc_to_vertexset(revincidence_list)
-  verticeslengths = length.(vertices(vset))
+  verticeslengths = length.(vlist(vset))
 
   @assert all([ l in keys(lindbladians) for l = verticeslengths]) "Missing degrees in lindbladians: $verticeslengths needed"
 
@@ -417,7 +417,7 @@ end
 function nonmoralizing_lindbladian(A::SparseDenseMatrix;
                                    epsilon::Real = eps())
   vset = make_vertex_set(A, epsilon = epsilon)
-  degrees = [length(v) for v = vertices(vset)]
+  degrees = [length(v) for v = vlist(vset)]
 
   nonmoralizing_lindbladian(A, Dict(d =>fourier_matrix(d) for d = degrees), epsilon = epsilon)
 end
@@ -433,8 +433,8 @@ function nonmoralizing_lindbladian(A::SparseDenseMatrix,
   revincidence_list = reversed_incidence_list(A; epsilon = epsilon)
   vset = revinc_to_vertexset(revincidence_list)
 
-  @argumentcheck all([ v in keys(lindbladians) for v = vertices(vset)]) "Some vertex is missing in lindbladians"
-  @argumentcheck all([ length(v) == size(lindbladians[v], 1) for v = vertices(vset)]) "Size of the lindbladians should equal to indegree of the vertex"
+  @argumentcheck all([ v in keys(lindbladians) for v = vlist(vset)]) "Some vertex is missing in lindbladians"
+  @argumentcheck all([ length(v) == size(lindbladians[v], 1) for v = vlist(vset)]) "Size of the lindbladians should equal to indegree of the vertex"
 
   L = spzeros(Complex128, vertexsetsize(vset), vertexsetsize(vset))
   for i = 1:size(A, 1), (index, j) = enumerate(revincidence_list[i]), l = subspace(vset[j])
@@ -449,7 +449,7 @@ end
     global_hamiltonian(A[, hamiltonians][, epsilon])
 
 Creates global hamiltonian for moralization procedure. The function constructs
-upper-diagonl of result matrix by upper-diagonal of `A` matrix and after
+upper-diagonl of result matrix by upper-triangular of `A` matrix and after
 symmetrizes it. The result matrix is then always exactly hermitian. `hamiltonians`
 is an optional argument which is a Dictionary with keys of type `Tuple{Int, Int}`
 or `Tuple{Vertex, Vertex}`. First collects the submatrices according to its

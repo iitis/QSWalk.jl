@@ -58,6 +58,7 @@ facts("Demoralization user utils") do
 
   context("nonmoralizing_lindbladian") do
     A = sparse([0.+0.0im 1 0; 1 0 1; 0 1 0])
+    B1, B2 = eye(1), ones(2, 2)
     #default
     #needs to be roughly, since exp computing is inexact
     @fact nonmoralizing_lindbladian(A)[1] --> roughly([0 1 1 0;
@@ -71,6 +72,8 @@ facts("Demoralization user utils") do
                 0 0 0 0 0;
                 0 1 1 0 0;
                 0 0 0 0 0])
+    L, vset = nonmoralizing_lindbladian(A)
+    v1, v2, v3, v4, v5 = vlist(vset)
     @fact nonmoralizing_lindbladian(A)[1] --> roughly([0 0 0 0 0 0 1;
                                                      0 0 0 1 0 0 1;
                                                      0 0 0 1 0 0 -1;
@@ -79,6 +82,16 @@ facts("Demoralization user utils") do
                                                      0 1 1 -1 0 0 0;
                                                      0 0 0 0 0 0 0])
     @fact nonmoralizing_lindbladian(A)[2] --> make_vertex_set(A)
+    @fact nonmoralizing_lindbladian(A, Dict(v1 => B1, v2 => 2*B2, v3 => 3*B1, v4 => 4*B2, v5 => 5*B1))[1] -->
+      roughly([0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  1.0+0.0im;
+              0.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im;
+              0.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im;
+              0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+              0.0+0.0im  4.0+0.0im  4.0+0.0im  4.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+              0.0+0.0im  4.0+0.0im  4.0+0.0im  4.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+              0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im])
+
+
 
     A = [0 0 0; 0 0 0; 1 1 0]
     @fact nonmoralizing_lindbladian(A)[1] --> roughly([0 0 0 0;
@@ -87,21 +100,30 @@ facts("Demoralization user utils") do
                                                      1 -1 0 0])
     @fact nonmoralizing_lindbladian(A)[2] --> make_vertex_set(A)
 
-    B = 3*ones(2, 2)
-    @fact nonmoralizing_lindbladian(A, Dict(1  => eye(1), 2 =>B ))[1] -->
+
+    @fact nonmoralizing_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[1] -->
       roughly([0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im])
-    @fact nonmoralizing_lindbladian(A, Dict(1  => eye(1), 2 =>B ))[2] -->
+    @fact nonmoralizing_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[2] -->
       make_vertex_set(A)
 
-    @fact nonmoralizing_lindbladian(A, Dict(1  => eye(1), 2 =>B ))[1] -->
+    @fact nonmoralizing_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[1] -->
       roughly([0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im])
 
+    L, vset = nonmoralizing_lindbladian(A)
+    v1, v2, v3 = vlist(vset)
+    @fact nonmoralizing_lindbladian(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[1] -->
+      roughly([0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+              0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+              3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
+              3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im])
+    @fact nonmoralizing_lindbladian(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[2] -->
+      make_vertex_set(A)
 
   end
 
@@ -119,7 +141,7 @@ facts("Demoralization user utils") do
                                              2-1im 0 0 2im;
                                              0 -2im -2im 0])
 
-    v1, v2, v3 = vertices(make_vertex_set(A))
+    v1, v2, v3 = vlist(make_vertex_set(A))
     @fact global_hamiltonian(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]')) -->
                                               [0 2 2 0;
                                                2 0 0 2im;

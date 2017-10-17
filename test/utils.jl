@@ -26,18 +26,18 @@ end
 
 facts("Vertex set") do
   context("VertexSet creation") do
-    @fact vertices(VertexSet([Vertex([1, 2, 3]), Vertex([4, 5])])) --> [Vertex([1, 2, 3]), Vertex([4, 5])]
-    @fact vertices(VertexSet([Vertex([1, 2, 3]), Vertex([4, 5])])) --> [Vertex([1, 2, 3]), Vertex([4, 5])]
-    @fact vertices(VertexSet([[1, 2, 3], [4, 5]])) --> [Vertex([1, 2, 3]), Vertex([4, 5])]
+    @fact vlist(VertexSet([Vertex([1, 2, 3]), Vertex([4, 5])])) --> [Vertex([1, 2, 3]), Vertex([4, 5])]
+    @fact vlist(VertexSet([Vertex([1, 2, 3]), Vertex([4, 5])])) --> [Vertex([1, 2, 3]), Vertex([4, 5])]
+    @fact vlist(VertexSet([[1, 2, 3], [4, 5]])) --> [Vertex([1, 2, 3]), Vertex([4, 5])]
   end
 
   context("Basic VertexSet functionaliy") do
     vset = VertexSet([[1, 2, 3], [4, 5]])
     vset2 = VertexSet([[1, 2, 3], [4, 5]])
-    @fact vertices(vset) -->[Vertex([1, 2, 3]), Vertex([4, 5])]
+    @fact vlist(vset) -->[Vertex([1, 2, 3]), Vertex([4, 5])]
     @fact vset --> vset2
     @fact vset[2] --> Vertex([4, 5])
-    @fact vset[[1, 2]] --> vertices(vset)
+    @fact vset[[1, 2]] --> vlist(vset)
     @fact length(vset) --> 2
   end
 

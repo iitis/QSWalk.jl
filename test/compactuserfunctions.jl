@@ -31,6 +31,6 @@ facts("Initial states creation") do
                 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  -0.125+0.0im   0.125+0.0im])
 
   dictwrong = Dict(vset[1] =>A2, vset[3] =>A2, vset[4] =>A3 )
-  @fact_throws AssertionError init_nonmoralized(vertices(VertexSet([[1, 2, 3], [4, 5]])), vset)
+  @fact_throws AssertionError init_nonmoralized(vlist(VertexSet([[1, 2, 3], [4, 5]])), vset)
   @fact_throws AssertionError init_nonmoralized(dictwrong, vset)
 end

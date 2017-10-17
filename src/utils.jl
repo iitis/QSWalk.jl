@@ -75,13 +75,13 @@ end
 
 VertexSet(vset::Vector{Vector{Int}}) = VertexSet([Vertex(v) for v = vset])
 
-vertices(vset::VertexSet) = vset.vertices
+vlist(vset::VertexSet) = vset.vertices
 
 ==(v::VertexSet, w::VertexSet) = v.vertices ==  w.vertices
 
-getindex(vset::VertexSet, i::Int) = vertices(vset)[i]
-getindex(vset::VertexSet, veci::Vector{Int}) = vertices(vset)[veci]
-length(vset::VertexSet) = length(vertices(vset))
+getindex(vset::VertexSet, i::Int) = vlist(vset)[i]
+getindex(vset::VertexSet, veci::Vector{Int}) = vlist(vset)[veci]
+length(vset::VertexSet) = length(vlist(vset))
 
 """
     vertexsetsize(vertexset)
@@ -96,7 +96,7 @@ julia> vertexsetsize(VertexSet([[1, 2, 3], [4, 5]]))
 ```
 """
 function vertexsetsize(vset::VertexSet)
-  sum(length.(vertices(vset)))
+  sum(length.(vlist(vset)))
 end
 
 macro argumentcheck(ex, msgs...)

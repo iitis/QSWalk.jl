@@ -52,7 +52,7 @@ function measurement_nonmoralized(probability::Vector{T} where T<:Number,
                                   vset::VertexSet)
   @assert vertexsetsize(vset) ==  length(probability) "vertexset size and probability vector length do not match"
 
-  [sum(probability[subspace(vertex)]) for vertex = vertices(vset)]
+  [sum(probability[subspace(vertex)]) for vertex = vlist(vset)]
 end
 
 function measurement_nonmoralized(state::SparseDenseMatrix,
@@ -121,7 +121,7 @@ julia> init_nonmoralized(Dict(vset[1] =>A1, vset[3] =>A2, vset[4] =>A3), vset)
 """
 function init_nonmoralized(initialvertices::Vector{Vertex},
                            vset::VertexSet)
-  @assert all([v in vertices(vset) for v = initialvertices]) "initialvertices is not a subset of vertexset"
+  @assert all([v in vlist(vset) for v = initialvertices]) "initialvertices is not a subset of vertexset"
 
   L = spzeros(Complex128, vertexsetsize(vset), vertexsetsize(vset))
   for v = initialvertices
@@ -136,7 +136,7 @@ function init_nonmoralized(initial_states::Dict{Vertex, T} where T,
   @argumentcheck all([typeof(state)<:SparseDenseMatrix for state = values(initial_states)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argumentcheck all([eltype(state)<:Number for state = values(initial_states)]) "All elements of elements in `hamiltonians` must be Number"
   @assert all([size(state, 1) ==  length(k) for (k, state) = initial_states]) "The size of initial state and the vertex do not match"
-  @assert all([k in vertices(vset) for k = keys(initial_states)]) "keys of initial_states is not a subset of vertexset"
+  @assert all([k in vlist(vset) for k = keys(initial_states)]) "keys of initial_states is not a subset of vertexset"
 
   L = spzeros(Complex128, vertexsetsize(vset), vertexsetsize(vset))
   for v = keys(initial_states)
