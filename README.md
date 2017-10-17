@@ -28,4 +28,4 @@ Pkg.update("QSWalk")
 ```
 ## Examples
 
-Examples can be found in [QSWalkTutorials](https://github.com/ZKSI/QSWalkTutorials) project. The project requires QSWalk, PyPlot and LightGraphs modules.
+Examples can be found in [QSWalkTutorials](https://github.com/ZKSI/QSWalkTutorials) project. The project requires QSWalk, PyPlot, TikzGraphs and LightGraphs modules.
