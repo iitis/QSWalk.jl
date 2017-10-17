@@ -5,7 +5,7 @@ export
   VertexSet,
   vertexsetsize,
   subspace,
-  vertices
+  vlist
 
 import Base: ==, hash, getindex, length
 
