@@ -1,5 +1,5 @@
 export
-  evolve_operator,
+  evolve_operator, 
   evolve
 
 """
@@ -16,27 +16,27 @@ case different numerical approach is used. See function ```epmv``` in package
 # Examples
 
 ```jldoctest
-julia> H, L = [0 1; 1 0], [[0 1; 0 0],[0 0; 1 0]]
+julia> H, L = [0 1; 1 0], [[0 1; 0 0], [0 0; 1 0]]
 (
-[0 1; 1 0],
+[0 1; 1 0], 
 
-Array{Int64,2}[
-[0 1; 0 0],
+Array{Int64, 2}[
+[0 1; 0 0], 
 
 [0 0; 1 0]])
 
-julia> evolve_operator(global_operator(H,L), 4.0)
-4×4 Array{Complex{Float64},2}:
+julia> evolve_operator(global_operator(H, L), 4.0)
+4×4 Array{Complex{Float64}, 2}:
  0.499815+0.0im                0.0+0.00127256im         0.0-0.00127256im  0.500185+0.0im
       0.0+0.00127256im  0.00960957+0.0im         0.00870607+0.0im              0.0-0.00127256im
       0.0-0.00127256im  0.00870607+0.0im         0.00960957+0.0im              0.0+0.00127256im
  0.500185+0.0im
 ```
 """
-function evolve_operator(global_operator::Matrix{T} where T<:Number,
+function evolve_operator(global_operator::Matrix{T} where T<:Number, 
                         time_point::Real)
-  @argument time_point>=0 "Time need to be nonnegative"
-  @argument size(global_operator, 1) == size(global_operator, 2) "global_operator needs to be square"
+  @argumentcheck time_point>= 0 "Time need to be nonnegative"
+  @argumentcheck size(global_operator, 1) ==  size(global_operator, 2) "global_operator needs to be square"
 
   expm(time_point*global_operator)
 end
@@ -68,77 +68,77 @@ timepoint.
 # Examples
 
 ```jldoctest
-julia> H, L = [0 1; 1 0], [[0 1; 0 0],[0 0; 1 0]]
+julia> H, L = [0 1; 1 0], [[0 1; 0 0], [0 0; 1 0]]
 (
-[0 1; 1 0],
+[0 1; 1 0], 
 
-Array{Int64,2}[
-[0 1; 0 0],
+Array{Int64, 2}[
+[0 1; 0 0], 
 
 [0 0; 1 0]])
 
-julia> evolve(global_operator(H, L), proj(1,2), 4.)
-2×2 Array{Complex{Float64},2}:
+julia> evolve(global_operator(H, L), proj(1, 2), 4.)
+2×2 Array{Complex{Float64}, 2}:
  0.499815-0.0im              0.0-0.00127256im
       0.0+0.00127256im  0.500185-0.0im
 
-julia> evolve(global_operator(H, L), proj(1,2), [1.,2.,3.,4.])
-4-element Array{Array{Complex{Float64},2},1}:
+julia> evolve(global_operator(H, L), proj(1, 2), [1., 2., 3., 4.])
+4-element Array{Array{Complex{Float64}, 2}, 1}:
  Complex{Float64}[0.433203-0.0im 0.0-0.107605im; 0.0+0.107605im 0.566797-0.0im]
  Complex{Float64}[0.485766-0.0im 0.0+0.0171718im; 0.0-0.0171718im 0.514234-0.0im]
  Complex{Float64}[0.505597-0.0im 0.0+0.00261701im; 0.0-0.00261701im 0.494403-0.0im]
  Complex{Float64}[0.499815-0.0im 0.0-0.00127256im; 0.0+0.00127256im 0.500185-0.0im]
 
 julia> ev_op = evolve_operator(global_operator(H, L), 4.)
-4×4 Array{Complex{Float64},2}:
+4×4 Array{Complex{Float64}, 2}:
  0.499815+0.0im                0.0+0.00127256im         0.0-0.00127256im  0.500185+0.0im
       0.0+0.00127256im  0.00960957+0.0im         0.00870607+0.0im              0.0-0.00127256im
       0.0-0.00127256im  0.00870607+0.0im         0.00960957+0.0im              0.0+0.00127256im
  0.500185+0.0im                0.0-0.00127256im         0.0+0.00127256im  0.499815+0.0im
 
-julia> evolve(ev_op, proj(1,2))
-2×2 Array{Complex{Float64},2}:
+julia> evolve(ev_op, proj(1, 2))
+2×2 Array{Complex{Float64}, 2}:
  0.499815+0.0im              0.0+0.00127256im
       0.0-0.00127256im  0.500185+0.0im
 ```
 """
-function evolve(exp_global_operator::Matrix{T} where T<:Number,
+function evolve(exp_global_operator::Matrix{T} where T<:Number, 
                 initial_state::SparseDenseMatrix)
-  @argument size(exp_global_operator, 1) == size(exp_global_operator, 2) "exp_global_operator should be square"
-  @argument size(initial_state, 1) == size(initial_state, 2) "initial_state should be square"
-  @assert size(exp_global_operator, 1) == size(initial_state, 1)^2 "The initial state size should be square root of exp_global_operator size"
+  @argumentcheck size(exp_global_operator, 1) ==  size(exp_global_operator, 2) "exp_global_operator should be square"
+  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "initial_state should be square"
+  @assert size(exp_global_operator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of exp_global_operator size"
 
   unres(exp_global_operator*res(initial_state))
 end
 
-function evolve(global_operator::Matrix{T} where T<:Number,
-                initial_state::SparseDenseMatrix,
+function evolve(global_operator::Matrix{T} where T<:Number, 
+                initial_state::SparseDenseMatrix, 
                 timepoint::Real)
-  @argument size(global_operator, 1) == size(global_operator, 2) "global_operator should be square"
-  @argument size(initial_state, 1) == size(initial_state, 2) "initial_state should be square"
-  @assert size(global_operator, 1) == size(initial_state, 1)^2 "The initial state size should be square root of global_operator size"
-  @argument timepoint>=0 "Time needs to be nonnegative"
+  @argumentcheck size(global_operator, 1) ==  size(global_operator, 2) "global_operator should be square"
+  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "initial_state should be square"
+  @assert size(global_operator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of global_operator size"
+  @argumentcheck timepoint>= 0 "Time needs to be nonnegative"
 
   unres(expm(timepoint*global_operator)*res(initial_state))
 end
 
-function evolve(global_operator::SparseMatrixCSC{T} where T<:Number,
-                initial_state::SparseDenseMatrix,
+function evolve(global_operator::SparseMatrixCSC{T} where T<:Number, 
+                initial_state::SparseDenseMatrix, 
                 timepoint::Real)
-  @argument size(global_operator, 1) == size(global_operator, 2) "global_operator should be square"
-  @argument size(initial_state, 1) == size(initial_state, 2) "initial_state should be square"
-  @assert size(global_operator, 1) == size(initial_state, 1)^2 "The initial state size should be square root of global_operator size"
-  @argument timepoint>=0 "Time needs to be nonnegative"
+  @argumentcheck size(global_operator, 1) ==  size(global_operator, 2) "global_operator should be square"
+  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "initial_state should be square"
+  @assert size(global_operator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of global_operator size"
+  @argumentcheck timepoint>= 0 "Time needs to be nonnegative"
   unres(expmv(timepoint, global_operator, full(res(initial_state))))
 end
 
-function evolve(global_operator::SparseDenseMatrix,
-                initial_state::SparseDenseMatrix,
+function evolve(global_operator::SparseDenseMatrix, 
+                initial_state::SparseDenseMatrix, 
                 timepoints::Vector{T} where T<:Number)
-  @argument size(global_operator, 1) == size(global_operator, 2) "global_operator should be square"
-  @argument size(initial_state, 1) == size(initial_state, 2) "initial_state should be square"
-  @assert size(global_operator, 1) == size(initial_state, 1)^2 "The initial state size should be square root of global_operator size"
-  @argument all(timepoints.>=0) "All time points need to be nonnegative"
+  @argumentcheck size(global_operator, 1) ==  size(global_operator, 2) "global_operator should be square"
+  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "initial_state should be square"
+  @assert size(global_operator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of global_operator size"
+  @argumentcheck all(timepoints.>= 0) "All time points need to be nonnegative"
 
-  [evolve(global_operator,initial_state,t) for t=timepoints]
+  [evolve(global_operator, initial_state, t) for t = timepoints]
 end

@@ -14,50 +14,50 @@ nonnegative. The `epsilon` defaults to `eps()` if not specified.
 
 ```jldoctest
 julia> A = [1. 2.; 3. 4.]
-2×2 Array{Float64,2}:
+2×2 Array{Float64, 2}:
  1.0  2.0
  3.0  4.0
 
 julia> classical_lindblad_operators(A)
-4-element Array{SparseMatrixCSC{Float64,Ti<:Integer},1}:
+4-element Array{SparseMatrixCSC{Float64, Ti<:Integer}, 1}:
 
-	[1, 1]  =  1.0
+	[1, 1] = 1.0
 
-	[1, 2]  =  2.0
+	[1, 2] = 2.0
 
-	[2, 1]  =  3.0
+	[2, 1] = 3.0
 
-	[2, 2]  =  4.0
+	[2, 2] = 4.0
 
-julia> classical_lindblad_operators(A, epsilon=1.5)
-3-element Array{SparseMatrixCSC{Float64,Ti<:Integer},1}:
+julia> classical_lindblad_operators(A, epsilon = 1.5)
+3-element Array{SparseMatrixCSC{Float64, Ti<:Integer}, 1}:
 
-	[1, 2]  =  2.0
+	[1, 2] = 2.0
 
-	[2, 1]  =  3.0
+	[2, 1] = 3.0
 
-	[2, 2]  =  4.0
+	[2, 2] = 4.0
 ```
 """
 function classical_lindblad_operators(A::Matrix{T} where T<:Number;
-                                      epsilon::Real=eps())
-  @argument epsilon>=0 "epsilon should be nonegative"
+                                      epsilon::Real = eps())
+  @argumentcheck epsilon>= 0 "epsilon should be nonegative"
   L = SparseMatrixCSC{eltype(A)}[]
-  for i=1:size(A,1), j=1:size(A,2)
-    if abs(A[i,j]) >= epsilon
-        push!(L, A[i,j]*ketbra(i, j, size(A,1)))
+  for i = 1:size(A, 1), j = 1:size(A, 2)
+    if abs(A[i, j]) >=  epsilon
+        push!(L, A[i, j]*ketbra(i, j, size(A, 1)))
     end
   end
   L
 end
 
 function classical_lindblad_operators(A::SparseMatrixCSC{T} where T<:Number;
-                                      epsilon::Real=eps())
-  @argument epsilon>=0 "epsilon should be nonegative"
+                                      epsilon::Real = eps())
+  @argumentcheck epsilon>= 0 "epsilon should be nonegative"
   L = SparseMatrixCSC{eltype(A)}[]
-  for i=1:size(A,1), j=A[i,:].nzind
-    if abs(A[i,j]) >= epsilon
-        push!(L, A[i,j]*ketbra(i,j,size(A,1)))
+  for i = 1:size(A, 1), j = A[i, :].nzind
+    if abs(A[i, j]) >=  epsilon
+        push!(L, A[i, j]*ketbra(i, j, size(A, 1)))
     end
   end
   L
@@ -87,8 +87,8 @@ Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 - `H`: Hamiltonian, must be hermitian,
 - `L`: collection of Lindblad operators, each must be of the same size as `H`,
 - `locH`: local Hamiltonian, suggested for nonmoralized QS walk, must be hermitian and of the size of `H`,
-- `α`: scaling parameter corresponding to Hamiltonian, should be in [0,1],
-- `β`: scaling parameter corresponding to Lindbladian part, should be in [0,1].
+- `α`: scaling parameter corresponding to Hamiltonian, should be in [0, 1],
+- `β`: scaling parameter corresponding to Lindbladian part, should be in [0, 1].
 
 # Return
 The function return global operator used for evolution.
@@ -103,21 +103,21 @@ function global_operator_util(H::SparseDenseMatrix,
                               localH::SparseDenseMatrix,
                               α::Real,
                               β::Real)
-  @argument size(H) != (0,0) "H must not be sizeless"
-  @argument size(H, 1) == size(H, 2) "H must be square"
-  @assert all([size(lindbladian) == size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
-  @argument all([eltype(el)<:Number for el in L]) "Lindblad operators elements must be numbers"
-  @argument all([typeof(el)<:SparseDenseMatrix for el in L]) "Lindblad operators must be SparseMatrixCSC or Matrix"
-  @assert size(H) == size(localH) "localH must be of the same size as H"
-  @argument 0 <= α <= 1 && 0 <= β <= 1 "ω must be nonngeative and smaller than one"
+  @argumentcheck size(H) !=  (0, 0) "H must not be sizeless"
+  @argumentcheck size(H, 1) ==  size(H, 2) "H must be square"
+  @assert all([size(lindbladian) ==  size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
+  @argumentcheck all([eltype(el)<:Number for el in L]) "Lindblad operators elements must be numbers"
+  @argumentcheck all([typeof(el)<:SparseDenseMatrix for el in L]) "Lindblad operators must be SparseMatrixCSC or Matrix"
+  @assert size(H) ==  size(localH) "localH must be of the same size as H"
+  @argumentcheck 0 <=  α <=  1 && 0 <=  β <=  1 "ω must be nonngeative and smaller than one"
 
-  F = spzeros(Complex128,(size(H).^2)...)
+  F = spzeros(Complex128, (size(H).^2)...)
   id = eye(H)
   for i = 1:length(L)
-      F += kron(L[i],conj(L[i]))-0.5*kron(L[i]'*L[i],id)-0.5*kron(id,transpose(L[i])*conj(L[i]))
+      F +=  kron(L[i], conj(L[i]))-0.5*kron(L[i]'*L[i], id)-0.5*kron(id, transpose(L[i])*conj(L[i]))
   end
-  F += im*(kron(id,conj(localH))-kron(localH,id))
-  F = α*im*(kron(id,conj(H))-kron(H,id)) + β*F
+  F +=  im*(kron(id, conj(localH))-kron(localH, id))
+  F = α*im*(kron(id, conj(H))-kron(H, id)) + β*F
   F
 end
 
@@ -146,7 +146,7 @@ Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 - `L`: collection of Lindblad operators, each must be of the same size as `H`,
 - `localH`: local Hamiltonian, suggested for nonmoralized QS walk, must be hermitian
 and of the size of `H`,
-- `ω`: scaling parameter, should be in [0,1].
+- `ω`: scaling parameter, should be in [0, 1].
 
 # Examples
 
@@ -160,7 +160,7 @@ Complex{Int64}[0+0im 1+1im; 1-1im 0+0im],
 [1.0 0.0; 0.0 1.0])
 
 julia> global_operator(H, [L], localH, 1/2)
-4×4 Array{Complex{Float64},2}:
+4×4 Array{Complex{Float64}, 2}:
   0.0+0.0im    0.5+0.5im    0.5-0.5im   0.5+0.0im
  -0.5+0.5im  -0.25+0.0im    0.0+0.0im   0.5-0.5im
  -0.5-0.5im    0.0+0.0im  -0.25+0.0im   0.5+0.5im
@@ -177,12 +177,12 @@ end
 
 function global_operator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
-                         localH::SparseDenseMatrix=spzeros(eltype(H),size(H)...))
+                         localH::SparseDenseMatrix = spzeros(eltype(H), size(H)...))
  global_operator_util(H, L, localH, 1., 1.)
 end
 
 function global_operator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
                          ω::Real)
- global_operator_util(H, L, spzeros(eltype(H),size(H)...), 1-ω , ω)
+ global_operator_util(H, L, spzeros(eltype(H), size(H)...), 1-ω , ω)
 end

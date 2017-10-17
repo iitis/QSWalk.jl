@@ -14,30 +14,30 @@ facts("Global operator construction") do
   context("Standard usage") do
     #no locH case
 
-    @fact global_operator(H, [L1,L2]) --> resultnoomega
-    @fact global_operator(H, [L1,L2], 1/2) --> resultnoomega/2
+    @fact global_operator(H, [L1, L2]) --> resultnoomega
+    @fact global_operator(H, [L1, L2], 1/2) --> resultnoomega/2
   end
 
   context("Error tests") do
-    @fact_throws MethodError global_operator(H, [L1,L2], 1im)
-    @fact_throws ArgumentError global_operator(H, [L1,L2], -1)
-    @fact_throws ArgumentError global_operator(H, [L1,L2], 3)
+    @fact_throws MethodError global_operator(H, [L1, L2], 1im)
+    @fact_throws ArgumentError global_operator(H, [L1, L2], -1)
+    @fact_throws ArgumentError global_operator(H, [L1, L2], 3)
   end
 end
 
 facts("Classical lindlbad generators") do
   H = [1. 1.+im ; 1.-im im]
-  result = [sparse([1.+0im 0 ; 0 0 ]),
-            sparse([0.+0im 1.+im ; 0 0 ]),
-            sparse([0.+0im 0 ; 1.-im 0 ]),
+  result = [sparse([1.+0im 0 ; 0 0 ]), 
+            sparse([0.+0im 1.+im ; 0 0 ]), 
+            sparse([0.+0im 0 ; 1.-im 0 ]), 
             sparse([0.+0im 0 ; 0 im ])]
-  resultwithepsilon = [sparse([0.+0im 1.+im ; 0 0 ]),
+  resultwithepsilon = [sparse([0.+0im 1.+im ; 0 0 ]), 
             sparse([0.+0im 0 ; 1.-im 0 ])]
   context("Standard usage") do
     @fact classical_lindblad_operators(H) --> result
     @fact classical_lindblad_operators(sparse(H)) --> result
-    @fact classical_lindblad_operators(H, epsilon=1.1) --> resultwithepsilon
-    @fact classical_lindblad_operators(sparse(H), epsilon=1.1) --> resultwithepsilon
+    @fact classical_lindblad_operators(H, epsilon = 1.1) --> resultwithepsilon
+    @fact classical_lindblad_operators(sparse(H), epsilon = 1.1) --> resultwithepsilon
   end
 
   context("Type tests") do
@@ -46,7 +46,7 @@ facts("Classical lindlbad generators") do
   end
 
   context("Error tests") do
-    @fact_throws ArgumentError classical_lindblad_operators(H, epsilon=-1.)
-    @fact_throws TypeError classical_lindblad_operators(H, epsilon=-1im)
+    @fact_throws ArgumentError classical_lindblad_operators(H, epsilon = -1.)
+    @fact_throws TypeError classical_lindblad_operators(H, epsilon = -1im)
   end
 end

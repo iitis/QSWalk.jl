@@ -17,7 +17,7 @@ s0 = Int((dim+1)/2)
 # Adjency matrix for the line
 adjmtx = adjacency_matrix(PathGraph(dim))
 # this is equvalent to 
-#adjmtx = spdiagm((ones(dim-1),ones(dim-1)),(-1,1))
+#adjmtx = spdiagm((ones(dim-1), ones(dim-1)), (-1, 1))
 ##
 
 # ------------------------------------------------------------------------------

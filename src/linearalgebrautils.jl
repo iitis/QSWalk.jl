@@ -10,20 +10,20 @@ export
     ket(index, size)
 
 Return `index`-th base (column) vector in the `size`-dimensional vector space.
-To be consistent with Julia indexing, `index`=1,2,...,`size`.
+To be consistent with Julia indexing, `index` = 1, 2, ..., `size`.
 
 # Examples
 
 ```jldoctest
-julia> ket(1,2)
-2-element SparseVector{Int64,Int64} with 1 stored entry:
-  [1]  =  1
+julia> ket(1, 2)
+2-element SparseVector{Int64, Int64} with 1 stored entry:
+  [1] = 1
 
 ```
 """
 function ket(index::Int, size::Int)
-  @argument size > 0 "vector size must be positive"
-  @assert 1 <= index <= size "index must be positive and not bigger than vector size"
+  @argumentcheck size > 0 "vector size must be positive"
+  @assert 1 <=  index <=  size "index must be positive and not bigger than vector size"
 
   ret = spzeros(Int, size)
   ret[index] = 1
@@ -34,13 +34,13 @@ end
     bra(index, size)
 
 Return `index`-th row vector in the `size`-dimensional vector space, with
-`index`=1,2,...,`size`.
+`index` = 1, 2, ..., `size`.
 
 # Examples
 
 ```jldoctest
-julia> bra(1,2)
-1×2 RowVector{Int64,SparseVector{Int64,Int64}}:
+julia> bra(1, 2)
+1×2 RowVector{Int64, SparseVector{Int64, Int64}}:
  1  0
 ```
 """
@@ -52,15 +52,15 @@ end
     ketbra(indexrow, indexcolumn, size)
 
 Return matrix acting on `size`-dimensional vector space, `indexrow`,
-`indexcolumn` = 1,2,...,`size`. The matrix consists of single nonzero element
-equal to one at position (`indexrow`,`indexcolumn`).
+`indexcolumn` = 1, 2, ..., `size`. The matrix consists of single nonzero element
+equal to one at position (`indexrow`, `indexcolumn`).
 
 # Examples
 
 ```jldoctest
-julia> ketbra(1,2,3)
-3×3 SparseMatrixCSC{Int64,Int64} with 1 stored entry:
-  [1, 2]  =  1
+julia> ketbra(1, 2, 3)
+3×3 SparseMatrixCSC{Int64, Int64} with 1 stored entry:
+  [1, 2] = 1
 
 ```
 """
@@ -72,7 +72,7 @@ end
     proj(index, size)
 
 Return projector onto `index`-th base vector in `size`-dimensional vector space,
-with `index` = 1,2,...,`size`. This is equivalent to `ketbra(index, index,
+with `index` = 1, 2, ..., `size`. This is equivalent to `ketbra(index, index,
 size)`.
 
     proj(vector)
@@ -81,21 +81,21 @@ Return projector onto the subspace spanned by vector `vector`.
 
 # Examples
 ```jldoctest
-julia> proj(1,2)
-2×2 SparseMatrixCSC{Int64,Int64} with 1 stored entry:
-  [1, 1]  =  1
+julia> proj(1, 2)
+2×2 SparseMatrixCSC{Int64, Int64} with 1 stored entry:
+  [1, 1] = 1
 
-julia> v = 1/sqrt(2) * (ket(1,3)+ket(3,3))
-3-element SparseVector{Float64,Int64} with 2 stored entries:
-  [1]  =  0.707107
-  [3]  =  0.707107
+julia> v = 1/sqrt(2) * (ket(1, 3)+ket(3, 3))
+3-element SparseVector{Float64, Int64} with 2 stored entries:
+  [1] = 0.707107
+  [3] = 0.707107
 
 julia> proj(v)
-3×3 SparseMatrixCSC{Float64,Int64} with 4 stored entries:
-  [1, 1]  =  0.5
-  [3, 1]  =  0.5
-  [1, 3]  =  0.5
-  [3, 3]  =  0.5
+3×3 SparseMatrixCSC{Float64, Int64} with 4 stored entries:
+  [1, 1] = 0.5
+  [3, 1] = 0.5
+  [1, 3] = 0.5
+  [3, 3] = 0.5
 ```
 """
 function proj(index::Int, size::Int)
@@ -116,14 +116,14 @@ Return vectorization of the `matrix` in the row order. This is equivalent to
 # Examples
 
 ```jldoctest
-julia> M = reshape(1:9, (3,3))'*1im
-3×3 Array{Complex{Int64},2}:
+julia> M = reshape(1:9, (3, 3))'*1im
+3×3 Array{Complex{Int64}, 2}:
  0+1im  0+2im  0+3im
  0+4im  0+5im  0+6im
  0+7im  0+8im  0+9im
 
 julia> v = res(M)
-9-element Array{Complex{Int64},1}:
+9-element Array{Complex{Int64}, 1}:
  0+1im
  0+2im
  0+3im
@@ -134,7 +134,7 @@ julia> v = res(M)
  0+8im
  0+9im
 
-julia> res(unres(v)) == v
+julia> res(unres(v)) ==  v
 true
 ```
 """
@@ -152,7 +152,7 @@ perfect square number of arguments to form square matrix.
 # Examples
 ```jldoctest
 julia> v = collect(1:9)*im
-9-element Array{Complex{Int64},1}:
+9-element Array{Complex{Int64}, 1}:
  0+1im
  0+2im
  0+3im
@@ -164,18 +164,18 @@ julia> v = collect(1:9)*im
  0+9im
 
 julia> unres(v)
-3×3 Array{Complex{Int64},2}:
+3×3 Array{Complex{Int64}, 2}:
  0+1im  0+2im  0+3im
  0+4im  0+5im  0+6im
  0+7im  0+8im  0+9im
 
-julia> res(unres(v)) == v
+julia> res(unres(v)) ==  v
 true
 ```
 """
 function unres(vector::SparseDenseVector)
-  dim = floor(Int64,sqrt(length(vector)))
-  @argument dim*dim == length(vector) "Expected vector with perfect square number of elements."
+  dim = floor(Int64, sqrt(length(vector)))
+  @argumentcheck dim*dim ==  length(vector) "Expected vector with perfect square number of elements."
 
-  reshape(vector, (dim,dim)).'
+  reshape(vector, (dim, dim)).'
 end

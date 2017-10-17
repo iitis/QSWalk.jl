@@ -3,7 +3,9 @@ export
   SparseDenseVector,
   Vertex,
   VertexSet,
-  vertexsetsize
+  vertexsetsize,
+  subspace,
+  vertices
 
 import Base: ==, hash, getindex, length
 
@@ -24,31 +26,32 @@ unique label.
 definable on arbitrary directed graph, Quantum Information & Computation,
 Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 """
-immutable Vertex
-  linspace::Vector{Int}
+struct Vertex
+  subspace::Vector{Int}
 
   Vertex(v::Vector{Int}) = all(v.>0) ? new(v) : throw(ArgumentError("vector should consist of positive elments"))
 end
 
-(v::Vertex)() = v.linspace
-==(v::Vertex, w::Vertex) = v() == w()
-hash(v::Vertex) = hash(v())
+subspace(v::Vertex) = v.subspace
 
-==(v::Tuple{Vertex,Vertex}, w::Tuple{Vertex,Vertex}) = [v[1](),v[2]()] == [w[1](),w[2]()]
-hash(v::Tuple{Vertex,Vertex}) = hash([v[1](),v[2]()])
-getindex(v::Vertex, i::Int) = v.linspace[i]
-length(v::Vertex) = length(v())
+==(v::Vertex, w::Vertex) = subspace(v) ==  subspace(w)
+hash(v::Vertex) = hash(subspace(v))
+
+==(v::Tuple{Vertex, Vertex}, w::Tuple{Vertex, Vertex}) = [subspace(v[1]), subspace(v[2])] ==  [subspace(w[1]), subspace(w[2])]
+hash(v::Tuple{Vertex, Vertex}) = hash([subspace(v[1]), subspace(v[2])])
+getindex(v::Vertex, i::Int) = v.subspace[i]
+length(v::Vertex) = length(subspace(v))
 
 
-function checkVertexSet(partition::Vector{Vector{Int}})
+function checkvertexset(partition::Vector{Vector{Int}})
   joined = Int[]
-  for lin=partition
-    append!(joined,lin)
+  for lin = partition
+    append!(joined, lin)
   end
-  length(joined) == length(Set(joined))
+  length(joined) ==  length(Set(joined))
 end
 
-checkVertexSet(vset::Vector{Vertex}) = checkVertexSet([vertex.linspace for vertex=vset])
+checkvertexset(vset::Vector{Vertex}) = checkvertexset([subspace(v) for v = vset])
 
 
 """
@@ -64,20 +67,21 @@ should use the function `vertexset()`, of for concrete `Vertex` an getindex func
 definable on arbitrary directed graph, Quantum Information & Computation,
 Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 """
-type VertexSet
+struct VertexSet
   vertices::Vector{Vertex}
 
-  VertexSet{T<:Vertex}(vset::Vector{T}) = checkVertexSet(vset) ? new(vset) : throw(ArgumentError("Vertices should correspond to orthogonal linear spaces"))
-  VertexSet(vset::Vector{Vector{Int}}) = checkVertexSet(vset) ? new([Vertex(v) for v=vset]) : throw(ArgumentError("Vertices should correspond to orthogonal linear spaces"))
+  VertexSet(vset::Vector{Vertex}) = checkvertexset(vset) ? new(vset) : throw(ArgumentError("Vertices should correspond to orthogonal linear spaces"))
 end
 
-(v::VertexSet)() = v.vertices
+VertexSet(vset::Vector{Vector{Int}}) = VertexSet([Vertex(v) for v = vset])
 
-==(v::VertexSet,w::VertexSet) = v.vertices == w.vertices
+vertices(vset::VertexSet) = vset.vertices
 
-getindex(vset::VertexSet, i::Int) = vset()[i]
-getindex(vset::VertexSet, veci::Vector{Int}) = vset()[veci]
-length(vset::VertexSet) = length(vset())
+==(v::VertexSet, w::VertexSet) = v.vertices ==  w.vertices
+
+getindex(vset::VertexSet, i::Int) = vertices(vset)[i]
+getindex(vset::VertexSet, veci::Vector{Int}) = vertices(vset)[veci]
+length(vset::VertexSet) = length(vertices(vset))
 
 """
     vertexsetsize(vertexset)
@@ -87,15 +91,15 @@ Return the dimenion of the linearspace corresponding to given `vertexset'.
 # Examples
 
 ```jldoctest
-julia> vertexsetsize(VertexSet([[1,2,3],[4,5]]))
+julia> vertexsetsize(VertexSet([[1, 2, 3], [4, 5]]))
 5
 ```
 """
-function vertexsetsize(vertexset::VertexSet)
-  sum([length(vertex()) for vertex=vertexset()])
+function vertexsetsize(vset::VertexSet)
+  sum(length.(vertices(vset)))
 end
 
-macro argument(ex, msgs...)
+macro argumentcheck(ex, msgs...)
     msg = isempty(msgs) ? ex : msgs[1]
     if isa(msg, AbstractString)
         msg = msg # pass-through
@@ -106,7 +110,7 @@ macro argument(ex, msgs...)
         #msg = Main.Base.string(msg)
     #else
         # string() might not be defined during bootstrap
-        #msg = :(Main.Base.string($(Expr(:quote,msg))))
+        #msg = :(Main.Base.string($(Expr(:quote, msg))))
     end
     return :($(esc(ex)) ? $(nothing) : throw(Main.Base.ArgumentError($msg)))
 end
