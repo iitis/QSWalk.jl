@@ -6,5 +6,7 @@
 Modules 
 - QSWalk,
 - LightGraphs, 
-- PyPlot 
+- PyPlot,
+- TikzGraphs
+
 are required to run examples.
