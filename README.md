@@ -28,17 +28,4 @@ Pkg.update("QSWalk")
 ```
 ## Examples
 
-There are some examples placed in the ```examples``` directory. Some of the
-depand on external Julia packages (eg. ```PyPlot``` for ploting the results). To
-run an example issue
-
-```
-julia examples/ex01_qsw_on_line.jl
-``` 
-
-Occasionaly Julia will complain about some depreciated functions. To get rid of
-this type of warning use
-
-```
-julia --depwarn=no examples/ex01_qsw_on_line.jl
-```
+Examples can be found in [QSWalkTutorials](https://github.com/ZKSI/QSWalkTutorials) project. The project requires QSWalk, PyPlot and LightGraphs modules.
