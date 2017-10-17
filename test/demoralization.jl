@@ -128,7 +128,9 @@ facts("Demoralization user utils") do
   end
 
   context("global_hamiltonian") do
-    A = sparse([0 1 0; 1 0 2; 0 2 0])
+    A = sparse([0 1 0;
+               1 0 2;
+               0 2 0])
     #default
     #needs to be roughly, since exp computing is inexact
     @fact global_hamiltonian(A) --> roughly([0 1 1 0;
@@ -147,5 +149,21 @@ facts("Demoralization user utils") do
                                                2 0 0 2im;
                                                2 0 0 4im;
                                                0 -2im -4im 0]
+   A = [0  0  1;
+        0  0  1;
+        2  2  0]
+  v1, v2, v3 = vlist(make_vertex_set(A))
+  @fact global_hamiltonian(A, Dict((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;])) -->
+                          roughly([ 0.0+0.0im  0.0+0.0im  2.0+0.0im  2.0+0.0im;
+                                   0.0+0.0im  0.0+0.0im  0.0-1.0im  0.0-2.0im;
+                                   2.0+0.0im  0.0+1.0im  0.0+0.0im  0.0+0.0im;
+                                   2.0+0.0im  0.0+2.0im  0.0+0.0im  0.0+0.0im])
+
+  @fact global_hamiltonian(A, Dict((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]),epsilon=1.5) -->
+                          roughly([ 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+                                   0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+                                   0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+                                   0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im])
+
   end
 end

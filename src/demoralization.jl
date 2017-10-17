@@ -485,7 +485,7 @@ julia> global_hamiltonian(A, Dict((1, 2) => (2+1im)*ones(1, 2), (2, 1) =>1im*one
 
 julia> v1, v2, v3 = make_vertex_set(A)()
 3-element Array{QSWalk.Vertex, 1}:
-^[[A QSWalk.Vertex([1])
+ QSWalk.Vertex([1])
  QSWalk.Vertex([2, 3])
  QSWalk.Vertex([4])
 

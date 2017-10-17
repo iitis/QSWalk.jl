@@ -17,6 +17,13 @@ facts("Global operator construction") do
     @fact global_operator(H, [L1, L2]) --> resultnoomega
     @fact global_operator(H, [L1, L2], 1/2) --> resultnoomega/2
   end
+  context("Nonmoralized usage") do
+    glbalH = global_hamiltonian(H)
+    Lnonmoral1 = nonmoralizing_lindbladian(L1)
+    locH1 = local_hamiltonian(Lnonmoral1[2])
+    @fact global_operator(glbalH,[],locH1,1/3) --> global_operator((1-1/3)*glbalH+1/3*locH1,[])
+    @fact global_operator(glbalH,[Lnonmoral1[1]],locH1,1/3) --> roughly(global_operator(glbalH+1/2*(locH1),[Lnonmoral1[1]],1/3))
+  end
 
   context("Error tests") do
     @fact_throws MethodError global_operator(H, [L1, L2], 1im)
@@ -27,11 +34,11 @@ end
 
 facts("Classical lindlbad generators") do
   H = [1. 1.+im ; 1.-im im]
-  result = [sparse([1.+0im 0 ; 0 0 ]), 
-            sparse([0.+0im 1.+im ; 0 0 ]), 
-            sparse([0.+0im 0 ; 1.-im 0 ]), 
+  result = [sparse([1.+0im 0 ; 0 0 ]),
+            sparse([0.+0im 1.+im ; 0 0 ]),
+            sparse([0.+0im 0 ; 1.-im 0 ]),
             sparse([0.+0im 0 ; 0 im ])]
-  resultwithepsilon = [sparse([0.+0im 1.+im ; 0 0 ]), 
+  resultwithepsilon = [sparse([0.+0im 1.+im ; 0 0 ]),
             sparse([0.+0im 0 ; 1.-im 0 ])]
   context("Standard usage") do
     @fact classical_lindblad_operators(H) --> result
