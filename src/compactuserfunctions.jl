@@ -20,7 +20,7 @@ according to `vertexset`.
 ```jldoctest
 julia> probability = [0.05,0.1,0.25,0.3,0.01,0.20,0.04,0.05]
 8-element Array{Float64,1}:
-^[[A^[[A 0.05
+ 0.05
  0.1
  0.25
  0.3

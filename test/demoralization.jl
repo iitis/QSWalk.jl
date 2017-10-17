@@ -51,6 +51,7 @@ facts("Demoralization user utils") do
   end
 
   context("Fourier matrix") do
+    @fact QSWalk.fourier_matrix(4) --> roughly([1 1 1 1; 1 1im -1 -1im;1 -1 1 -1; 1 -1im -1 1im])
     @fact QSWalk.fourier_matrix(2) --> roughly([1 1; 1 -1.])
     @fact QSWalk.fourier_matrix(1) --> roughly(ones(Float64,(1,1)))
   end
@@ -85,6 +86,23 @@ facts("Demoralization user utils") do
                                                      1 1 0 0;
                                                      1 -1 0 0])
     @fact nonmoralizing_lindbladian(A)[2] --> make_vertex_set(A)
+
+    B = 3*ones(2,2)
+    @fact nonmoralizing_lindbladian(A, Dict(1 => eye(1), 2=>B ))[1] -->
+      roughly([0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+              0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+              3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
+              3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im])
+    @fact nonmoralizing_lindbladian(A, Dict(1 => eye(1), 2=>B ))[2] -->
+      make_vertex_set(A)
+
+    @fact nonmoralizing_lindbladian(A, Dict(1 => eye(1), 2=>B ))[1] -->
+      roughly([0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+              0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
+              3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
+              3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im])
+
+
   end
 
   context("global_hamiltonian") do
