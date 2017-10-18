@@ -1,12 +1,12 @@
-facts("evolution") do
-    context("Exponent function") do
-    @fact evolve_operator(zeros(4, 4), 1.) --> roughly(eye(4))
+@testset "evolution" begin
+    @testset "Exponent function" begin
+    @test evolve_operator(zeros(4, 4), 1.) ≈ eye(4)
 
     # type check
-    @fact_throws MethodError evolve_operator(spzeros(4, 4), 1.)
+    @test_throws MethodError evolve_operator(spzeros(4, 4), 1.)
   end
 
-  context("Evolution functions") do
+  @testset "Evolution functions" begin
     #size 4x4
     A = Complex{Float64}[0.354177+0.0im 0.0891553-0.0251879im 0.0702961+0.0516828im 0.0708664+0.0767941im;
                         0.0891553+0.0251879im 0.336055+0.0im 0.0420202-0.0109173im 0.0683605-0.00692846im;
@@ -31,19 +31,19 @@ facts("evolution") do
     state = zeros(4,4)
     state[3,3] = 1
     #trivial evolutions
-    @fact evolve(zeros(16, 16), A, 0.) --> roughly(A)
-    @fact evolve(zeros(16, 16), sparse(A), 0.) --> roughly(A)
-    @fact evolve(zeros(16, 16), A, [0., 5., 10.]) --> [A, A, A]
+    @test evolve(zeros(16, 16), A, 0.) ≈ A
+    @test evolve(zeros(16, 16), sparse(A), 0.) ≈ A
+    @test evolve(zeros(16, 16), A, [0., 5., 10.]) == [A, A, A]
 
-    @fact evolve(S, A, 0.) --> roughly(A)
-    @fact evolve(eye(16), A) --> roughly(A)
-    @fact isapprox(trace(evolve(S,A,1.)),trace(A)) --> true
+    @test evolve(S, A, 0.) ≈ A
+    @test evolve(eye(16), A) ≈ A
+    @test trace(evolve(S, A, 1.))  ≈ trace(A)
 
-    @fact evolve(spzeros(16, 16), A, 0.) --> roughly(A)
-    @fact evolve(spzeros(16, 16), A, [0., 5., 10.])[1] --> roughly(A)
-    @fact evolve(spzeros(16, 16), A, [0., 5., 10.])[2] --> roughly(A)
-    @fact evolve(spzeros(16, 16), A, [0., 5., 10.])[3] --> roughly(A)
+    @test evolve(spzeros(16, 16), A, 0.) ≈ A
+    @test evolve(spzeros(16, 16), A, [0., 5., 10.])[1] ≈ A
+    @test evolve(spzeros(16, 16), A, [0., 5., 10.])[2] ≈ A
+    @test evolve(spzeros(16, 16), A, [0., 5., 10.])[3] ≈ A
 
-    @fact evolve(sparse(rand(16, 16)), A, 0.) --> roughly(A)
+    @test evolve(sparse(rand(16, 16)), A, 0.) ≈ A
   end
 end
