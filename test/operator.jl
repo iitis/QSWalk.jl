@@ -21,7 +21,7 @@ facts("Global operator construction") do
     glbalH = global_hamiltonian(H)
     Lnonmoral1 = nonmoralizing_lindbladian(L1)
     locH1 = local_hamiltonian(Lnonmoral1[2])
-    @fact global_operator(glbalH,[],locH1,1/3) --> global_operator((1-1/3)*glbalH+1/3*locH1,[])
+    @fact global_operator(glbalH,[],locH1,1/3) --> roughly(global_operator((1-1/3)*glbalH+1/3*locH1,[]))
     @fact global_operator(glbalH,[Lnonmoral1[1]],locH1,1/3) --> roughly(global_operator(glbalH+1/2*(locH1),[Lnonmoral1[1]],1/3))
   end
 
