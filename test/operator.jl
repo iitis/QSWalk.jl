@@ -23,6 +23,7 @@
     locH1 = local_hamiltonian(Lnonmoral1[2])
     @test global_operator(globalH,[],locH1,1/3) ≈ global_operator((1-1/3)*globalH+1/3*locH1,[])
     @test global_operator(globalH,[Lnonmoral1[1]],locH1,1/3) ≈ global_operator(globalH+1/2*(locH1),[Lnonmoral1[1]],1/3)
+    
   end
 
   @testset "Error tests" begin

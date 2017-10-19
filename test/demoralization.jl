@@ -125,6 +125,20 @@
     @test nonmoralizing_lindbladian(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[2] ==
       make_vertex_set(A)
 
+      A = [2 0 0 3;
+    im 0 3im 0;
+    1 0 0 0;
+    im -im 0 0]
+    @test nonmoralizing_lindbladian(A,Dict(1=>ones(1,1), 2=> ones(2,2)))[1] ≈
+              [2.0+0.0im 2.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 3.0+0.0im 3.0+0.0im;
+               2.0+0.0im 2.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 3.0+0.0im 3.0+0.0im;
+               0.0+1.0im 0.0+1.0im 0.0+0.0im 0.0+0.0im 0.0+3.0im 0.0+0.0im 0.0+0.0im;
+               0.0+1.0im 0.0+1.0im 0.0+0.0im 0.0+0.0im 0.0+3.0im 0.0+0.0im 0.0+0.0im;
+               1.0+0.0im 1.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im;
+               0.0+1.0im 0.0+1.0im 0.0-1.0im 0.0-1.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im;
+               0.0+1.0im 0.0+1.0im 0.0-1.0im 0.0-1.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im]
+
+
   end
 
   @testset "global_hamiltonian" begin
