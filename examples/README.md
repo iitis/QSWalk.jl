@@ -1,7 +1,6 @@
-# QSWalkTutorials
+# QSWalk examples
 
-
-[QSWalk.jl](https://github.com/ZKSI/QSWalk.jl) provides package for [Julia programming language](https://julialang.org/) which enables high-performance analysis of quantum stochastic walks. Here we present tutorials in Jupyter notebooks forms. 
+This directory contains example code demonstrating the capabilities of [QSWalk.jl](https://github.com/ZKSI/QSWalk.jl) package for [Julia programming language](https://julialang.org/). Exeample are provided in the form of Jupyter notebooks, as well as Julia files. 
 
 Modules 
 - [QSWalk](https://github.com/ZKSI/QSWalk.jl),
