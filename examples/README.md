@@ -1,6 +1,6 @@
 # QSWalk examples
 
-This directory contains example code demonstrating the capabilities of [QSWalk.jl](https://github.com/ZKSI/QSWalk.jl) package for [Julia programming language](https://julialang.org/). Exeample are provided in the form of Julia scripts, as well as Jupyter notebooks/
+This directory contains example code demonstrating the capabilities of [QSWalk.jl](https://github.com/ZKSI/QSWalk.jl) package for [Julia programming language](https://julialang.org/). Exeample are provided in the form of Julia scripts, as well as Jupyter notebooks.
 
 Modules 
 - [QSWalk](https://github.com/ZKSI/QSWalk.jl),
