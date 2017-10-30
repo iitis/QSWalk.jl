@@ -23,4 +23,4 @@ F = global_operator(adj, [adj], w)
 probability = real.(diag(ρ))
 
 ## plot
-spy(unres(sum.(probability)))
+spy(unres(sum(probability)))
