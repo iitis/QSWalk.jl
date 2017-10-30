@@ -1,19 +1,26 @@
-using QSWalk
-using LightGraphs #for grid graph
-using Gadfly #for matrix plot
+# ------------------------------------------------------------------------------
+# Case 6: propagation on grid
+# ------------------------------------------------------------------------------
 
-dim = 50
-t = dim/4.
+using QSWalk
+using LightGraphs # for grid graph
+using Gadfly # for matrix plot
+
+## operators
+dim = 31 # needs to be odd for unique middle-point
+t = dim/2.
 w = 0.5
+middlepoint = div(dim^2+1, 2)
 
 g = Grid([dim, dim])
 adj = adjacency_matrix(g)
 
-initial_state = ketbra(1275,1275,dim^2)
+initial_state = ketbra(middlepoint, middlepoint, dim^2)
 F = global_operator(adj, [adj], w)
 
+## evolution
 ρ = evolve(F, initial_state, t)
-probability = real(diag(ρ))
-lattice = unres(probability)
+probability = real.(diag(ρ))
 
-spy(lattice)
+## plot
+spy(unres(sum.(probability)))
