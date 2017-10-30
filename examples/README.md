@@ -6,5 +6,7 @@ Modules
 - [QSWalk](https://github.com/ZKSI/QSWalk.jl),
 - [LightGraphs](https://github.com/JuliaGraphs/LightGraphs.jl),
 - [PyPlot](https://github.com/JuliaPy/PyPlot.jl),
-- [TikzGraphs](https://github.com/sisl/TikzGraphs.jl)
+- [TikzGraphs](https://github.com/sisl/TikzGraphs.jl),
+- [Gadfly](https://github.com/GiovineItalia/Gadfly.jl),
+
 are required to run examples.
