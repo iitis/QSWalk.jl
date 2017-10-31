@@ -22,6 +22,7 @@ julia> ket(1, 2)
 ```
 """
 function ket(index::Int, size::Int)
+
   @argumentcheck size > 0 "vector size must be positive"
   @assert 1 <=  index <=  size "index must be positive and not bigger than vector size"
 
@@ -49,11 +50,11 @@ function bra(index::Int, size::Int)
 end
 
 """
-    ketbra(indexrow, indexcolumn, size)
+    ketbra(irow, icol, size)
 
-Return matrix acting on `size`-dimensional vector space, `indexrow`,
-`indexcolumn` = 1, 2, ..., `size`. The matrix consists of single nonzero element
-equal to one at position (`indexrow`, `indexcolumn`).
+Return matrix acting on `size`-dimensional vector space, `irow`,
+`icol` = 1, 2, ..., `size`. The matrix consists of single non-zero element
+equal to one, located at position (`irow`, `icol`).
 
 # Examples
 
@@ -64,8 +65,8 @@ julia> ketbra(1, 2, 3)
 
 ```
 """
-function ketbra(indexrow::Int, indexcolumn::Int, size::Int)
-  ket(indexrow, size)*bra(indexcolumn, size)
+function ketbra(irow::Int, icol::Int, size::Int)
+  ket(irow, size)*bra(icol, size)
 end
 
 """
@@ -124,7 +125,7 @@ julia> M = reshape(1:9, (3, 3))'*1im
 
 julia> v = res(M)
 9-element Array{Complex{Int64}, 1}:
- 0+1im
+ 0+1imjulia> unres(v)
  0+2im
  0+3im
  0+4im
@@ -146,8 +147,8 @@ end
 
     unres(vector)
 
-Return square matrix elements from `vector`. The `vector` is expected to have
-perfect square number of arguments to form square matrix.
+Return square matrix with elements from `vector`. The `vector` is expected to
+have perfect square number of arguments.
 
 # Examples
 ```jldoctest
@@ -174,6 +175,7 @@ true
 ```
 """
 function unres(vector::SparseDenseVector)
+
   dim = floor(Int64, sqrt(length(vector)))
   @argumentcheck dim*dim ==  length(vector) "Expected vector with perfect square number of elements."
 
