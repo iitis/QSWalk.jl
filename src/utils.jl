@@ -8,19 +8,30 @@ export
   vlist
 
 import Base: ==, hash, getindex, length
+"""
+    type SparseDenseMatrix
+
+Type representing matrices which can be dense or sparse.
+"""
 
 SparseDenseMatrix = Union{SparseMatrixCSC{T} where T<:Number, Matrix{S} where S<:Number}
+
+"""
+    type SparseDenseVector
+
+Type representing vectors which can be dense or sparse.
+"""
+
 SparseDenseVector = Union{SparseVector{T} where T<:Number, Vector{S} where S<:Number}
 
 """
     type Vertex
 
 Type consisting of list of `Int`, describing the labels of vectors from the
-cannonical basis which correspond to the `Vertex`. See [1] for the more
-information and usage exmaples.
+canonical basis corresponding to the `Vertex`. To get the vector label one can
+use `Vertex()` function, or `Vertex[i]` for a unique label.
 
-To get the vector label one can use `Vertex()` function, or `Vertex[i]` for
-unique label.
+See [1] for the more information and usage exmaples.
 
 [1] K. Domino, A. Glos, M. Ostaszewski, Superdiffusive quantum stochastic walk
 definable on arbitrary directed graph, Quantum Information & Computation,
@@ -29,7 +40,7 @@ Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 struct Vertex
   subspace::Vector{Int}
 
-  Vertex(v::Vector{Int}) = all(v.>0) ? new(v) : throw(ArgumentError("vector should consist of positive elments"))
+  Vertex(v::Vector{Int}) = all(v.>0) ? new(v) : throw(ArgumentError("Vector should consist of positive elments"))
 end
 
 subspace(v::Vertex) = v.subspace
@@ -53,19 +64,15 @@ end
 
 checkvertexset(vset::Vector{Vertex}) = checkvertexset([subspace(v) for v = vset])
 
-
 """
     type VertexSet
 
 Type consisting of a list of `Vertex` objects. It describes the partition of the
-linear subspace. Should be constructed by `make_vertex_set` or by `nonmoralizing_lindbladian`
-functions. In order to get list of the vertices of the object `vertexset`, one
-should use the function `vertexset()`, of for concrete `Vertex` an getindex function
+linear subspace. Object of this type should be constructed using
+`make_vertex_set` or by `nonmoralizing_lindbladian` functions. In order to get a
+list of the vertices from an object of type `vertexset`, one should use
+`vertexset()` function, or, for a specific `Vertex`, an getindex function
 `vertexset[i]`.
-
-[1] K. Domino, A. Glos, M. Ostaszewski, Superdiffusive quantum stochastic walk
-definable on arbitrary directed graph, Quantum Information & Computation,
-Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 """
 struct VertexSet
   vertices::Vector{Vertex}
