@@ -1,14 +1,14 @@
 export
   classical_lindblad_operators,
-  global_operator
+  evolve_generator
 
 """
     classical_lindblad_operators(A[; epsilon])
 
-The function splits the elements of the matrix `A` into collection of
-single-nonzero element sparse matrices. Martices are added if the absolute value
-of the nonzero element is not smaller than `epsilon`, hence `epsilon` should be
-nonnegative. The `epsilon` defaults to `eps()` if not specified.
+The function splits the elements of the matrix `A` into a collection of sparse
+matrices with exactly one non-zero element. Martices are added if the absolute
+value of the nonzero element is not smaller than `epsilon`, where `epsilon`
+should be nonnegative. The `epsilon` defaults to `eps()` if not specified.
 
 # Examples
 
@@ -65,15 +65,15 @@ end
 
 """
 
-    global_operator_util(H, L, localH, α, β)
+    evolve_generator_util(H, L, localH, α, β)
 
-Util function creating global operator for evolution. Given Hamiltonian `H`,
-collection of Lindblad operator `L`, local Hamiltonian `localH` and scaling
-parameters `α` and `β` the function computes
+Create global operator for the evolution. Given Hamiltonian `H`, collection of
+Lindblad operator `L`, local Hamiltonian `localH` and scaling parameters `α` and
+`β` the function computes
 
 ``-i α (H ⊗ 1 - 1 ⊗ H) + β (-i(localH ⊗ 1-1 ⊗ localH)+∑ (L ⊗ L̄ - 1/2(L\^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
 
-α and β should at the same time equal to one or sum to one. In the first case
+where α and β should at the same time equal to one or sum to one. In the first case
 their values are simply ignored, in the second they correspond to evolution used
 in [1].
 
@@ -91,14 +91,14 @@ Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 - `β`: scaling parameter corresponding to Lindbladian part, should be in [0, 1].
 
 # Return
-The function return global operator used for evolution.
+The function return global operator used for the evolution.
 
 # Examples
 ```jldoctest
 julia>
 ```
 """
-function global_operator_util(H::SparseDenseMatrix,
+function evolve_generator_util(H::SparseDenseMatrix,
                               L::Vector{T} where T,
                               localH::SparseDenseMatrix,
                               α::Real,
@@ -122,7 +122,7 @@ function global_operator_util(H::SparseDenseMatrix,
 end
 
 """
-    global_operator(H, L[, localH][, ω])
+    evolve_generator(H, L[, localH][, ω])
 
 The function creates global operator for evolution. Given Hamiltonian `H`,
 collection of Lindblad operator `L`, local Hamiltonian `localH` and scaling
@@ -159,7 +159,7 @@ Complex{Int64}[0+0im 1+1im; 1-1im 0+0im],
 
 [1.0 0.0; 0.0 1.0])
 
-julia> global_operator(H, [L], localH, 1/2)
+julia> evolve_generator(H, [L], localH, 1/2)
 4×4 Array{Complex{Float64}, 2}:
   0.0+0.0im    0.5+0.5im    0.5-0.5im   0.5+0.0im
  -0.5+0.5im  -0.25+0.0im    0.0+0.0im   0.5-0.5im
@@ -168,21 +168,21 @@ julia> global_operator(H, [L], localH, 1/2)
 
 ```
 """
-function global_operator(H::SparseDenseMatrix,
+function evolve_generator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
                          localH::SparseDenseMatrix,
                          ω::Real)
- global_operator_util(H, L, localH, 1-ω, ω)
+ evolve_generator_util(H, L, localH, 1-ω, ω)
 end
 
-function global_operator(H::SparseDenseMatrix,
+function evolve_generator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
                          localH::SparseDenseMatrix = spzeros(eltype(H), size(H)...))
- global_operator_util(H, L, localH, 1., 1.)
+ evolve_generator_util(H, L, localH, 1., 1.)
 end
 
-function global_operator(H::SparseDenseMatrix,
+function evolve_generator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
                          ω::Real)
- global_operator_util(H, L, spzeros(eltype(H), size(H)...), 1-ω , ω)
+ evolve_generator_util(H, L, spzeros(eltype(H), size(H)...), 1-ω , ω)
 end
