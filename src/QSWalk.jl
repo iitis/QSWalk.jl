@@ -2,7 +2,7 @@ module QSWalk
 using Expokit
 
 include("utils.jl")
-include("linearalgebrautils.jl")
+include("dirac.jl")
 include("operator.jl")
 include("demoralization.jl")
 include("evolution.jl")
