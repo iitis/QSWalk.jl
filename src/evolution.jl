@@ -31,7 +31,7 @@ function evolve_operator(evo_gen::Matrix{T} where T<:Number, time::Real)
   @argumentcheck time>= 0 "Time has to be nonnegative"
   @argumentcheck size(evo_gen, 1) ==  size(evo_gen, 2) "Argument evo_gen has to be a square matrix"
 
-  expm(time_point*evo_gen)
+  expm(time*evo_gen)
 end
 
 """
