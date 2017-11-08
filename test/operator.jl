@@ -1,4 +1,4 @@
-@testset "Global operator construction" begin
+@testset "Evolution generator construction" begin
   H = [1. 1.+im 3.; 1.-im 1. im; 3. -im 1.]
   L1 = sparse([1.+0im 2. 3.; 4. 5. 6.; 6. 7. -6.])
   L2 = sparse([0.+0im 0. 1.; 0. 0. 0.; 0. 0. 0.])
