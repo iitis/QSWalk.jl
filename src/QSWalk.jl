@@ -20,7 +20,7 @@ export
   res, 
   unres, 
   classical_lindblad_operators, 
-  global_operator, 
+  evolve_generator, 
   local_hamiltonian, 
   nonmoralizing_lindbladian, 
   make_vertex_set, 
