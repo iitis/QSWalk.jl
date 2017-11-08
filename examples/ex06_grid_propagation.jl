@@ -16,7 +16,7 @@ g = Grid([dim, dim])
 adj = adjacency_matrix(g)
 
 initial_state = ketbra(middlepoint, middlepoint, dim^2)
-F = global_operator(adj, [adj], w)
+F = evolve_generator(adj, [adj], w)
 
 ## evolution
 ρ = evolve(F, initial_state, t)

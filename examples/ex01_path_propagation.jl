@@ -15,8 +15,8 @@ adjacency = adjacency_matrix(PathGraph(dim))
 
 lindlocal = classical_lindblad_operators(adjacency)
 midpoint = ceil(Int, dim/2)
-opglobal = global_operator(adjacency, [adjacency], w)
-oplocal = global_operator(adjacency, lindlocal, w)
+opglobal = evolve_generator(adjacency, [adjacency], w)
+oplocal = evolve_generator(adjacency, lindlocal, w)
 
 ## evolution
 rhoglobal = evolve(opglobal, proj(midpoint, dim), timepoints)

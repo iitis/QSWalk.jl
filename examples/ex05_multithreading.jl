@@ -10,14 +10,14 @@ using PyPlot
 function line_evolution_local(dim::Int, t::Real=1., ω::Real=0.5)
   adjacency = spdiagm((ones(dim-1),ones(dim-1)),(-1,1))
   lind = classical_lindblad_operators(adjacency)
-  globaloperator = global_operator(adjacency, lind, ω)
+  globaloperator = evolve_generator(adjacency, lind, ω)
   ρinit = proj(ceil(Int, dim/2), dim)
   evolve(globaloperator, ρinit, t)
 end
 
 function line_evolution_global(dim::Int, t::Real=1., ω::Real=0.5)
   adjacency = spdiagm((ones(dim-1),ones(dim-1)),(-1,1))
-  globaloperator = global_operator(adjacency, [adjacency], ω)
+  globaloperator = evolve_generator(adjacency, [adjacency], ω)
   ρinit = proj(ceil(Int, dim/2), dim)
   evolve(globaloperator, ρinit, t)
 end
