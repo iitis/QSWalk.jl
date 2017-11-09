@@ -19,7 +19,7 @@ export
   proj, 
   res, 
   unres, 
-  classical_lindblad_operators, 
+  classical_lindbladian, 
   evolve_generator, 
   local_hamiltonian, 
   nonmoralizing_lindbladian, 

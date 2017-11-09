@@ -42,19 +42,19 @@ end
   resultwithepsilon = [sparse([0.+0im 1.+im ; 0 0 ]),
             sparse([0.+0im 0 ; 1.-im 0 ])]
   @testset "Standard usage" begin
-    @test classical_lindblad_operators(H) == result
-    @test classical_lindblad_operators(sparse(H)) == result
-    @test classical_lindblad_operators(H, epsilon = 1.1) == resultwithepsilon
-    @test classical_lindblad_operators(sparse(H), epsilon = 1.1) == resultwithepsilon
+    @test classical_lindbladian(H) == result
+    @test classical_lindbladian(sparse(H)) == result
+    @test classical_lindbladian(H, epsilon = 1.1) == resultwithepsilon
+    @test classical_lindbladian(sparse(H), epsilon = 1.1) == resultwithepsilon
   end
 
   @testset "Type tests" begin
-    @test typeof(classical_lindblad_operators(H)) == Vector{SparseMatrixCSC{Complex128}}
-    @test typeof(classical_lindblad_operators(sparse(H))) == Vector{SparseMatrixCSC{Complex128}}
+    @test typeof(classical_lindbladian(H)) == Vector{SparseMatrixCSC{Complex128}}
+    @test typeof(classical_lindbladian(sparse(H))) == Vector{SparseMatrixCSC{Complex128}}
   end
 
   @testset "Error tests" begin
-    @test_throws ArgumentError classical_lindblad_operators(H, epsilon = -1.)
-    @test_throws TypeError classical_lindblad_operators(H, epsilon = -1im)
+    @test_throws ArgumentError classical_lindbladian(H, epsilon = -1.)
+    @test_throws TypeError classical_lindbladian(H, epsilon = -1im)
   end
 end

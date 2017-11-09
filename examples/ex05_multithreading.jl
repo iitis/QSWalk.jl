@@ -9,7 +9,7 @@ using PyPlot
 
 function line_evolution_local(dim::Int, t::Real=1., ω::Real=0.5)
   adjacency = spdiagm((ones(dim-1),ones(dim-1)),(-1,1))
-  lind = classical_lindblad_operators(adjacency)
+  lind = classical_lindbladian(adjacency)
   globaloperator = evolve_generator(adjacency, lind, ω)
   ρinit = proj(ceil(Int, dim/2), dim)
   evolve(globaloperator, ρinit, t)

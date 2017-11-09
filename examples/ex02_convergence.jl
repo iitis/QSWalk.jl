@@ -13,7 +13,7 @@ adjacencydigraph = full(adjacency_matrix(digraph))
 adjacencygraph = full(adjacency_matrix(graph))
 time = 100.
 
-lind = classical_lindblad_operators(adjacencydigraph)
+lind = classical_lindbladian(adjacencydigraph)
 globaloperator = evolve_generator(adjacencygraph, lind)
 
 ## dimensionality of null-space
