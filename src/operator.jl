@@ -1,14 +1,14 @@
 export
-  classical_lindblad_operators,
+  classical_lindbladian,
   evolve_generator
 
 """
-    classical_lindblad_operators(A[; epsilon])
+    classical_lindbladian(A[; epsilon])
 
-The function splits the elements of the matrix `A` into a collection of sparse
-matrices with exactly one non-zero element. Martices are added if the absolute
-value of the nonzero element is not smaller than `epsilon`, where `epsilon`
-should be nonnegative. The `epsilon` defaults to `eps()` if not specified.
+Split the elements of the matrix `A` into a collection of sparse matrices with
+exactly one non-zero element. Martices are added if the absolute value of the
+nonzero element is there are not smaller than `epsilon`, where `epsilon` should
+be nonnegative. The `epsilon` defaults to `eps()` if not specified.
 
 # Examples
 
@@ -18,7 +18,7 @@ julia> A = [1. 2.; 3. 4.]
  1.0  2.0
  3.0  4.0
 
-julia> classical_lindblad_operators(A)
+julia> classical_lindbladian(A)
 4-element Array{SparseMatrixCSC{Float64, Ti<:Integer}, 1}:
 
 	[1, 1] = 1.0
@@ -29,7 +29,7 @@ julia> classical_lindblad_operators(A)
 
 	[2, 2] = 4.0
 
-julia> classical_lindblad_operators(A, epsilon = 1.5)
+julia> classical_lindbladian(A, epsilon = 1.5)
 3-element Array{SparseMatrixCSC{Float64, Ti<:Integer}, 1}:
 
 	[1, 2] = 2.0
@@ -39,9 +39,10 @@ julia> classical_lindblad_operators(A, epsilon = 1.5)
 	[2, 2] = 4.0
 ```
 """
-function classical_lindblad_operators(A::Matrix{T} where T<:Number;
+function classical_lindbladian(A::Matrix{T} where T<:Number;
                                       epsilon::Real = eps())
-  @argumentcheck epsilon>= 0 "epsilon should be nonegative"
+  @argumentcheck epsilon>= 0 "Epsilon should be nonegative"
+
   L = SparseMatrixCSC{eltype(A)}[]
   for i = 1:size(A, 1), j = 1:size(A, 2)
     if abs(A[i, j]) >=  epsilon
@@ -51,9 +52,10 @@ function classical_lindblad_operators(A::Matrix{T} where T<:Number;
   L
 end
 
-function classical_lindblad_operators(A::SparseMatrixCSC{T} where T<:Number;
+function classical_lindbladian(A::SparseMatrixCSC{T} where T<:Number;
                                       epsilon::Real = eps())
-  @argumentcheck epsilon>= 0 "epsilon should be nonegative"
+  @argumentcheck epsilon>= 0 "Epsilon should be nonegative"
+
   L = SparseMatrixCSC{eltype(A)}[]
   for i = 1:size(A, 1), j = A[i, :].nzind
     if abs(A[i, j]) >=  epsilon
@@ -65,51 +67,47 @@ end
 
 """
 
-    evolve_generator_util(H, L, localH, α, β)
+    _evolve_generator(H, L, localH, α, β)
 
-Create global operator for the evolution. Given Hamiltonian `H`, collection of
-Lindblad operator `L`, local Hamiltonian `localH` and scaling parameters `α` and
-`β` the function computes
+Internal function for creating the generator for the evolution superoperator.
+Given Hamiltonian `H`, collection of Lindblad operator `L`, local Hamiltonian
+`localH` and scaling parameters `α` and `β` the function computes
 
 ``-i α (H ⊗ 1 - 1 ⊗ H) + β (-i(localH ⊗ 1-1 ⊗ localH)+∑ (L ⊗ L̄ - 1/2(L\^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
 
-where α and β should at the same time equal to one or sum to one. In the first case
-their values are simply ignored, in the second they correspond to evolution used
-in [1].
+where α and β should sum to one, or both be equal to one. In the later case
+there are ignored.
 
-The function does not check whether `H` or `localH` are Hermitian operators.
-
-[1] K. Domino, A. Glos, M. Ostaszewski, Superdiffusive quantum stochastic walk
-definable on arbitrary directed graph, Quantum Information & Computation,
-Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
+*Note:* The function does not check whether `H` or `localH` are hermitian.
 
 # Arguments
 - `H`: Hamiltonian, must be hermitian,
 - `L`: collection of Lindblad operators, each must be of the same size as `H`,
-- `locH`: local Hamiltonian, suggested for nonmoralized QS walk, must be hermitian and of the size of `H`,
+- `locH`: local Hamiltonian, suggested for nonmoralized QS walk, must be
+hermitian and of the size of `H`,
 - `α`: scaling parameter corresponding to Hamiltonian, should be in [0, 1],
 - `β`: scaling parameter corresponding to Lindbladian part, should be in [0, 1].
 
 # Return
-The function return global operator used for the evolution.
+The function return the generator, which can be used in `evolve` function.
 
 # Examples
 ```jldoctest
 julia>
 ```
 """
-function evolve_generator_util(H::SparseDenseMatrix,
+function _evolve_generator(H::SparseDenseMatrix,
                               L::Vector{T} where T,
                               localH::SparseDenseMatrix,
                               α::Real,
                               β::Real)
-  @argumentcheck size(H) !=  (0, 0) "H must not be sizeless"
-  @argumentcheck size(H, 1) ==  size(H, 2) "H must be square"
+  @argumentcheck size(H) !=  (0, 0) "Matrix H must not be sizeless"
+  @argumentcheck size(H, 1) ==  size(H, 2) "Matrix H must be square"
   @assert all([size(lindbladian) ==  size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
   @argumentcheck all([eltype(el)<:Number for el in L]) "Lindblad operators elements must be numbers"
   @argumentcheck all([typeof(el)<:SparseDenseMatrix for el in L]) "Lindblad operators must be SparseMatrixCSC or Matrix"
-  @assert size(H) ==  size(localH) "localH must be of the same size as H"
-  @argumentcheck 0 <=  α <=  1 && 0 <=  β <=  1 "ω must be nonngeative and smaller than one"
+  @assert size(H) ==  size(localH) "Matrix localH must be of the same size as H"
+  @argumentcheck 0 <=  α <=  1 && 0 <=  β <=  1 "Value of ω must be nonngeative and smaller than one"
 
   F = spzeros(Complex128, (size(H).^2)...)
   id = eye(H)
@@ -124,22 +122,20 @@ end
 """
     evolve_generator(H, L[, localH][, ω])
 
-The function creates global operator for evolution. Given Hamiltonian `H`,
+Create the generator for the evolution superoperator. Given Hamiltonian `H`,
 collection of Lindblad operator `L`, local Hamiltonian `localH` and scaling
-parameter `ω`
+parameter `ω`, the generator is obtained as a sum
 
-``-i (1-ω) (H ⊗ 1 - 1 ⊗ H) + ω (-i(localH ⊗ 1-1 ⊗ localH)+∑ (L ⊗ L̄ - 1/2(L\^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
+``-i(1-ω) (H ⊗ 1 - 1 ⊗ H) + ω (-i(localH ⊗ 1 - 1 ⊗ localH) + ∑(L ⊗ L̄ - 1/2(L^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
 
-The `localH` defaults to sparse zero matrix of the size `H` if not specified. If
-`ω` is not given, the global operator takes the form
+The last two arguments are optional.
 
-``-i (H ⊗ 1 - 1 ⊗ H) + (-i(localH ⊗ 1-1 ⊗ localH)+∑ (L ⊗ L̄ - 1/2(L\^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
+If `localH` is not given, it defaults to sparse zero matrix of the size of `H`.
 
-The formulas were given in [1].
+If `ω` is not given, both parts are taken with the same intensity and the global
+operator takes the form
 
-[1] K. Domino, A. Glos, M. Ostaszewski, Superdiffusive quantum stochastic walk
-definable on arbitrary directed graph, Quantum Information & Computation,
-Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
+``-i(H ⊗ 1 - 1 ⊗ H) + (-i(localH ⊗ 1 - 1 ⊗ localH) + ∑(L ⊗ L̄ - 1/2(L\^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
 
 # Arguments
 - `H`: Hamiltonian, must be hermitian,
@@ -147,6 +143,10 @@ Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 - `localH`: local Hamiltonian, suggested for nonmoralized QS walk, must be hermitian
 and of the size of `H`,
 - `ω`: scaling parameter, should be in [0, 1].
+
+# Return
+The generator matrix, which can be used in `evolve` function.
+
 
 # Examples
 
@@ -172,17 +172,17 @@ function evolve_generator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
                          localH::SparseDenseMatrix,
                          ω::Real)
- evolve_generator_util(H, L, localH, 1-ω, ω)
+  _evolve_generator(H, L, localH, 1-ω, ω)
 end
 
 function evolve_generator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
                          localH::SparseDenseMatrix = spzeros(eltype(H), size(H)...))
- evolve_generator_util(H, L, localH, 1., 1.)
+  _evolve_generator(H, L, localH, 1., 1.)
 end
 
 function evolve_generator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
                          ω::Real)
- evolve_generator_util(H, L, spzeros(eltype(H), size(H)...), 1-ω , ω)
+  _evolve_generator(H, L, spzeros(eltype(H), size(H)...), 1-ω , ω)
 end
