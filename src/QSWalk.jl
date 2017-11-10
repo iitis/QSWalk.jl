@@ -2,7 +2,7 @@ module QSWalk
 using Expokit
 
 include("utils.jl")
-include("linearalgebrautils.jl")
+include("dirac.jl")
 include("operator.jl")
 include("demoralization.jl")
 include("evolution.jl")
@@ -19,8 +19,8 @@ export
   proj, 
   res, 
   unres, 
-  classical_lindblad_operators, 
-  global_operator, 
+  classical_lindbladian, 
+  evolve_generator, 
   local_hamiltonian, 
   nonmoralizing_lindbladian, 
   make_vertex_set, 

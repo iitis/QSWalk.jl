@@ -13,10 +13,10 @@ timepoints = collect(0:2:100)
 adjacency = adjacency_matrix(PathGraph(dim))
 # alternatively adjacency = spdiagm((ones(dim-1),ones(dim-1)),(-1,1))
 
-lindlocal = classical_lindblad_operators(adjacency)
+lindlocal = classical_lindbladian(adjacency)
 midpoint = ceil(Int, dim/2)
-opglobal = global_operator(adjacency, [adjacency], w)
-oplocal = global_operator(adjacency, lindlocal, w)
+opglobal = evolve_generator(adjacency, [adjacency], w)
+oplocal = evolve_generator(adjacency, lindlocal, w)
 
 ## evolution
 rhoglobal = evolve(opglobal, proj(midpoint, dim), timepoints)

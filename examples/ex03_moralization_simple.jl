@@ -8,7 +8,7 @@ using QSWalk
 adjacency = [0 0 0;
              0 0 0;
              1 1 0]
-opmoral = global_operator(zero(adjacency), [adjacency])
+opmoral = evolve_generator(zero(adjacency), [adjacency])
 time = 100.
 
 ## evolution
@@ -18,7 +18,7 @@ println(diag(rho))
 ## nonmoralizing evolution case
 lnonmoral, vset = nonmoralizing_lindbladian(adjacency)
 hlocal = local_hamiltonian(vset)
-opnonmoral = global_operator(zero(lnonmoral), [lnonmoral], hlocal)
+opnonmoral = evolve_generator(zero(lnonmoral), [lnonmoral], hlocal)
 
 println(vertexsetsize(vset))
 println(vset)

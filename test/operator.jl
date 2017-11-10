@@ -1,4 +1,4 @@
-@testset "Global operator construction" begin
+@testset "Evolution generator construction" begin
   H = [1. 1.+im 3.; 1.-im 1. im; 3. -im 1.]
   L1 = sparse([1.+0im 2. 3.; 4. 5. 6.; 6. 7. -6.])
   L2 = sparse([0.+0im 0. 1.; 0. 0. 0.; 0. 0. 0.])
@@ -14,22 +14,22 @@
   @testset "Standard usage" begin
     #no locH case
 
-    @test global_operator(H, [L1, L2]) == resultnoomega
-    @test global_operator(H, [L1, L2], 1/2) == resultnoomega/2
+    @test evolve_generator(H, [L1, L2]) == resultnoomega
+    @test evolve_generator(H, [L1, L2], 1/2) == resultnoomega/2
   end
   @testset "Nonmoralized usage" begin
     globalH = global_hamiltonian(H)
     Lnonmoral1 = nonmoralizing_lindbladian(L1)
     locH1 = local_hamiltonian(Lnonmoral1[2])
-    @test global_operator(globalH,[],locH1,1/3) ≈ global_operator((1-1/3)*globalH+1/3*locH1,[])
-    @test global_operator(globalH,[Lnonmoral1[1]],locH1,1/3) ≈ global_operator(globalH+1/2*(locH1),[Lnonmoral1[1]],1/3)
+    @test evolve_generator(globalH,[],locH1,1/3) ≈ evolve_generator((1-1/3)*globalH+1/3*locH1,[])
+    @test evolve_generator(globalH,[Lnonmoral1[1]],locH1,1/3) ≈ evolve_generator(globalH+1/2*(locH1),[Lnonmoral1[1]],1/3)
     
   end
 
   @testset "Error tests" begin
-    @test_throws MethodError global_operator(H, [L1, L2], 1im)
-    @test_throws ArgumentError global_operator(H, [L1, L2], -1)
-    @test_throws ArgumentError global_operator(H, [L1, L2], 3)
+    @test_throws MethodError evolve_generator(H, [L1, L2], 1im)
+    @test_throws ArgumentError evolve_generator(H, [L1, L2], -1)
+    @test_throws ArgumentError evolve_generator(H, [L1, L2], 3)
   end
 end
 
@@ -42,19 +42,19 @@ end
   resultwithepsilon = [sparse([0.+0im 1.+im ; 0 0 ]),
             sparse([0.+0im 0 ; 1.-im 0 ])]
   @testset "Standard usage" begin
-    @test classical_lindblad_operators(H) == result
-    @test classical_lindblad_operators(sparse(H)) == result
-    @test classical_lindblad_operators(H, epsilon = 1.1) == resultwithepsilon
-    @test classical_lindblad_operators(sparse(H), epsilon = 1.1) == resultwithepsilon
+    @test classical_lindbladian(H) == result
+    @test classical_lindbladian(sparse(H)) == result
+    @test classical_lindbladian(H, epsilon = 1.1) == resultwithepsilon
+    @test classical_lindbladian(sparse(H), epsilon = 1.1) == resultwithepsilon
   end
 
   @testset "Type tests" begin
-    @test typeof(classical_lindblad_operators(H)) == Vector{SparseMatrixCSC{Complex128}}
-    @test typeof(classical_lindblad_operators(sparse(H))) == Vector{SparseMatrixCSC{Complex128}}
+    @test typeof(classical_lindbladian(H)) == Vector{SparseMatrixCSC{Complex128}}
+    @test typeof(classical_lindbladian(sparse(H))) == Vector{SparseMatrixCSC{Complex128}}
   end
 
   @testset "Error tests" begin
-    @test_throws ArgumentError classical_lindblad_operators(H, epsilon = -1.)
-    @test_throws TypeError classical_lindblad_operators(H, epsilon = -1im)
+    @test_throws ArgumentError classical_lindbladian(H, epsilon = -1.)
+    @test_throws TypeError classical_lindbladian(H, epsilon = -1im)
   end
 end
