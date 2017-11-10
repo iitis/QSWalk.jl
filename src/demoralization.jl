@@ -286,32 +286,6 @@ function make_vertex_set(A::SparseDenseMatrix; epsilon::Real = eps())
   revinc_to_vertexset(reversed_incidence_list(A, epsilon = epsilon))
 end
 
-"""
-
-    fourier_matrix(size)
-
-Returns Fourier matrix of size `size`×`size`.
-
-# Examples
-
-```jldoctest
-julia> QSWalk.fourier_matrix(1)
-1×1 SparseMatrixCSC{Complex{Float64}, Int64} with 1 stored entry:
-  [1, 1] = 1.0+0.0im
-
-julia> QSWalk.fourier_matrix(2)
-2×2 SparseMatrixCSC{Complex{Float64}, Int64} with 4 stored entries:
-  [1, 1] = 1.0+0.0im
-  [2, 1] = 1.0+0.0im
-  [1, 2] = 1.0+0.0im
-  [2, 2] = -1.0+1.22465e-16im
-```
-"""
-function fourier_matrix(size::Int)
-  @argumentcheck size>0 "Size of the matrix needs to be positive"
-  sparse([exp(2im*π*(i-1)*(j-1)/size) for i = 1:size, j = 1:size])
-end
-
 
 """
 
