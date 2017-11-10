@@ -126,7 +126,7 @@ Create the generator for the evolution superoperator. Given Hamiltonian `H`,
 collection of Lindblad operator `L`, local Hamiltonian `localH` and scaling
 parameter `ω`, the generator is obtained as a sum
 
-``-i(1-ω) (H ⊗ 1 - 1 ⊗ H) + ω (-i(localH ⊗ 1 - 1 ⊗ localH) + ∑(L ⊗ L̄ - 1/2(L^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
+``-i(1-ω) (H ⊗ 1 - 1 ⊗ H) + ω (-i(localH ⊗ 1 - 1 ⊗ localH) + ∑(L ⊗ L̄ - 1/2(L\^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
 
 The last two arguments are optional.
 
