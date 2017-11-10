@@ -1,5 +1,6 @@
 export
   local_hamiltonian,
+  default_local_hamiltonian,
   nonmoralizing_lindbladian,
   make_vertex_set,
   global_hamiltonian
@@ -206,8 +207,6 @@ julia> QSWalk.reversed_incidence_list(A, epsilon = 2.5)
 function reversed_incidence_list(A::SparseDenseMatrix; epsilon::Real = eps())
   incidence_list(transpose(A), epsilon = epsilon)
 end
-
-
 
 """
 
@@ -497,8 +496,6 @@ julia> global_hamiltonian(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]
  0.0+0.0im  0.0-1.0im  0.0-2.0im  0.0+0.0im
 ```
 """
-
-
 
 function global_hamiltonian(A::SparseDenseMatrix,
                             hamiltonians::Dict{Tuple{Int, Int}, S} where S;
