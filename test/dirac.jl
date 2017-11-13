@@ -1,4 +1,4 @@
-@testset "basic arrays generators" begin
+@testset "Basic arrays generators" begin
   @testset "ket" begin
     #standard tests
     @test ket(1, 2) == [1;0]
@@ -23,9 +23,7 @@
     @test_throws AssertionError ketbra(2, 3, 2)
     @test_throws ArgumentError ketbra(-4, -2, -1)
   end
-end
 
-@testset "Array reshuffles" begin
   @testset "proj" begin
     #standard tests#
     result = [0.0+0.0im 0.0+0.0im 0.0+0.0im;
@@ -40,7 +38,9 @@ end
     @test_throws ArgumentError proj(2, -1)
     @test_throws AssertionError proj(3, 2)
   end
+end
 
+@testset "Array reshuffles" begin
   @testset "res and unres" begin
     #standard tests
     M = Matrix{Float64}(reshape(1:9, (3, 3))')

@@ -1,4 +1,4 @@
-@testset "evolution" begin
+@testset "Evolution" begin
     @testset "Exponent function" begin
     @test evolve_operator(zeros(4, 4), 1.) ≈ eye(4)
     A = [1. im 2;
