@@ -1,5 +1,6 @@
 export
   local_hamiltonian,
+  default_local_hamiltonian,
   nonmoralizing_lindbladian,
   make_vertex_set,
   global_hamiltonian
@@ -207,8 +208,6 @@ function reversed_incidence_list(A::SparseDenseMatrix; epsilon::Real = eps())
   incidence_list(transpose(A), epsilon = epsilon)
 end
 
-
-
 """
 
     revinc_to_vertexset(revincidence_list)
@@ -285,32 +284,6 @@ function make_vertex_set(A::SparseDenseMatrix; epsilon::Real = eps())
   @argumentcheck epsilon >=  0 "epsilon needs to be nonnegative"
   @argumentcheck size(A, 1) ==  size(A, 2) "A matrix must be square"
   revinc_to_vertexset(reversed_incidence_list(A, epsilon = epsilon))
-end
-
-"""
-
-    fourier_matrix(size)
-
-Returns Fourier matrix of size `size`×`size`.
-
-# Examples
-
-```jldoctest
-julia> QSWalk.fourier_matrix(1)
-1×1 SparseMatrixCSC{Complex{Float64}, Int64} with 1 stored entry:
-  [1, 1] = 1.0+0.0im
-
-julia> QSWalk.fourier_matrix(2)
-2×2 SparseMatrixCSC{Complex{Float64}, Int64} with 4 stored entries:
-  [1, 1] = 1.0+0.0im
-  [2, 1] = 1.0+0.0im
-  [1, 2] = 1.0+0.0im
-  [2, 2] = -1.0+1.22465e-16im
-```
-"""
-function fourier_matrix(size::Int)
-  @argumentcheck size>0 "Size of the matrix needs to be positive"
-  sparse([exp(2im*π*(i-1)*(j-1)/size) for i = 1:size, j = 1:size])
 end
 
 
@@ -497,8 +470,6 @@ julia> global_hamiltonian(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]
  0.0+0.0im  0.0-1.0im  0.0-2.0im  0.0+0.0im
 ```
 """
-
-
 
 function global_hamiltonian(A::SparseDenseMatrix,
                             hamiltonians::Dict{Tuple{Int, Int}, S} where S;
