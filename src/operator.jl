@@ -67,7 +67,7 @@ end
 
 """
 
-    _evolve_generator(H, L, localH, α, β)
+    evolve_generator_create(H, L, localH, α, β)
 
 Internal function for creating the generator for the evolution superoperator.
 Given Hamiltonian `H`, collection of Lindblad operator `L`, local Hamiltonian
@@ -96,7 +96,7 @@ The function return the generator, which can be used in `evolve` function.
 julia>
 ```
 """
-function _evolve_generator(H::SparseDenseMatrix,
+function evolve_generator_create(H::SparseDenseMatrix,
                               L::Vector{T} where T,
                               localH::SparseDenseMatrix,
                               α::Real,
@@ -172,17 +172,17 @@ function evolve_generator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
                          localH::SparseDenseMatrix,
                          ω::Real)
-  _evolve_generator(H, L, localH, 1-ω, ω)
+  evolve_generator_create(H, L, localH, 1-ω, ω)
 end
 
 function evolve_generator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
                          localH::SparseDenseMatrix = spzeros(eltype(H), size(H)...))
-  _evolve_generator(H, L, localH, 1., 1.)
+  evolve_generator_create(H, L, localH, 1., 1.)
 end
 
 function evolve_generator(H::SparseDenseMatrix,
                          L::Vector{T} where T,
                          ω::Real)
-  _evolve_generator(H, L, spzeros(eltype(H), size(H)...), 1-ω , ω)
+  evolve_generator_create(H, L, spzeros(eltype(H), size(H)...), 1-ω , ω)
 end
