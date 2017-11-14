@@ -1,4 +1,5 @@
 module QSWalk
+
 using Expokit
 
 include("utils.jl")
@@ -7,26 +8,15 @@ include("operator.jl")
 include("demoralization.jl")
 include("evolution.jl")
 
-export
-  SparseDenseMatrix,
-  SparseDenseVector,
-  Vertex,
-  VertexSet,
-  ket,
-  bra,
-  ketbra,
-  proj,
-  res,
-  unres,
-  classical_lindbladian,
-  evolve_generator,
-  local_hamiltonian,
-  nonmoralizing_lindbladian,
-  make_vertex_set,
-  init_nonmoralized,
-  measurement_nonmoralized,
-  evolve_operator,
-  evolve,
-  global_hamiltonian
+"""
+QSWalk provides package for Julia programming language which enables
+high-performance analysis of quantum stochastic walks. There are two main
+advantages of the presented packages over the existing software. First, it can
+be use to describe quantum stochastic walks in the local, as well as global
+regime. Second, it enables the user to seamlessly utilize parallel computing
+capabilities.
+
+"""
+QSWalk
 
 end
