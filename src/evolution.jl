@@ -128,7 +128,7 @@ function evolve(evolve_generator::Matrix{T} where T<:Number,
   @assert size(evolve_generator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of evolve_generator size"
   @argumentcheck timepoint>= 0 "Time needs to be nonnegative"
 
-  unres(expm(timepoint*evolve_gentheerator)*res(initial_state))
+  unres(expm(timepoint*evolve_generator)*res(initial_state))
 end
 
 function evolve(evolve_generator::SparseMatrixCSC{T} where T<:Number,
