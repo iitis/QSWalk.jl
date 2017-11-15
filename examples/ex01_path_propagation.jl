@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Case 1: propagation on path graph
+# Example 1: propagation on path graph
 # ------------------------------------------------------------------------------
 
 using QSWalk
@@ -7,47 +7,47 @@ using PyPlot # for plot
 using LightGraphs # for PathGraph
 
 ## operators
-dim = 251 #odd for unique middle point
+dim = 251 # odd for unique middle point
 w = 0.5
 timepoints = collect(0:2:100)
 adjacency = adjacency_matrix(PathGraph(dim))
-# alternatively adjacency = spdiagm((ones(dim-1),ones(dim-1)),(-1,1))
+# adjacency = spdiagm((ones(dim-1),ones(dim-1)),(-1,1)) # alternative version
 
-lindlocal = classical_lindbladian(adjacency)
+lind_local = classical_lindbladian(adjacency)
 midpoint = ceil(Int, dim/2)
-opglobal = evolve_generator(adjacency, [adjacency], w)
-oplocal = evolve_generator(adjacency, lindlocal, w)
+op_global = evolve_generator(adjacency, [adjacency], w)
+op_local = evolve_generator(adjacency, lind_local, w)
 
 ## evolution
-rhoglobal = evolve(opglobal, proj(midpoint, dim), timepoints)
-rholocal = evolve(oplocal, proj(midpoint, dim), timepoints)
+rho_global = evolve(op_global, proj(midpoint, dim), timepoints)
+rho_local = evolve(op_local, proj(midpoint, dim), timepoints)
 
-## second moment calculation
-secmomentglobal = Float64[]
-secmomentlocal = Float64[]
+## calculation of the second moment
+secmoment_global = Float64[]
+secmoment_local = Float64[]
 positions = (collect(1:dim)-midpoint)
 for i=1:length(timepoints)
-  push!(secmomentglobal, sum(positions.^2 .* diag(rhoglobal[i])))
-  push!(secmomentlocal, sum(positions.^2 .* diag(rholocal[i])))
+   push!(secmoment_global, sum(positions.^2 .* diag(rho_global[i])))
+   push!(secmoment_local, sum(positions.^2 .* diag(rho_local[i])))
 end
 
-## plotting results
+## plotting the results
 
 figure(figsize=[2.5, 1.5])
-plot(timepoints, secmomentlocal, "k")
+plot(timepoints, secmoment_local, "k")
 xlabel("t")
 ylabel(L"\mu_2")
 tick_params(labelsize=9)
-axis([0, timepoints[end], 0, maximum(secmomentlocal)])
+axis([0, timepoints[end], 0, maximum(secmoment_local)])
 savefig("secondmomentlocal.pdf", bbox_inches="tight")
 # show()
 
 figure(figsize=[2.5,1.5])
-plot(timepoints, secmomentglobal, "k")
+plot(timepoints, secmoment_global, "k")
 xlabel("t")
 ylabel(L"\mu_2")
 tick_params(labelsize=9)
-axis([0, timepoints[end], 0, maximum(secmomentglobal)])
+axis([0, timepoints[end], 0, maximum(secmoment_global)])
 savefig("secondmomentglobal.pdf", bbox_inches="tight")
 # show()
 ##
