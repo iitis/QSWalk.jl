@@ -1,5 +1,5 @@
 export
-  evolve_operator, 
+  evolve_operator,
   evolve
 
 """
@@ -9,7 +9,7 @@ Return an exponent of `time`×`evo_gen`. This function is useful in the case of
 multiple initial states and fixed `evo_gen` and `time`, as it is faster to
 compute the exponent once and use it for evolving on different initial states.
 
-*Note*: Parameter `evo_gen` must be of type `Matrix`. For type `SparseMatrixCSC`
+*Note:* Parameter `evo_gen` must be of type `Matrix`. For type `SparseMatrixCSC`
 case different numerical approach is used. See function ```epmv``` in package
 ```Expokit```.
 
@@ -21,10 +21,10 @@ julia> H, L = [0 1; 1 0], [[0 1; 0 0], [0 0; 1 0]]
 
 julia> evolve_operator(evolve_generator(H, L), 4.0)
 4×4 Array{Complex{Float64},2}:
- 0.499815+0.0im                0.0+0.00127256im         0.0-0.00127256im  0.500185+0.0im       
+ 0.499815+0.0im                0.0+0.00127256im         0.0-0.00127256im  0.500185+0.0im
       0.0+0.00127256im  0.00960957+0.0im         0.00870607+0.0im              0.0-0.00127256im
       0.0-0.00127256im  0.00870607+0.0im         0.00960957+0.0im              0.0+0.00127256im
- 0.500185+0.0im 
+ 0.500185+0.0im
 ```
 """
 function evolve_operator(evo_gen::Matrix{T} where T<:Number, time::Real)
@@ -46,15 +46,15 @@ Simulate the GKSL master equation according to the equation
 
 ``|result⟩⟩ = exp(time*evo_gen)|init_state⟩⟩``
 
-where ``|⋅⟩⟩`` denotes the vectorization. 
+where ``|⋅⟩⟩`` denotes the vectorization.
 
-*Note:* The function returns unvectorized `result`.  
+*Note:* The function returns unvectorized `result`.
 
 The evolution can be calculated using three different approaches.
 
 In the simplest case the function accepts matrix `evo_gen` specifying the
 generator of the evolution, `init_state` describing the starting point of the
-evolution, and `time` specifying the time of the evolution. 
+evolution, and `time` specifying the time of the evolution.
 
 *Note:* If `evo_gen` is of type `Matrix`, the exponent is calculated using
 `expm` function. If `evo_gen` is of type `SparseMatrixCSC`, `expmv` from
@@ -79,10 +79,10 @@ evolution in the case of multiple initial states and the same time point.
 ```jldoctest
 julia> H, L = [0 1; 1 0], [[0 1; 0 0], [0 0; 1 0]]
 (
-[0 1; 1 0], 
+[0 1; 1 0],
 
 Array{Int64, 2}[
-[0 1; 0 0], 
+[0 1; 0 0],
 
 [0 0; 1 0]])
 
@@ -111,41 +111,41 @@ julia> evolve(ev_op, proj(1, 2))
       0.0-0.00127256im  0.500185+0.0im
 ```
 """
-function evolve(exp_evolve_generator::Matrix{T} where T<:Number, 
+function evolve(exp_evolve_generator::Matrix{T} where T<:Number,
                 initial_state::SparseDenseMatrix)
-  @argumentcheck size(exp_evolve_generator, 1) ==  size(exp_evolve_generator, 2) "exp_evolve_generator should be square"
-  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "initial_state should be square"
+  @argumentcheck size(exp_evolve_generator, 1) ==  size(exp_evolve_generator, 2) "Argument exp_evolve_generator should be square"
+  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "Initial_state should be a square matrix"
   @assert size(exp_evolve_generator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of exp_evolve_generator size"
 
   unres(exp_evolve_generator*res(initial_state))
 end
 
-function evolve(evolve_generator::Matrix{T} where T<:Number, 
-                initial_state::SparseDenseMatrix, 
+function evolve(evolve_generator::Matrix{T} where T<:Number,
+                initial_state::SparseDenseMatrix,
                 timepoint::Real)
-  @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "evolve_generator should be square"
-  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "initial_state should be square"
+  @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "Argument evolve_generator should be square"
+  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "Initial_state should be a square matrix"
   @assert size(evolve_generator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of evolve_generator size"
   @argumentcheck timepoint>= 0 "Time needs to be nonnegative"
 
-  unres(expm(timepoint*evolve_generator)*res(initial_state))
+  unres(expm(timepoint*evolve_gentheerator)*res(initial_state))
 end
 
-function evolve(evolve_generator::SparseMatrixCSC{T} where T<:Number, 
-                initial_state::SparseDenseMatrix, 
+function evolve(evolve_generator::SparseMatrixCSC{T} where T<:Number,
+                initial_state::SparseDenseMatrix,
                 timepoint::Real)
-  @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "evolve_generator should be square"
-  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "initial_state should be square"
+  @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "Argument evolve_generator should be a square matrix"
+  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "Argument initial_state should be a square matrix"
   @assert size(evolve_generator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of evolve_generator size"
   @argumentcheck timepoint>= 0 "Time needs to be nonnegative"
   unres(expmv(timepoint, evolve_generator, full(res(initial_state))))
 end
 
-function evolve(evolve_generator::SparseDenseMatrix, 
-                initial_state::SparseDenseMatrix, 
+function evolve(evolve_generator::SparseDenseMatrix,
+                initial_state::SparseDenseMatrix,
                 timepoints::Vector{T} where T<:Number)
-  @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "evolve_generator should be square"
-  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "initial_state should be square"
+  @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "evolve_generator should be a square matrix"
+  @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "Argument initial_state should be a square matrix"
   @assert size(evolve_generator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of evolve_generator size"
   @argumentcheck all(timepoints.>= 0) "All time points need to be nonnegative"
 
