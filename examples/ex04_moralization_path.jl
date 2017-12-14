@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Case 3: spontaneous moralization on path graph
+# Example 4: spontaneous moralization on the path graph
 # ------------------------------------------------------------------------------
 
 using QSWalk
