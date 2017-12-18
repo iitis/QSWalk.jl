@@ -24,4 +24,4 @@ Pkg.update("QSWalk")
 ```
 ## Examples
 
-Examples can be found in [QSWalkTutorials](https://github.com/ZKSI/QSWalkTutorials) project. Tutorials require [QSWalk](https://github.com/ZKSI/QSWalk.jl), [LightGraphs](https://github.com/JuliaGraphs/LightGraphs.jl), [PyPlot](https://github.com/JuliaPy/PyPlot.jl), [TikzGraphs](https://github.com/sisl/TikzGraphs.jl) modules.
+Examples can be found in `examples` subdirectory. They require [QSWalk](https://github.com/ZKSI/QSWalk.jl), [LightGraphs](https://github.com/JuliaGraphs/LightGraphs.jl), [PyPlot](https://github.com/JuliaPy/PyPlot.jl), [TikzGraphs](https://github.com/sisl/TikzGraphs.jl) modules.
