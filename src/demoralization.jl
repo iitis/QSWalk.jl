@@ -1,6 +1,6 @@
 export
-  local_hamiltonian,
   default_local_hamiltonian,
+  local_hamiltonian,
   nonmoralizing_lindbladian,
   make_vertex_set,
   global_hamiltonian,
@@ -11,9 +11,9 @@ export
 
     default_local_hamiltonian(size)
 
-Return default local hamiltonian of size `size`×`size` for the demoralization
-procedure. The hamiltonian is sparse with nonzero elements on the first
-upperdiagonal (equal to `1im`) and lowerdiagonal (equal to `-1im`).
+Return default local Hamiltonian of size `size`×`size` for the demoralization
+procedure. The Hamiltonian is sparse with nonzero elements on the first
+upper diagonal (equal to `1im`) and lower diagonal (equal to `-1im`).
 
 *Note:* This function is used to provide the default argument for
 `local_hamiltonian` function.
@@ -32,7 +32,7 @@ julia> QSWalk.default_local_hamiltonian(4)
 ```
 """
 function default_local_hamiltonian(size::Int)
-  @argumentcheck size>0 "Size of default local hamiltonian needs to be positive"
+  @argumentcheck size>0 "Size of default local Hamiltonian needs to be positive"
   if size ==  1
     return spzeros(Complex128, 1, 1)
   else
@@ -45,11 +45,11 @@ end
     local_hamiltonian(vertexset[, hamiltoniansByDegree])
     local_hamiltonian(vertexset, hamiltoniansByVertex)
 
-Return hamiltonian acting locally on each vertex from `vertexset` linear
-subspace. In the first form, `hamiltoniansByDegree` is a dictionary
-`Dict{Int, SparseDenseMatrix}`, which, for a given dimension of vertex linear
-subspace, yields a hermitian operator. Only matrices for existing dimensions
-needs to be specified. In the second form, `hamiltoniansByVertex` is a dictionary
+Return Hamiltonian acting locally on each vertex from `vertexset` linear
+subspace. In the first form, `hamiltoniansByDegree` is a dictionary `Dict{Int,
+SparseDenseMatrix}`, which, for a given dimension of vertex linear subspace,
+yields a hermitian operator. Only matrices for existing dimensions needs to be
+specified. In the second form, `hamiltoniansByVertex` is a dictionary
 `Dict{Vertex, SparseDenseMatrix}`, which, for a given vertex, yields a hermitian
 operator of the size equal to the dimension of the vertex subspace.
 
@@ -136,12 +136,12 @@ end
 Return single Lindbladian operator and a vertex set describing how vertices are
 bound to subspaces. The operator is constructed according to the
 corection scheme presented in [1]. Parameter `A` is a square matrix, describing
-the connection between the cannonical subspaces in a similar manner as the adjacency matrix.
+the connection between the canonical subspaces in a similar manner as the adjacency matrix.
 Parameter `epsilon`, with the default value `eps()`, determines the relevant
 values by `abs(A[i, j]) >=  epsilon` formula. List `lindbladians` describes the
 elementary matrices used. It can be `Dict{Int, SparseDenseMatrix}`,
 which returns the matrix by the indegree, or `Dict{Vertex, SparseDenseMatrix}`
-which, for different verticex, may return different
+which, for different vertices, may return different
 matrix. The matrix should have orthogonal columns and be of the size
 outdeg of the vertex. As default the function uses Fourier matrices.
 
@@ -259,16 +259,16 @@ end
 
     global_hamiltonian(A[, hamiltonians][, epsilon])
 
-Creates global hamiltonian for moralization procedure. The function constructs
-upper-diagonl of result matrix by upper-triangular of `A` matrix and after
-symmetrizes it. The result matrix is then always exactly hermitian. `hamiltonians`
-is an optional argument which is a Dictionary with keys of type `Tuple{Int, Int}`
-or `Tuple{Vertex, Vertex}`. First collects the submatrices according to its
-shape, while the second collect according to each pair of vertices. As default
-all-one submatrices are chosen. Only those elements for which `abs(A[i, j]) >=  epsilon`
-are considered.
+Return global Hamiltonian for the moralization procedure. Matrix `A` should the
+adjacency matrix of an undirected graph, for which one aims to construct the
+nonmoralizing dynamics. Here, `hamiltonians` is an optional argument which is a
+Dictionary with keys of type `Tuple{Int, Int}` or `Tuple{Vertex, Vertex}`. The
+first collects the submatrices according to their shape, while the second
+collects them according to each pair of vertices. As the default all-one
+submatrices are chosen. The last argument states that only those elements for
+which `abs(A[i, j]) >= epsilon` are considered.
 
-*Note* The submatrices of the result matrix are scaled by corresponding `A`
+*Note:* The submatrices of the result matrix are scaled by corresponding `A`
 element.
 
 # Examples
@@ -316,10 +316,8 @@ function global_hamiltonian(A::SparseDenseMatrix,
   @argumentcheck all([eltype(h)<:Number for h = values(hamiltonians)]) "All elements of elements in hamiltonians must be Number"
   @argumentcheck epsilon>= 0 "epsilon needs to be nonnegative"
 
-
   revincidence_list = reversed_incidence_list(A, epsilon = epsilon)
   vset = revinc_to_vertexset(revincidence_list)
-
 
   H = spzeros(Complex128, vertexsetsize(vset), vertexsetsize(vset))
   for (index, i) = enumerate(revincidence_list), j = i
@@ -354,10 +352,8 @@ function global_hamiltonian(A::SparseDenseMatrix,
   @argumentcheck all([eltype(h)<:Number for h = values(hamiltonians)]) "All elements of elements in hamiltonians must be Number"
   @argumentcheck epsilon>= 0 "epsilon needs to be nonnegative"
 
-
   revincidence_list = reversed_incidence_list(A, epsilon = epsilon)
   vset = revinc_to_vertexset(revincidence_list)
-
 
   H = spzeros(Complex128, vertexsetsize(vset), vertexsetsize(vset))
   for (index, i) = enumerate(revincidence_list), j = i
