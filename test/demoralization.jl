@@ -8,23 +8,23 @@
 
   end
 
-  @testset "default_local_hamiltonian" begin
-    @test QSWalk.default_local_hamiltonian(1) == spzeros(Complex128, 1, 1)
-    @test QSWalk.default_local_hamiltonian(3) == sparse([0. im 0.; -im 0 im; 0 -im 0])
+  @testset "default_nm_loc_ham" begin
+    @test QSWalk.default_nm_loc_ham(1) == spzeros(Complex128, 1, 1)
+    @test QSWalk.default_nm_loc_ham(3) == sparse([0. im 0.; -im 0 im; 0 -im 0])
   end
 
-  @testset "local_hamiltonian" begin
+  @testset "nm_loc_ham" begin
     #default option
-    @test local_hamiltonian(VertexSet([[1], [2, 3]])) == sparse([0.+0im 0 0;0 0 im;0 -im 0])
-    @test local_hamiltonian(VertexSet([[1], [2], [3]])) == spzeros(Complex128, 3, 3)
+    @test nm_loc_ham(VertexSet([[1], [2, 3]])) == sparse([0.+0im 0 0;0 0 im;0 -im 0])
+    @test nm_loc_ham(VertexSet([[1], [2], [3]])) == spzeros(Complex128, 3, 3)
     #by size version
-    @test local_hamiltonian(VertexSet([[1, 2], [3, 4]]), Dict(2 =>[0 1; 1 0])) == sparse([0. 1 0 0; 1 0 0 0; 0 0 0 1; 0 0 1 0])
-    @test local_hamiltonian(VertexSet([[1], [2], [3]]), Dict(1 =>ones(Float64, (1, 1)))) == speye(Complex128, 3)
+    @test nm_loc_ham(VertexSet([[1, 2], [3, 4]]), Dict(2 =>[0 1; 1 0])) == sparse([0. 1 0 0; 1 0 0 0; 0 0 0 1; 0 0 1 0])
+    @test nm_loc_ham(VertexSet([[1], [2], [3]]), Dict(1 =>ones(Float64, (1, 1)))) == speye(Complex128, 3)
     #by index version
     M1 = [1. 2;3 5]
     M2 = zeros(1, 1)+1.
     dict = Dict(Vertex([1, 3]) =>M1, Vertex([2]) =>M2)
-    @test local_hamiltonian(VertexSet([[1, 3], [2]]), dict) ==
+    @test nm_loc_ham(VertexSet([[1, 3], [2]]), dict) ==
             sparse([ 1.0+0im 0 2; 0 1 0; 3 0 5 ])
   end
 
@@ -56,33 +56,33 @@
     @test QSWalk.fourier_matrix(1) ≈ ones(Float64, (1, 1))
   end
 
-  @testset "nonmoralizing_lindbladian" begin
+  @testset "nm_lindbladian" begin
     A = sparse([0.+0.0im 1 0; 1 0 1; 0 1 0])
     B1, B2 = eye(1), ones(2, 2)
     #default
     #needs to be roughly, since exp computing is inexact
-    @test nonmoralizing_lindbladian(A)[1] ≈ [0 1 1 0;
+    @test nm_lindbladian(A)[1] ≈ [0 1 1 0;
                                              1 0 0 1;
                                              1 0 0 -1;
                                              0 1 1 0]
-    @test nonmoralizing_lindbladian(A)[2] == make_vertex_set(A)
+    @test nm_lindbladian(A)[2] == make_vertex_set(A)
 
     A = sparse([0.+0.0im 0 0 0 1;
                 0 0 1 0 1;
                 0 0 0 0 0;
                 0 1 1 0 0;
                 0 0 0 0 0])
-    L, vset = nonmoralizing_lindbladian(A)
+    L, vset = nm_lindbladian(A)
     v1, v2, v3, v4, v5 = vlist(vset)
-    @test nonmoralizing_lindbladian(A)[1] ≈ [0 0 0 0 0 0 1;
+    @test nm_lindbladian(A)[1] ≈ [0 0 0 0 0 0 1;
                                              0 0 0 1 0 0 1;
                                              0 0 0 1 0 0 -1;
                                              0 0 0 0 0 0 0;
                                              0 1 1 1 0 0 0;
                                              0 1 1 -1 0 0 0;
                                              0 0 0 0 0 0 0]
-    @test nonmoralizing_lindbladian(A)[2] == make_vertex_set(A)
-    @test nonmoralizing_lindbladian(A, Dict(v1 => B1, v2 => 2*B2, v3 => 3*B1, v4 => 4*B2, v5 => 5*B1))[1] ≈
+    @test nm_lindbladian(A)[2] == make_vertex_set(A)
+    @test nm_lindbladian(A, Dict(v1 => B1, v2 => 2*B2, v3 => 3*B1, v4 => 4*B2, v5 => 5*B1))[1] ≈
              [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  1.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im;
@@ -94,42 +94,42 @@
 
 
     A = [0 0 0; 0 0 0; 1 1 0]
-    @test nonmoralizing_lindbladian(A)[1] ≈ [0 0 0 0;
+    @test nm_lindbladian(A)[1] ≈ [0 0 0 0;
                                              0 0 0 0;
                                              1 1 0 0;
                                              1 -1 0 0]
-    @test nonmoralizing_lindbladian(A)[2] == make_vertex_set(A)
+    @test nm_lindbladian(A)[2] == make_vertex_set(A)
 
 
-    @test nonmoralizing_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[1] ≈
+    @test nm_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[1] ≈
              [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im]
-    @test nonmoralizing_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[2] ==
+    @test nm_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[2] ==
       make_vertex_set(A)
 
-    @test nonmoralizing_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[1] ≈
+    @test nm_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[1] ≈
              [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im]
 
-    L, vset = nonmoralizing_lindbladian(A)
+    L, vset = nm_lindbladian(A)
     v1, v2, v3 = vlist(vset)
-    @test nonmoralizing_lindbladian(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[1] ≈
+    @test nm_lindbladian(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[1] ≈
              [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im]
-    @test nonmoralizing_lindbladian(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[2] ==
+    @test nm_lindbladian(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[2] ==
       make_vertex_set(A)
 
       A = [2 0 0 3;
     im 0 3im 0;
     1 0 0 0;
     im -im 0 0]
-    @test nonmoralizing_lindbladian(A,Dict(1=>ones(1,1), 2=> ones(2,2)))[1] ≈
+    @test nm_lindbladian(A,Dict(1=>ones(1,1), 2=> ones(2,2)))[1] ≈
               [2.0+0.0im 2.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 3.0+0.0im 3.0+0.0im;
                2.0+0.0im 2.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 3.0+0.0im 3.0+0.0im;
                0.0+1.0im 0.0+1.0im 0.0+0.0im 0.0+0.0im 0.0+3.0im 0.0+0.0im 0.0+0.0im;
@@ -141,24 +141,24 @@
 
   end
 
-  @testset "global_hamiltonian" begin
+  @testset "nm_glob_ham" begin
     A = sparse([0 1 0;
                1 0 2;
                0 2 0])
     #default
     #needs to be roughly, since exp computing is inexact
-    @test global_hamiltonian(A) ≈ [0 1 1 0;
+    @test nm_glob_ham(A) ≈ [0 1 1 0;
                                    1 0 0 2;
                                    1 0 0 2;
                                    0 2 2 0]
-    @test global_hamiltonian(A, Dict((1, 2) => (2+1im)*ones(1, 2), (2, 1) =>1im*ones(2, 1))) ≈
+    @test nm_glob_ham(A, Dict((1, 2) => (2+1im)*ones(1, 2), (2, 1) =>1im*ones(2, 1))) ≈
                                     [0 2+1im 2+1im 0;
                                      2-1im 0 0 2im;
                                      2-1im 0 0 2im;
                                      0 -2im -2im 0]
 
     v1, v2, v3 = vlist(make_vertex_set(A))
-    @test global_hamiltonian(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]')) ==
+    @test nm_glob_ham(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]')) ==
                                               [0 2 2 0;
                                                2 0 0 2im;
                                                2 0 0 4im;
@@ -167,13 +167,13 @@
         0  0  1;
         2  2  0]
   v1, v2, v3 = vlist(make_vertex_set(A))
-  @test global_hamiltonian(A, Dict((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;])) ≈
+  @test nm_glob_ham(A, Dict((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;])) ≈
                           [0.0+0.0im  0.0+0.0im  2.0+0.0im  2.0+0.0im;
                            0.0+0.0im  0.0+0.0im  0.0-1.0im  0.0-2.0im;
                            2.0+0.0im  0.0+1.0im  0.0+0.0im  0.0+0.0im;
                            2.0+0.0im  0.0+2.0im  0.0+0.0im  0.0+0.0im]
 
-  @test global_hamiltonian(A, Dict((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]),epsilon=1.5) ≈
+  @test nm_glob_ham(A, Dict((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]),epsilon=1.5) ≈
                           [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
                            0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
                            0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
@@ -187,24 +187,24 @@ end
   probability = [0.05, 0.1, 0.25, 0.3, 0.01, 0.20, 0.04, 0.05]
   vset = VertexSet([[1, 4], [2, 3, 5], [6], [7, 8]])
   result = [0.35, 0.36, 0.2, 0.09]
-  @test measurement_nonmoralized(probability, vset) == result
+  @test nm_measurement(probability, vset) == result
 
   state = [1/6 1.0 1/6; 1. 2/3 1im; 1/6 -1im 1/6]
   vset = VertexSet([[1, 3], [2]])
-  @test measurement_nonmoralized(state, vset) ≈ [1./3, 2./3]
-  @test_throws AssertionError measurement_nonmoralized(eye(2)/2., vset)
-  @test_throws AssertionError measurement_nonmoralized([1./2, 1./3, 1./6, 0.], vset)
+  @test nm_measurement(state, vset) ≈ [1./3, 2./3]
+  @test_throws AssertionError nm_measurement(eye(2)/2., vset)
+  @test_throws AssertionError nm_measurement([1./2, 1./3, 1./6, 0.], vset)
 
 end
 
 @testset "Initial states creation" begin
   vset = VertexSet([[1], [2, 3, 4], [5, 6, 7], [8, 9]])
-  @test init_nonmoralized(vset[[1, 3, 4]], vset) ≈ spdiagm([1./3, 0, 0, 0, 1./9, 1./9, 1./9, 1./6, 1./6])
+  @test nm_init(vset[[1, 3, 4]], vset) ≈ spdiagm([1./3, 0, 0, 0, 1./9, 1./9, 1./9, 1./6, 1./6])
   A1 = ones(Complex128, 1, 1)/4
   A2 = [ 1/5+0im 0 1/5; 0 1/10 0 ; 1/5 0 1/5 ]
   A3 = [0.125 -0.125+0im; -0.125 0.125]
   dict = Dict(vset[1] =>A1, vset[3] =>A2, vset[4] =>A3 )
-  @test init_nonmoralized(dict, vset) ==
+  @test nm_init(dict, vset) ==
         sparse([ 0.25+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
                 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
                 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im     0.0+0.0im     0.0+0.0im
@@ -216,6 +216,6 @@ end
                 0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  -0.125+0.0im   0.125+0.0im])
 
   dictwrong = Dict(vset[1] =>A2, vset[3] =>A2, vset[4] =>A3 )
-  @test_throws AssertionError init_nonmoralized(vlist(VertexSet([[1, 2, 3], [4, 5]])), vset)
-  @test_throws AssertionError init_nonmoralized(dictwrong, vset)
+  @test_throws AssertionError nm_init(vlist(VertexSet([[1, 2, 3], [4, 5]])), vset)
+  @test_throws AssertionError nm_init(dictwrong, vset)
 end

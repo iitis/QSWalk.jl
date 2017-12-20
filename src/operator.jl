@@ -1,9 +1,9 @@
 export
-  classical_lindbladian,
+  local_lind,
   evolve_generator
 
 """
-    classical_lindbladian(A[; epsilon])
+    local_lind(A[; epsilon])
 
 Split the elements of the matrix `A` into a collection of sparse matrices with
 exactly one non-zero element. Martices are added if the absolute value of the
@@ -18,7 +18,7 @@ julia> A = [1. 2.; 3. 4.]
  1.0  2.0
  3.0  4.0
 
-julia> classical_lindbladian(A)
+julia> local_lind(A)
 4-element Array{SparseMatrixCSC{Float64, Ti<:Integer}, 1}:
 
 	[1, 1] = 1.0
@@ -29,7 +29,7 @@ julia> classical_lindbladian(A)
 
 	[2, 2] = 4.0
 
-julia> classical_lindbladian(A, epsilon = 1.5)
+julia> local_lind(A, epsilon = 1.5)
 3-element Array{SparseMatrixCSC{Float64, Ti<:Integer}, 1}:
 
 	[1, 2] = 2.0
@@ -39,7 +39,7 @@ julia> classical_lindbladian(A, epsilon = 1.5)
 	[2, 2] = 4.0
 ```
 """
-function classical_lindbladian(A::Matrix{T} where T<:Number;
+function local_lind(A::Matrix{T} where T<:Number;
                                       epsilon::Real = eps())
   @argumentcheck epsilon>= 0 "Epsilon should be nonegative"
 
@@ -52,7 +52,7 @@ function classical_lindbladian(A::Matrix{T} where T<:Number;
   L
 end
 
-function classical_lindbladian(A::SparseMatrixCSC{T} where T<:Number;
+function local_lind(A::SparseMatrixCSC{T} where T<:Number;
                                       epsilon::Real = eps())
   @argumentcheck epsilon>= 0 "Epsilon should be nonegative"
 

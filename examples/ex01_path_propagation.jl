@@ -13,7 +13,7 @@ timepoints = collect(0:2:100)
 adjacency = adjacency_matrix(PathGraph(dim))
 # adjacency = spdiagm((ones(dim-1),ones(dim-1)),(-1,1)) # alternative version
 
-lind_local = classical_lindbladian(adjacency)
+lind_local = local_lind(adjacency)
 midpoint = ceil(Int, dim/2)
 op_global = evolve_generator(adjacency, [adjacency], w)
 op_local = evolve_generator(adjacency, lind_local, w)

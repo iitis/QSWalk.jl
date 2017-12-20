@@ -18,9 +18,9 @@
     @test evolve_generator(H, [L1, L2], 1/2) == resultnoomega/2
   end
   @testset "Nonmoralized usage" begin
-    globalH = global_hamiltonian(H)
-    Lnonmoral1 = nonmoralizing_lindbladian(L1)
-    locH1 = local_hamiltonian(Lnonmoral1[2])
+    globalH = nm_glob_ham(H)
+    Lnonmoral1 = nm_lindbladian(L1)
+    locH1 = nm_loc_ham(Lnonmoral1[2])
     @test evolve_generator(globalH,[],locH1,1/3) ≈ evolve_generator((1-1/3)*globalH+1/3*locH1,[])
     @test evolve_generator(globalH,[Lnonmoral1[1]],locH1,1/3) ≈ evolve_generator(globalH+1/2*(locH1),[Lnonmoral1[1]],1/3)
     
@@ -42,19 +42,19 @@ end
   resultwithepsilon = [sparse([0.+0im 1.+im ; 0 0 ]),
             sparse([0.+0im 0 ; 1.-im 0 ])]
   @testset "Standard usage" begin
-    @test classical_lindbladian(H) == result
-    @test classical_lindbladian(sparse(H)) == result
-    @test classical_lindbladian(H, epsilon = 1.1) == resultwithepsilon
-    @test classical_lindbladian(sparse(H), epsilon = 1.1) == resultwithepsilon
+    @test local_lind(H) == result
+    @test local_lind(sparse(H)) == result
+    @test local_lind(H, epsilon = 1.1) == resultwithepsilon
+    @test local_lind(sparse(H), epsilon = 1.1) == resultwithepsilon
   end
 
   @testset "Type tests" begin
-    @test typeof(classical_lindbladian(H)) == Vector{SparseMatrixCSC{Complex128}}
-    @test typeof(classical_lindbladian(sparse(H))) == Vector{SparseMatrixCSC{Complex128}}
+    @test typeof(local_lind(H)) == Vector{SparseMatrixCSC{Complex128}}
+    @test typeof(local_lind(sparse(H))) == Vector{SparseMatrixCSC{Complex128}}
   end
 
   @testset "Error tests" begin
-    @test_throws ArgumentError classical_lindbladian(H, epsilon = -1.)
-    @test_throws TypeError classical_lindbladian(H, epsilon = -1im)
+    @test_throws ArgumentError local_lind(H, epsilon = -1.)
+    @test_throws TypeError local_lind(H, epsilon = -1im)
   end
 end

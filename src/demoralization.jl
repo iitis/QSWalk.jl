@@ -1,27 +1,27 @@
 export
-  default_local_hamiltonian,
-  local_hamiltonian,
-  nonmoralizing_lindbladian,
+  default_nm_loc_ham,
+  nm_loc_ham,
+  nm_lindbladian,
   make_vertex_set,
-  global_hamiltonian,
-  init_nonmoralized,
-  measurement_nonmoralized
+  nm_glob_ham,
+  nm_init,
+  nm_measurement
 
 """
 
-    default_local_hamiltonian(size)
+    default_nm_loc_ham(size)
 
 Return default local Hamiltonian of size `size`×`size` for the demoralization
 procedure. The Hamiltonian is sparse with nonzero elements on the first
 upper diagonal (equal to `1im`) and lower diagonal (equal to `-1im`).
 
 *Note:* This function is used to provide the default argument for
-`local_hamiltonian` function.
+`nm_loc_ham` function.
 
 # Examples
 
 ```jldoctest
-julia> QSWalk.default_local_hamiltonian(4)
+julia> QSWalk.default_nm_loc_ham(4)
 4×4 SparseMatrixCSC{Complex{Float64}, Int64} with 6 stored entries:
   [2, 1] = 0.0-1.0im
   [1, 2] = 0.0+1.0im
@@ -31,7 +31,7 @@ julia> QSWalk.default_local_hamiltonian(4)
   [3, 4] = 0.0+1.0im
 ```
 """
-function default_local_hamiltonian(size::Int)
+function default_nm_loc_ham(size::Int)
   @argumentcheck size>0 "Size of default local Hamiltonian needs to be positive"
   if size ==  1
     return spzeros(Complex128, 1, 1)
@@ -42,8 +42,8 @@ end
 
 """
 
-    local_hamiltonian(vertexset[, hamiltoniansByDegree])
-    local_hamiltonian(vertexset, hamiltoniansByVertex)
+    nm_loc_ham(vertexset[, hamiltoniansByDegree])
+    nm_loc_ham(vertexset, hamiltoniansByVertex)
 
 Return Hamiltonian acting locally on each vertex from `vertexset` linear
 subspace. In the first form, `hamiltoniansByDegree` is a dictionary `Dict{Int,
@@ -63,7 +63,7 @@ hamiltonians should be complex valued.
 julia> vset = VertexSet([[1, 2], [3, 4]])
 QSWalk.VertexSet(QSWalk.Vertex[QSWalk.Vertex([1, 2]), QSWalk.Vertex([3, 4])])
 
-julia> full(local_hamiltonian(vset))
+julia> full(nm_loc_ham(vset))
 4×4 Array{Complex{Float64}, 2}:
  0.0+0.0im  0.0+1.0im  0.0+0.0im  0.0+0.0im
  0.0-1.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im
@@ -78,7 +78,7 @@ julia> v1, v2 = vlist(vset)
  QSWalk.Vertex([1, 2])
  QSWalk.Vertex([3, 4])
 
-julia> local_hamiltonian(vset, Dict(v1  => A, v2  => B))
+julia> nm_loc_ham(vset, Dict(v1  => A, v2  => B))
 4×4 SparseMatrixCSC{Complex{Float64}, Int64} with 8 stored entries:
   [1, 1] = 0.358914+0.0im
   [2, 1] = 0.379927+0.0im
@@ -89,7 +89,7 @@ julia> local_hamiltonian(vset, Dict(v1  => A, v2  => B))
   [3, 4] = 0.969279+0.0im
   [4, 4] = 0.636789+0.0im
 
-julia> local_hamiltonian(VertexSet([[1, 2], [3, 4]]), Dict(2  => A))
+julia> nm_loc_ham(VertexSet([[1, 2], [3, 4]]), Dict(2  => A))
 4×4 SparseMatrixCSC{Complex{Float64}, Int64} with 8 stored entries:
   [1, 1] = 0.358914+0.0im
   [2, 1] = 0.379927+0.0im
@@ -101,9 +101,9 @@ julia> local_hamiltonian(VertexSet([[1, 2], [3, 4]]), Dict(2  => A))
   [4, 4] = 0.671986+0.0im
 ```
 """
-function local_hamiltonian(vset::VertexSet,
+function nm_loc_ham(vset::VertexSet,
                            hamiltonians::Dict{Int, T} where T<:AbstractArray
-                              = Dict(l =>default_local_hamiltonian(l) for l = length.(vlist(vset))))
+                              = Dict(l =>default_nm_loc_ham(l) for l = length.(vlist(vset))))
   @argumentcheck all([typeof(h)<:SparseDenseMatrix for h = values(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argumentcheck all([eltype(h)<:Number for h = values(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
   @argumentcheck all([size(h, 1) ==  size(h, 2) for h = values(hamiltonians)])  "Hamiltonians must consists of square matrices"
@@ -111,10 +111,10 @@ function local_hamiltonian(vset::VertexSet,
   @assert all([l in keys(hamiltonians) for l = verticeslengths]) "Missing degree in the Dictionary: $verticeslengths needed"
 
   hamiltonianlist = Dict{Vertex, SparseDenseMatrix}(v =>hamiltonians[length(v)] for v = vlist(vset))
-  local_hamiltonian(vset, hamiltonianlist)
+  nm_loc_ham(vset, hamiltonianlist)
 end
 
-function local_hamiltonian(vset::VertexSet,
+function nm_loc_ham(vset::VertexSet,
                            hamiltonians::Dict{Vertex, T} where T)
   @argumentcheck all([typeof(h)<:SparseDenseMatrix for h = values(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argumentcheck all([eltype(h)<:Number for h = values(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
@@ -131,7 +131,7 @@ end
 
 """
 
-    nonmoralizing_lindbladian(A[, lindbladians][, epsilon])
+    nm_lindbladian(A[, lindbladians][, epsilon])
 
 Return single Lindbladian operator and a vertex set describing how vertices are
 bound to subspaces. The operator is constructed according to the
@@ -166,7 +166,7 @@ julia> A = [0 1 0; 1 0 1; 0 1 0]
  1  0  1
  0  1  0
 
-julia> L, vset = nonmoralizing_lindbladian(A)
+julia> L, vset = nm_lindbladian(A)
 (
   [2, 1] = 1.0+0.0im
   [3, 1] = 1.0+0.0im
@@ -180,7 +180,7 @@ julia> L, vset = nonmoralizing_lindbladian(A)
 julia> B1, B2 = 2*eye(1), 3*ones(2, 2)
 ([2.0], [3.0 3.0; 3.0 3.0])
 
-julia> nonmoralizing_lindbladian(A, Dict(1  => B1, 2 =>B2 ))
+julia> nm_lindbladian(A, Dict(1  => B1, 2 =>B2 ))
 (
   [2, 1] = 3.0+0.0im
   [3, 1] = 3.0+0.0im
@@ -197,7 +197,7 @@ julia> v1, v2, v3 = vlist(vset)
  QSWalk.Vertex([2, 3])
  QSWalk.Vertex([4])
 
- julia> nonmoralizing_lindbladian(A, Dict(v1  => ones(1, 1), v2  => [2 2; 2 -2], v3 =>3*ones(1, 1)))[1] |> full
+ julia> nm_lindbladian(A, Dict(v1  => ones(1, 1), v2  => [2 2; 2 -2], v3 =>3*ones(1, 1)))[1] |> full
  4×4 Array{Complex{Float64}, 2}:
   0.0+0.0im  1.0+0.0im  1.0+0.0im   0.0+0.0im
   2.0+0.0im  0.0+0.0im  0.0+0.0im   2.0+0.0im
@@ -206,7 +206,7 @@ julia> v1, v2, v3 = vlist(vset)
 ```
 """
 
-function nonmoralizing_lindbladian(A::SparseDenseMatrix,
+function nm_lindbladian(A::SparseDenseMatrix,
                                    lindbladians::Dict{Int, S} where S;
                                    epsilon::Real = eps())
   @argumentcheck all([typeof(l)<:SparseDenseMatrix for l = values(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
@@ -226,15 +226,15 @@ function nonmoralizing_lindbladian(A::SparseDenseMatrix,
   L, vset
 end
 
-function nonmoralizing_lindbladian(A::SparseDenseMatrix;
+function nm_lindbladian(A::SparseDenseMatrix;
                                    epsilon::Real = eps())
   vset = make_vertex_set(A, epsilon = epsilon)
   degrees = [length(v) for v = vlist(vset)]
 
-  nonmoralizing_lindbladian(A, Dict(d =>fourier_matrix(d) for d = degrees), epsilon = epsilon)
+  nm_lindbladian(A, Dict(d =>fourier_matrix(d) for d = degrees), epsilon = epsilon)
 end
 
-function nonmoralizing_lindbladian(A::SparseDenseMatrix,
+function nm_lindbladian(A::SparseDenseMatrix,
                                    lindbladians::Dict{Vertex, S} where S;
                                    epsilon::Real = eps())
   @argumentcheck all([typeof(l)<:SparseDenseMatrix for l = values(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
@@ -257,7 +257,7 @@ end
 
 """
 
-    global_hamiltonian(A[, hamiltonians][, epsilon])
+    nm_glob_ham(A[, hamiltonians][, epsilon])
 
 Return global Hamiltonian for the moralization procedure. Matrix `A` should the
 adjacency matrix of an undirected graph, for which one aims to construct the
@@ -280,14 +280,14 @@ julia> A = [ 0 1 0; 1 0 1; 0 1 0]
  1  0  1
  0  1  0
 
-julia> global_hamiltonian(A) |> full
+julia> nm_glob_ham(A) |> full
 4×4 Array{Complex{Float64}, 2}:
  0.0+0.0im  1.0+0.0im  1.0+0.0im  0.0+0.0im
  1.0+0.0im  0.0+0.0im  0.0+0.0im  1.0+0.0im
  1.0+0.0im  0.0+0.0im  0.0+0.0im  1.0+0.0im
  0.0+0.0im  1.0+0.0im  1.0+0.0im  0.0+0.0im
 
-julia> global_hamiltonian(A, Dict((1, 2) => (2+1im)*ones(1, 2), (2, 1) =>1im*ones(2, 1))) |> full
+julia> nm_glob_ham(A, Dict((1, 2) => (2+1im)*ones(1, 2), (2, 1) =>1im*ones(2, 1))) |> full
 4×4 Array{Complex{Float64}, 2}:
  0.0+0.0im  2.0+1.0im  2.0+1.0im  0.0+0.0im
  2.0-1.0im  0.0+0.0im  0.0+0.0im  0.0+1.0im
@@ -300,7 +300,7 @@ julia> v1, v2, v3 = make_vertex_set(A)()
  QSWalk.Vertex([2, 3])
  QSWalk.Vertex([4])
 
-julia> global_hamiltonian(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]')) |> full
+julia> nm_glob_ham(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]')) |> full
 4×4 Array{Complex{Float64}, 2}:
  0.0+0.0im  2.0+0.0im  2.0+0.0im  0.0+0.0im
  2.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+1.0im
@@ -309,7 +309,7 @@ julia> global_hamiltonian(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]
 ```
 """
 
-function global_hamiltonian(A::SparseDenseMatrix,
+function nm_glob_ham(A::SparseDenseMatrix,
                             hamiltonians::Dict{Tuple{Int, Int}, S} where S;
                             epsilon::Real = eps())
   @argumentcheck all([typeof(h)<:SparseDenseMatrix for h = values(hamiltonians)]) "All elements in hamiltonians must be SparseMatrixCSC or Matrix"
@@ -331,7 +331,7 @@ function global_hamiltonian(A::SparseDenseMatrix,
   H + H'
 end
 
-function global_hamiltonian(A::SparseDenseMatrix;
+function nm_glob_ham(A::SparseDenseMatrix;
                             epsilon::Real = eps())
   #indlist = incidence_list(A, epsilon = epsilon)
   revindlist = reversed_incidence_list(A, epsilon = epsilon)
@@ -342,10 +342,10 @@ function global_hamiltonian(A::SparseDenseMatrix;
     alloneshamiltonians[length.((v, w))] = ones(length(v), length(w))
     alloneshamiltonians[length.((w, v))] = ones(length(w), length(v))
   end
-  global_hamiltonian(A, alloneshamiltonians, epsilon = epsilon)
+  nm_glob_ham(A, alloneshamiltonians, epsilon = epsilon)
 end
 
-function global_hamiltonian(A::SparseDenseMatrix,
+function nm_glob_ham(A::SparseDenseMatrix,
                             hamiltonians::Dict{Tuple{Vertex, Vertex}, S} where S;
                             epsilon::Real = eps())
   @argumentcheck all([typeof(h)<:SparseDenseMatrix for h = values(hamiltonians)]) "All elements in hamiltonians must be SparseMatrixCSC or Matrix"
@@ -369,12 +369,12 @@ end
 
 """
 
-    measurement_nonmoralized(probability, vertexset)
+    nm_measurement(probability, vertexset)
 
 Return joint probability of `probability`, which is real-valued probability vector
 according to `vertexset`.
 
-    measurement_nonmoralized(state, vertexset)
+    nm_measurement(state, vertexset)
 
 Return joint probability of cannonical measurement of density matrix `state`,
 according to `vertexset`.
@@ -395,7 +395,7 @@ julia> probability = [0.05, 0.1, 0.25, 0.3, 0.01, 0.20, 0.04, 0.05]
  0.04
  0.05
 
-julia> measurement_nonmoralized(probability, VertexSet([[1, 4], [2, 3, 5], [6], [7, 8]]))
+julia> nm_measurement(probability, VertexSet([[1, 4], [2, 3, 5], [6], [7, 8]]))
 4-element Array{Float64, 1}:
  0.35
  0.36
@@ -408,31 +408,31 @@ julia> measurement_nonmoralized(probability, VertexSet([[1, 4], [2, 3, 5], [6], 
   0.0       0.666667  0.0
   0.166667  0.0       0.166667
 
- julia> measurement_nonmoralized(state, VertexSet([[1, 3], [2]]))
+ julia> nm_measurement(state, VertexSet([[1, 3], [2]]))
  2-element Array{Float64, 1}:
   0.333333
   0.666667
 ```
 """
-function measurement_nonmoralized(probability::Vector{T} where T<:Number,
+function nm_measurement(probability::Vector{T} where T<:Number,
                                   vset::VertexSet)
   @assert vertexsetsize(vset) ==  length(probability) "vertexset size and probability vector length do not match"
 
   [sum(probability[subspace(vertex)]) for vertex = vlist(vset)]
 end
 
-function measurement_nonmoralized(state::SparseDenseMatrix,
+function nm_measurement(state::SparseDenseMatrix,
                                   vset::VertexSet)
   @argumentcheck size(state, 1) ==  size(state, 2) "state should be square matrix"
   @assert vertexsetsize(vset) ==  size(state, 1) "vertexset size and state size do not match"
 
-  measurement_nonmoralized(real.(diag(state)), vset)
+  nm_measurement(real.(diag(state)), vset)
 end
 
 """
 
-    init_nonmoralized(init_vertices, vertexset)
-    init_nonmoralized(init_states, vertexset)
+    nm_init(init_vertices, vertexset)
+    nm_init(init_states, vertexset)
 
 Create initial state in the case of the nonmoralizing evolution. The result is
 a block diagonal matrix, where each block corresponds to vertex from `vertexset`.
@@ -453,7 +453,7 @@ size `length(v)`×`length(v)`.
 julia> vset = VertexSet([[1], [2, 3, 4], [5, 6, 7], [8, 9]])
 QSWalk.VertexSet(QSWalk.Vertex[QSWalk.Vertex([1]), QSWalk.Vertex([2, 3, 4]), QSWalk.Vertex([5, 6, 7]), QSWalk.Vertex([8, 9])])
 
-julia> init_nonmoralized(vset[[1, 3, 4]], vset)
+julia> nm_init(vset[[1, 3, 4]], vset)
 9×9 sparse matrix with 6 Complex{Float64} nonzero entries:
 	[1, 1] = 0.333333+0.0im
 	[5, 5] = 0.111111+0.0im
@@ -470,7 +470,7 @@ Complex{Float64}[0.2+0.0im 0.0+0.0im 0.2+0.0im; 0.0+0.0im 0.1+0.0im 0.0+0.0im; 0
 
 Complex{Float64}[0.125+0.0im -0.125+0.0im; -0.125+0.0im 0.125+0.0im])
 
-julia> init_nonmoralized(Dict(vset[1] =>A1, vset[3] =>A2, vset[4] =>A3), vset)
+julia> nm_init(Dict(vset[1] =>A1, vset[3] =>A2, vset[4] =>A3), vset)
 9×9 sparse matrix with 10 Complex{Float64} nonzero entries:
 	[1, 1] = 0.25+0.0im
 	[5, 5] = 0.2+0.0im
@@ -484,7 +484,7 @@ julia> init_nonmoralized(Dict(vset[1] =>A1, vset[3] =>A2, vset[4] =>A3), vset)
 	[9, 9] = 0.125+0.0im
 ```
 """
-function init_nonmoralized(initialvertices::Vector{Vertex},
+function nm_init(initialvertices::Vector{Vertex},
                            vset::VertexSet)
   @assert all([v in vlist(vset) for v = initialvertices]) "initialvertices is not a subset of vertexset"
 
@@ -496,7 +496,7 @@ function init_nonmoralized(initialvertices::Vector{Vertex},
   L
 end
 
-function init_nonmoralized(initial_states::Dict{Vertex, T} where T,
+function nm_init(initial_states::Dict{Vertex, T} where T,
                            vset::VertexSet)
   @argumentcheck all([typeof(state)<:SparseDenseMatrix for state = values(initial_states)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
   @argumentcheck all([eltype(state)<:Number for state = values(initial_states)]) "All elements of elements in `hamiltonians` must be Number"

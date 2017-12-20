@@ -16,13 +16,13 @@ rho = evolve(opmoral, proj(1,3), time)
 println(diag(rho))
 
 ## nonmoralizing evolution case
-lnonmoral, vset = nonmoralizing_lindbladian(adjacency)
-hlocal = local_hamiltonian(vset)
+lnonmoral, vset = nm_lindbladian(adjacency)
+hlocal = nm_loc_ham(vset)
 opnonmoral = evolve_generator(zero(lnonmoral), [lnonmoral], hlocal)
 
 println(vertexsetsize(vset))
 println(vset)
 
-rhoinit = init_nonmoralized(vset[[1]], vset)
+rhoinit = nm_init(vset[[1]], vset)
 rho = evolve(opnonmoral, rhoinit, time)
-println(measurement_nonmoralized(rho, vset))
+println(nm_measurement(rho, vset))

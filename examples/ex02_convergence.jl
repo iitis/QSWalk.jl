@@ -17,7 +17,7 @@ adj_digraph = full(adjacency_matrix(digraph, dir=:in))
 adj_graph = full(adjacency_matrix(graph))
 time = 100.
 
-lind = classical_lindbladian(adj_digraph)
+lind = local_lind(adj_digraph)
 evo_gen = evolve_generator(adj_graph, lind)
 
 ## dimensionality of the null space
