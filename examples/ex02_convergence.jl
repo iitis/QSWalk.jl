@@ -13,7 +13,7 @@ dim = 10
 prob = 0.5
 digraph = erdos_renyi(dim, prob, is_directed=true)
 graph = Graph(digraph)
-adj_digraph = full(adjacency_matrix(digraph))
+adj_digraph = full(adjacency_matrix(digraph, dir=:in))
 adj_graph = full(adjacency_matrix(graph))
 time = 100.
 
