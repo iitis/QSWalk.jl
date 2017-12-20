@@ -1,7 +1,7 @@
 export
   default_nm_loc_ham,
   nm_loc_ham,
-  nm_lindbladian,
+  nm_lind,
   make_vertex_set,
   nm_glob_ham,
   nm_init,
@@ -131,7 +131,7 @@ end
 
 """
 
-    nm_lindbladian(A[, lindbladians][, epsilon])
+    nm_lind(A[, lindbladians][, epsilon])
 
 Return single Lindbladian operator and a vertex set describing how vertices are
 bound to subspaces. The operator is constructed according to the
@@ -166,7 +166,7 @@ julia> A = [0 1 0; 1 0 1; 0 1 0]
  1  0  1
  0  1  0
 
-julia> L, vset = nm_lindbladian(A)
+julia> L, vset = nm_lind(A)
 (
   [2, 1] = 1.0+0.0im
   [3, 1] = 1.0+0.0im
@@ -180,7 +180,7 @@ julia> L, vset = nm_lindbladian(A)
 julia> B1, B2 = 2*eye(1), 3*ones(2, 2)
 ([2.0], [3.0 3.0; 3.0 3.0])
 
-julia> nm_lindbladian(A, Dict(1  => B1, 2 =>B2 ))
+julia> nm_lind(A, Dict(1  => B1, 2 =>B2 ))
 (
   [2, 1] = 3.0+0.0im
   [3, 1] = 3.0+0.0im
@@ -197,7 +197,7 @@ julia> v1, v2, v3 = vlist(vset)
  QSWalk.Vertex([2, 3])
  QSWalk.Vertex([4])
 
- julia> nm_lindbladian(A, Dict(v1  => ones(1, 1), v2  => [2 2; 2 -2], v3 =>3*ones(1, 1)))[1] |> full
+ julia> nm_lind(A, Dict(v1  => ones(1, 1), v2  => [2 2; 2 -2], v3 =>3*ones(1, 1)))[1] |> full
  4×4 Array{Complex{Float64}, 2}:
   0.0+0.0im  1.0+0.0im  1.0+0.0im   0.0+0.0im
   2.0+0.0im  0.0+0.0im  0.0+0.0im   2.0+0.0im
@@ -206,7 +206,7 @@ julia> v1, v2, v3 = vlist(vset)
 ```
 """
 
-function nm_lindbladian(A::SparseDenseMatrix,
+function nm_lind(A::SparseDenseMatrix,
                                    lindbladians::Dict{Int, S} where S;
                                    epsilon::Real = eps())
   @argumentcheck all([typeof(l)<:SparseDenseMatrix for l = values(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
@@ -226,15 +226,15 @@ function nm_lindbladian(A::SparseDenseMatrix,
   L, vset
 end
 
-function nm_lindbladian(A::SparseDenseMatrix;
+function nm_lind(A::SparseDenseMatrix;
                                    epsilon::Real = eps())
   vset = make_vertex_set(A, epsilon = epsilon)
   degrees = [length(v) for v = vlist(vset)]
 
-  nm_lindbladian(A, Dict(d =>fourier_matrix(d) for d = degrees), epsilon = epsilon)
+  nm_lind(A, Dict(d =>fourier_matrix(d) for d = degrees), epsilon = epsilon)
 end
 
-function nm_lindbladian(A::SparseDenseMatrix,
+function nm_lind(A::SparseDenseMatrix,
                                    lindbladians::Dict{Vertex, S} where S;
                                    epsilon::Real = eps())
   @argumentcheck all([typeof(l)<:SparseDenseMatrix for l = values(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"

@@ -56,33 +56,33 @@
     @test QSWalk.fourier_matrix(1) ≈ ones(Float64, (1, 1))
   end
 
-  @testset "nm_lindbladian" begin
+  @testset "nm_lind" begin
     A = sparse([0.+0.0im 1 0; 1 0 1; 0 1 0])
     B1, B2 = eye(1), ones(2, 2)
     #default
     #needs to be roughly, since exp computing is inexact
-    @test nm_lindbladian(A)[1] ≈ [0 1 1 0;
+    @test nm_lind(A)[1] ≈ [0 1 1 0;
                                              1 0 0 1;
                                              1 0 0 -1;
                                              0 1 1 0]
-    @test nm_lindbladian(A)[2] == make_vertex_set(A)
+    @test nm_lind(A)[2] == make_vertex_set(A)
 
     A = sparse([0.+0.0im 0 0 0 1;
                 0 0 1 0 1;
                 0 0 0 0 0;
                 0 1 1 0 0;
                 0 0 0 0 0])
-    L, vset = nm_lindbladian(A)
+    L, vset = nm_lind(A)
     v1, v2, v3, v4, v5 = vlist(vset)
-    @test nm_lindbladian(A)[1] ≈ [0 0 0 0 0 0 1;
+    @test nm_lind(A)[1] ≈ [0 0 0 0 0 0 1;
                                              0 0 0 1 0 0 1;
                                              0 0 0 1 0 0 -1;
                                              0 0 0 0 0 0 0;
                                              0 1 1 1 0 0 0;
                                              0 1 1 -1 0 0 0;
                                              0 0 0 0 0 0 0]
-    @test nm_lindbladian(A)[2] == make_vertex_set(A)
-    @test nm_lindbladian(A, Dict(v1 => B1, v2 => 2*B2, v3 => 3*B1, v4 => 4*B2, v5 => 5*B1))[1] ≈
+    @test nm_lind(A)[2] == make_vertex_set(A)
+    @test nm_lind(A, Dict(v1 => B1, v2 => 2*B2, v3 => 3*B1, v4 => 4*B2, v5 => 5*B1))[1] ≈
              [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im  1.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im  0.0+0.0im  0.0+0.0im  2.0+0.0im;
@@ -94,42 +94,42 @@
 
 
     A = [0 0 0; 0 0 0; 1 1 0]
-    @test nm_lindbladian(A)[1] ≈ [0 0 0 0;
+    @test nm_lind(A)[1] ≈ [0 0 0 0;
                                              0 0 0 0;
                                              1 1 0 0;
                                              1 -1 0 0]
-    @test nm_lindbladian(A)[2] == make_vertex_set(A)
+    @test nm_lind(A)[2] == make_vertex_set(A)
 
 
-    @test nm_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[1] ≈
+    @test nm_lind(A, Dict(1  => B1, 2 =>3*B2 ))[1] ≈
              [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im]
-    @test nm_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[2] ==
+    @test nm_lind(A, Dict(1  => B1, 2 =>3*B2 ))[2] ==
       make_vertex_set(A)
 
-    @test nm_lindbladian(A, Dict(1  => B1, 2 =>3*B2 ))[1] ≈
+    @test nm_lind(A, Dict(1  => B1, 2 =>3*B2 ))[1] ≈
              [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im]
 
-    L, vset = nm_lindbladian(A)
+    L, vset = nm_lind(A)
     v1, v2, v3 = vlist(vset)
-    @test nm_lindbladian(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[1] ≈
+    @test nm_lind(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[1] ≈
              [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im;
               3.0+0.0im  3.0+0.0im  0.0+0.0im  0.0+0.0im]
-    @test nm_lindbladian(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[2] ==
+    @test nm_lind(A, Dict(v1 => B1, v2 => 2*B1, v3 => 3*B2))[2] ==
       make_vertex_set(A)
 
       A = [2 0 0 3;
     im 0 3im 0;
     1 0 0 0;
     im -im 0 0]
-    @test nm_lindbladian(A,Dict(1=>ones(1,1), 2=> ones(2,2)))[1] ≈
+    @test nm_lind(A,Dict(1=>ones(1,1), 2=> ones(2,2)))[1] ≈
               [2.0+0.0im 2.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 3.0+0.0im 3.0+0.0im;
                2.0+0.0im 2.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 3.0+0.0im 3.0+0.0im;
                0.0+1.0im 0.0+1.0im 0.0+0.0im 0.0+0.0im 0.0+3.0im 0.0+0.0im 0.0+0.0im;

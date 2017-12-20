@@ -23,7 +23,7 @@ adjacency = adjacency_matrix(PathGraph(dim));
 
 # We generate all of the operators needed for the evolution, including initial state.
 
-lind, vset = nm_lindbladian(adjacency)
+lind, vset = nm_lind(adjacency)
 hglobal = nm_glob_ham(adjacency)
 hlocal = nm_loc_ham(vset)
 opnonsymmetric = evolve_generator(hglobal, [lind], hlocal, w)
@@ -55,19 +55,19 @@ vlines(0, 0., maximum(measurement_nonsymmetric), linestyles="--")
 
 # ## Symmetric case
 
-# The way to correct this is to choose another, symmetric Lindblad operator. While standard suage of *nm_lindbladian* will always output the same result, we can choose different basic orthogonal matrices to form different operators. In following example. We choose dictionary, which for different vertex degree chooses different matrix.
+# The way to correct this is to choose another, symmetric Lindblad operator. While standard suage of *nm_lind* will always output the same result, we can choose different basic orthogonal matrices to form different operators. In following example. We choose dictionary, which for different vertex degree chooses different matrix.
 
 linddescription1 = Dict(1 => ones(1, 1), 2 => [1 1; 1 -1])
 linddescription2 = Dict(1 => ones(1, 1), 2 => [1 1; -1 1])
-lind1, vset = nm_lindbladian(adjacency, linddescription1)
-lind2, vset = nm_lindbladian(adjacency, linddescription2);
+lind1, vset = nm_lind(adjacency, linddescription1)
+lind2, vset = nm_lind(adjacency, linddescription2);
 
 
 # We can make similar creation for each vertex. For example one can choose. We restrict ourselves to *lind1* and *lind2*, as those guarantees symmetrization.
 
 vset = make_vertex_set(adjacency)
 linddescription3 = Dict(v=>rand(length(v), length(v)) for v = vlist(vset))
-lind3, _ = nm_lindbladian(adjacency, linddescription3);
+lind3, _ = nm_lind(adjacency, linddescription3);
 
 
 # Other functions should be adjusted to use both *lind1* and *lind2*.

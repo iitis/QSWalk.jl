@@ -43,7 +43,7 @@ println("Norm of opmoral times rho: $(norm(opmoral*res(rho)))")
 
 # In this example we present model, which do not possess unintuitive property.
 
-lnonmoral, vset = nm_lindbladian(adjacency)
+lnonmoral, vset = nm_lind(adjacency)
 hlocal = nm_loc_ham(vset)
 opnonmoral = evolve_generator(zero(lnonmoral), [lnonmoral], hlocal);
 

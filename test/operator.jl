@@ -19,7 +19,7 @@
   end
   @testset "Nonmoralized usage" begin
     globalH = nm_glob_ham(H)
-    Lnonmoral1 = nm_lindbladian(L1)
+    Lnonmoral1 = nm_lind(L1)
     locH1 = nm_loc_ham(Lnonmoral1[2])
     @test evolve_generator(globalH,[],locH1,1/3) ≈ evolve_generator((1-1/3)*globalH+1/3*locH1,[])
     @test evolve_generator(globalH,[Lnonmoral1[1]],locH1,1/3) ≈ evolve_generator(globalH+1/2*(locH1),[Lnonmoral1[1]],1/3)
