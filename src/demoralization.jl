@@ -102,10 +102,9 @@ julia> nm_loc_ham(VertexSet([[1, 2], [3, 4]]), Dict(2  => A))
 ```
 """
 function nm_loc_ham(vset::VertexSet,
-                           hamiltonians::Dict{Int, T} where T<:AbstractArray
-                              = Dict(l =>default_nm_loc_ham(l) for l = length.(vlist(vset))))
+                    hamiltonians::Dict{Int, <:AbstractArray}
+                        = Dict(l =>default_nm_loc_ham(l) for l = length.(vlist(vset))))
   @argumentcheck all([typeof(h)<:SparseDenseMatrix for h = values(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argumentcheck all([eltype(h)<:Number for h = values(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
   @argumentcheck all([size(h, 1) ==  size(h, 2) for h = values(hamiltonians)])  "Hamiltonians must consists of square matrices"
   verticeslengths = length.(vlist(vset))
   @assert all([l in keys(hamiltonians) for l = verticeslengths]) "Missing degree in the Dictionary: $verticeslengths needed"
@@ -115,9 +114,8 @@ function nm_loc_ham(vset::VertexSet,
 end
 
 function nm_loc_ham(vset::VertexSet,
-                           hamiltonians::Dict{Vertex, T} where T)
+                    hamiltonians::Dict{Vertex, <:Any})
   @argumentcheck all([typeof(h)<:SparseDenseMatrix for h = values(hamiltonians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argumentcheck all([eltype(h)<:Number for h = values(hamiltonians)]) "All elements of elements in `hamiltonians` must be Number"
   @argumentcheck all([size(h, 1) ==  size(h, 2) for h = values(hamiltonians)])  "Hamiltonians must consists of square matrices"
   @assert all([v in keys(hamiltonians) for v = vlist(vset)]) "Missing hamiltonian for some vertex"
   @assert all([length(v) == size(hamiltonians[v], 1) for v = vlist(vset)]) "The vertex length and hamiltonian size do no match"
@@ -207,10 +205,9 @@ julia> v1, v2, v3 = vlist(vset)
 """
 
 function nm_lind(A::SparseDenseMatrix,
-                                   lindbladians::Dict{Int, S} where S;
-                                   epsilon::Real = eps())
+                 lindbladians::Dict{Int, <:Any};
+                 epsilon::Real = eps())
   @argumentcheck all([typeof(l)<:SparseDenseMatrix for l = values(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argumentcheck all([eltype(l)<:Number for l = values(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"
   @argumentcheck epsilon>= 0 "epsilon needs to be nonnegative"
 
   revincidence_list = reversed_incidence_list(A, epsilon = epsilon)
@@ -227,7 +224,7 @@ function nm_lind(A::SparseDenseMatrix,
 end
 
 function nm_lind(A::SparseDenseMatrix;
-                                   epsilon::Real = eps())
+                 epsilon::Real = eps())
   vset = make_vertex_set(A, epsilon = epsilon)
   degrees = [length(v) for v = vlist(vset)]
 
@@ -235,10 +232,9 @@ function nm_lind(A::SparseDenseMatrix;
 end
 
 function nm_lind(A::SparseDenseMatrix,
-                                   lindbladians::Dict{Vertex, S} where S;
-                                   epsilon::Real = eps())
+                 lindbladians::Dict{Vertex, <:Any};
+                 epsilon::Real = eps())
   @argumentcheck all([typeof(l)<:SparseDenseMatrix for l = values(lindbladians)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argumentcheck all([eltype(l)<:Number for l = values(lindbladians)]) "All elements of elements in `hamiltonians` must be Number"
   @argumentcheck all([size(l, 1) ==  size(l, 2) for l = values(lindbladians)])  "lindbladians should consist of square matrix"
   @argumentcheck epsilon>= 0 "epsilon needs to be nonnegative"
 
@@ -310,10 +306,9 @@ julia> nm_glob_ham(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]')) |> 
 """
 
 function nm_glob_ham(A::SparseDenseMatrix,
-                            hamiltonians::Dict{Tuple{Int, Int}, S} where S;
-                            epsilon::Real = eps())
+                     hamiltonians::Dict{Tuple{Int, Int}, <:Any};
+                     epsilon::Real = eps())
   @argumentcheck all([typeof(h)<:SparseDenseMatrix for h = values(hamiltonians)]) "All elements in hamiltonians must be SparseMatrixCSC or Matrix"
-  @argumentcheck all([eltype(h)<:Number for h = values(hamiltonians)]) "All elements of elements in hamiltonians must be Number"
   @argumentcheck epsilon>= 0 "epsilon needs to be nonnegative"
 
   revincidence_list = reversed_incidence_list(A, epsilon = epsilon)
@@ -332,7 +327,7 @@ function nm_glob_ham(A::SparseDenseMatrix,
 end
 
 function nm_glob_ham(A::SparseDenseMatrix;
-                            epsilon::Real = eps())
+                     epsilon::Real = eps())
   #indlist = incidence_list(A, epsilon = epsilon)
   revindlist = reversed_incidence_list(A, epsilon = epsilon)
 
@@ -346,11 +341,10 @@ function nm_glob_ham(A::SparseDenseMatrix;
 end
 
 function nm_glob_ham(A::SparseDenseMatrix,
-                            hamiltonians::Dict{Tuple{Vertex, Vertex}, S} where S;
-                            epsilon::Real = eps())
+                     hamiltonians::Dict{Tuple{Vertex, Vertex}, <:Any};
+                     epsilon::Real = eps())
   @argumentcheck all([typeof(h)<:SparseDenseMatrix for h = values(hamiltonians)]) "All elements in hamiltonians must be SparseMatrixCSC or Matrix"
-  @argumentcheck all([eltype(h)<:Number for h = values(hamiltonians)]) "All elements of elements in hamiltonians must be Number"
-  @argumentcheck epsilon>= 0 "epsilon needs to be nonnegative"
+  @argumentcheck epsilon >= 0 "epsilon needs to be nonnegative"
 
   revincidence_list = reversed_incidence_list(A, epsilon = epsilon)
   vset = revinc_to_vertexset(revincidence_list)
@@ -414,15 +408,15 @@ julia> nm_measurement(probability, VertexSet([[1, 4], [2, 3, 5], [6], [7, 8]]))
   0.666667
 ```
 """
-function nm_measurement(probability::Vector{T} where T<:Number,
-                                  vset::VertexSet)
+function nm_measurement(probability::Vector{<:Number},
+                        vset::VertexSet)
   @assert vertexsetsize(vset) ==  length(probability) "vertexset size and probability vector length do not match"
 
   [sum(probability[subspace(vertex)]) for vertex = vlist(vset)]
 end
 
 function nm_measurement(state::SparseDenseMatrix,
-                                  vset::VertexSet)
+                        vset::VertexSet)
   @argumentcheck size(state, 1) ==  size(state, 2) "state should be square matrix"
   @assert vertexsetsize(vset) ==  size(state, 1) "vertexset size and state size do not match"
 
@@ -485,7 +479,7 @@ julia> nm_init(Dict(vset[1] =>A1, vset[3] =>A2, vset[4] =>A3), vset)
 ```
 """
 function nm_init(initialvertices::Vector{Vertex},
-                           vset::VertexSet)
+                 vset::VertexSet)
   @assert all([v in vlist(vset) for v = initialvertices]) "initialvertices is not a subset of vertexset"
 
   L = spzeros(Complex128, vertexsetsize(vset), vertexsetsize(vset))
@@ -496,10 +490,9 @@ function nm_init(initialvertices::Vector{Vertex},
   L
 end
 
-function nm_init(initial_states::Dict{Vertex, T} where T,
-                           vset::VertexSet)
+function nm_init(initial_states::Dict{Vertex, <:Any},
+                 vset::VertexSet)
   @argumentcheck all([typeof(state)<:SparseDenseMatrix for state = values(initial_states)]) "All elements in `hamiltonians` must be SparseMatrixCSC or Matrix"
-  @argumentcheck all([eltype(state)<:Number for state = values(initial_states)]) "All elements of elements in `hamiltonians` must be Number"
   @assert all([size(state, 1) ==  length(k) for (k, state) = initial_states]) "The size of initial state and the vertex do not match"
   @assert all([k in vlist(vset) for k = keys(initial_states)]) "keys of initial_states is not a subset of vertexset"
 

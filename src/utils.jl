@@ -32,7 +32,7 @@ end
 Type representing matrices which can be dense or sparse.
 """
 
-SparseDenseMatrix = Union{SparseMatrixCSC{T} where T<:Number, Matrix{S} where S<:Number}
+SparseDenseMatrix = Union{SparseMatrixCSC{<:Number}, Matrix{<:Number}}
 
 """
     type SparseDenseVector
@@ -40,7 +40,7 @@ SparseDenseMatrix = Union{SparseMatrixCSC{T} where T<:Number, Matrix{S} where S<
 Type representing vectors which can be dense or sparse.
 """
 
-SparseDenseVector = Union{SparseVector{T} where T<:Number, Vector{S} where S<:Number}
+SparseDenseVector = Union{SparseVector{<:Number}, Vector{<:Number}}
 
 """
     type Vertex
@@ -155,14 +155,14 @@ julia> QSWalk.incidence_list(A, epsilon = 2.5)
 
 ```
 """
-function incidence_list(A::SparseMatrixCSC{T} where T<:Number;
+function incidence_list(A::SparseMatrixCSC{<:Number};
                         epsilon::Real = eps())
   @argumentcheck epsilon >=  0 "epsilon needs to be nonnegative"
   @argumentcheck size(A, 1) ==  size(A, 2) "A matrix must be square"
   [filter(x -> abs(A[x, i])>= epsilon, A[:, i].nzind) for i = 1:size(A, 1)]
 end
 
-function incidence_list(A::Matrix{T} where T<:Number;
+function incidence_list(A::Matrix{<:Number};
                         epsilon::Real = eps())
   @argumentcheck epsilon >=  0 "epsilon needs to be nonnegative"
   @argumentcheck size(A, 1) ==  size(A, 2) "A matrix must be square"

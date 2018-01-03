@@ -27,7 +27,7 @@ julia> evolve_operator(evolve_generator(H, L), 4.0)
  0.500185+0.0im
 ```
 """
-function evolve_operator(evo_gen::Matrix{T} where T<:Number, time::Real)
+function evolve_operator(evo_gen::Matrix{<:Number}, time::Real)
   @argumentcheck time>= 0 "Time has to be nonnegative"
   @argumentcheck size(evo_gen, 1) ==  size(evo_gen, 2) "Argument evo_gen has to be a square matrix"
 
@@ -111,7 +111,7 @@ julia> evolve(ev_op, proj(1, 2))
       0.0-0.00127256im  0.500185+0.0im
 ```
 """
-function evolve(exp_evolve_generator::Matrix{T} where T<:Number,
+function evolve(exp_evolve_generator::Matrix{<:Number},
                 initial_state::SparseDenseMatrix)
   @argumentcheck size(exp_evolve_generator, 1) ==  size(exp_evolve_generator, 2) "Argument exp_evolve_generator should be square"
   @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "Initial_state should be a square matrix"
@@ -120,7 +120,7 @@ function evolve(exp_evolve_generator::Matrix{T} where T<:Number,
   unres(exp_evolve_generator*res(initial_state))
 end
 
-function evolve(evolve_generator::Matrix{T} where T<:Number,
+function evolve(evolve_generator::Matrix{<:Number},
                 initial_state::SparseDenseMatrix,
                 timepoint::Real)
   @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "Argument evolve_generator should be square"
@@ -131,7 +131,7 @@ function evolve(evolve_generator::Matrix{T} where T<:Number,
   unres(expm(timepoint*evolve_generator)*res(initial_state))
 end
 
-function evolve(evolve_generator::SparseMatrixCSC{T} where T<:Number,
+function evolve(evolve_generator::SparseMatrixCSC{<:Number},
                 initial_state::SparseDenseMatrix,
                 timepoint::Real)
   @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "Argument evolve_generator should be a square matrix"
@@ -143,7 +143,7 @@ end
 
 function evolve(evolve_generator::SparseDenseMatrix,
                 initial_state::SparseDenseMatrix,
-                timepoints::Vector{T} where T<:Number)
+                timepoints::Vector{<:Number})
   @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "evolve_generator should be a square matrix"
   @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "Argument initial_state should be a square matrix"
   @assert size(evolve_generator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of evolve_generator size"

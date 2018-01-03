@@ -39,11 +39,10 @@ julia> local_lind(A, epsilon = 1.5)
 	[2, 2] = 4.0
 ```
 """
-function local_lind(A::Matrix{T} where T<:Number;
-                                      epsilon::Real = eps())
-  @argumentcheck epsilon>= 0 "Epsilon should be nonegative"
+function local_lind(A::Matrix{T}; epsilon::Real = eps()) where T<:Number
+  @argumentcheck epsilon >= 0 "Epsilon should be nonegative"
 
-  L = SparseMatrixCSC{eltype(A)}[]
+  L = SparseMatrixCSC{T}[]
   for i = 1:size(A, 1), j = 1:size(A, 2)
     if abs(A[i, j]) >=  epsilon
         push!(L, A[i, j]*ketbra(i, j, size(A, 1)))
@@ -52,11 +51,10 @@ function local_lind(A::Matrix{T} where T<:Number;
   L
 end
 
-function local_lind(A::SparseMatrixCSC{T} where T<:Number;
-                                      epsilon::Real = eps())
+function local_lind(A::SparseMatrixCSC{T}; epsilon::Real = eps()) where T<:Number
   @argumentcheck epsilon>= 0 "Epsilon should be nonegative"
 
-  L = SparseMatrixCSC{eltype(A)}[]
+  L = SparseMatrixCSC{T}[]
   for i = 1:size(A, 1), j = A[i, :].nzind
     if abs(A[i, j]) >=  epsilon
         push!(L, A[i, j]*ketbra(i, j, size(A, 1)))
@@ -97,14 +95,13 @@ julia>
 ```
 """
 function evolve_generator_create(H::SparseDenseMatrix,
-                              L::Vector{T} where T,
-                              localH::SparseDenseMatrix,
-                              α::Real,
-                              β::Real)
+                                 L::Vector,
+                                 localH::SparseDenseMatrix,
+                                 α::Real,
+                                 β::Real)
   @argumentcheck size(H) !=  (0, 0) "Matrix H must not be sizeless"
   @argumentcheck size(H, 1) ==  size(H, 2) "Matrix H must be square"
   @assert all([size(lindbladian) ==  size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
-  @argumentcheck all([eltype(el)<:Number for el in L]) "Lindblad operators elements must be numbers"
   @argumentcheck all([typeof(el)<:SparseDenseMatrix for el in L]) "Lindblad operators must be SparseMatrixCSC or Matrix"
   @assert size(H) ==  size(localH) "Matrix localH must be of the same size as H"
   @argumentcheck 0 <=  α <=  1 && 0 <=  β <=  1 "Value of ω must be nonngeative and smaller than one"
@@ -169,20 +166,18 @@ julia> evolve_generator(H, [L], localH, 1/2)
 ```
 """
 function evolve_generator(H::SparseDenseMatrix,
-                         L::Vector{T} where T,
+                         L::Vector,
                          localH::SparseDenseMatrix,
                          ω::Real)
   evolve_generator_create(H, L, localH, 1-ω, ω)
 end
 
 function evolve_generator(H::SparseDenseMatrix,
-                         L::Vector{T} where T,
+                         L::Vector,
                          localH::SparseDenseMatrix = spzeros(eltype(H), size(H)...))
   evolve_generator_create(H, L, localH, 1., 1.)
 end
 
-function evolve_generator(H::SparseDenseMatrix,
-                         L::Vector{T} where T,
-                         ω::Real)
+function evolve_generator(H::SparseDenseMatrix, L::Vector, ω::Real)
   evolve_generator_create(H, L, spzeros(eltype(H), size(H)...), 1-ω , ω)
 end
