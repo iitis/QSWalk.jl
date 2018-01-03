@@ -158,7 +158,7 @@
                                      0 -2im -2im 0]
 
     v1, v2, v3 = vlist(make_vertex_set(A))
-    @test nm_glob_ham(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]')) ==
+    @test nm_glob_ham(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>adjoint([1im 2im;]))) ==
                                               [0 2 2 0;
                                                2 0 0 2im;
                                                2 0 0 4im;

@@ -142,7 +142,7 @@ true
 ```
 """
 function res(matrix::SparseDenseMatrix)
-  Base.vec(matrix.')
+  Base.vec(transpose(matrix))
 end
 
 """
@@ -181,7 +181,7 @@ function unres(vector::SparseDenseVector)
   dim = floor(Int64, sqrt(length(vector)))
   @argumentcheck dim*dim ==  length(vector) "Expected vector with perfect square number of elements."
 
-  reshape(vector, (dim, dim)).'
+  transpose(reshape(vector, (dim, dim)))
 end
 
 

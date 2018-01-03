@@ -355,7 +355,7 @@ function nm_glob_ham(A::SparseDenseMatrix,
       key = (vset[index], vset[j])
       @argumentcheck key in keys(hamiltonians) "hamiltonian for $key not found"
       @argumentcheck length.(key) ==  size(hamiltonians[key]) "hamiltonian for key $key shoud have shape $(length.(key))"
-      H[subspace(vset[j]), subspace(vset[index])] = A[index, j]*hamiltonians[key].'
+      H[subspace(vset[j]), subspace(vset[index])] = A[index, j]*transpose(hamiltonians[key])
     end
   end
   H + H'
