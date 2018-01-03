@@ -71,7 +71,7 @@ Internal function for creating the generator for the evolution superoperator.
 Given Hamiltonian `H`, collection of Lindblad operator `L`, local Hamiltonian
 `localH` and scaling parameters `α` and `β` the function computes
 
-``-i α (H ⊗ 1 - 1 ⊗ H) + β (-i(localH ⊗ 1-1 ⊗ localH)+∑ (L ⊗ L̄ - 1/2(L\^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
+``-i α (H ⊗ 1 - 1 ⊗ H) + β (-i(localH ⊗ 1-1 ⊗ localH)+∑ (L ⊗ L̄ - 1/2(L^†L ⊗ 1 + 1 ⊗ L^T L̄ )))``
 
 where α and β should sum to one, or both be equal to one. In the later case
 there are ignored.
@@ -123,7 +123,7 @@ Create the generator for the evolution superoperator. Given Hamiltonian `H`,
 collection of Lindblad operator `L`, local Hamiltonian `localH` and scaling
 parameter `ω`, the generator is obtained as a sum
 
-``-i(1-ω) (H ⊗ 1 - 1 ⊗ H) + ω (-i(localH ⊗ 1 - 1 ⊗ localH) + ∑(L ⊗ L̄ - 1/2(L\^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
+``-i(1-ω) (H ⊗ 1 - 1 ⊗ H) + ω (-i(localH ⊗ 1 - 1 ⊗ localH) + ∑(L ⊗ L̄ - 1/2(L^†L ⊗ 1 + 1 ⊗ L^T L̄ )))``
 
 The last two arguments are optional.
 
@@ -132,7 +132,7 @@ If `localH` is not given, it defaults to sparse zero matrix of the size of `H`.
 If `ω` is not given, both parts are taken with the same intensity and the global
 operator takes the form
 
-``-i(H ⊗ 1 - 1 ⊗ H) + (-i(localH ⊗ 1 - 1 ⊗ localH) + ∑(L ⊗ L̄ - 1/2(L\^†L ⊗ 1 + 1 ⊗ L\^T L̄ )))``
+``-i(H ⊗ 1 - 1 ⊗ H) + (-i(localH ⊗ 1 - 1 ⊗ localH) + ∑(L ⊗ L̄ - 1/2(L^†L ⊗ 1 + 1 ⊗ L^T L̄ )))``
 
 # Arguments
 - `H`: Hamiltonian, must be hermitian,
