@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/ZKSI/QSWalk.jl.svg?branch=master)](https://travis-ci.org/ZKSI/QSWalk.jl)
-[![Coverage Status](https://coveralls.io/repos/github/ZKSI/QSWalk.jl/badge.svg?branch=master)](https://coveralls.io/github/ZKSI/QSWalk.jl?branch=master)
+[![Build Status](https://travis-ci.org/QuantumWalks/QSWalk.jl.svg?branch=master)](https://travis-ci.org/QuantumWalks/QSWalk.jl)
+[![Coverage Status](https://coveralls.io/repos/github/QuantumWalks/QSWalk.jl/badge.svg?branch=master)](https://coveralls.io/github/QuantumWalks/QSWalk.jl?branch=master)
 
 # QSWalk
 
@@ -14,7 +14,7 @@ QSWalk requires [Expokit package for Julia](https://github.com/acroy/Expokit.jl)
 QSWalk can be installed directly form GitHub repository.
 
 ```julia
-Pkg.clone("git://github.com/ZKSI/QSWalk.jl.git")
+Pkg.clone("git://github.com/QuantumWalks/QSWalk.jl.git")
 ```
 
 Package can be updated using ```Pkg.update``` function.
@@ -24,4 +24,4 @@ Pkg.update("QSWalk")
 ```
 ## Examples
 
-Examples can be found in `examples` subdirectory. They require [QSWalk](https://github.com/ZKSI/QSWalk.jl), [LightGraphs](https://github.com/JuliaGraphs/LightGraphs.jl), [PyPlot](https://github.com/JuliaPy/PyPlot.jl), [TikzGraphs](https://github.com/sisl/TikzGraphs.jl) modules.
+Examples can be found in `examples` subdirectory. They require [QSWalk](https://github.com/QuantumWalks/QSWalk.jl), [LightGraphs](https://github.com/JuliaGraphs/LightGraphs.jl), [PyPlot](https://github.com/JuliaPy/PyPlot.jl), [TikzGraphs](https://github.com/sisl/TikzGraphs.jl) modules.
