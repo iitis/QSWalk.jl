@@ -14,7 +14,7 @@ QSWalk requires [Expokit package for Julia](https://github.com/acroy/Expokit.jl)
 QSWalk can be installed directly form GitHub repository.
 
 ```julia
-Pkg.clone("git://github.com/QuantumWalks/QSWalk.jl.git")
+Pkg.clone("https://github.com/QuantumWalks/QSWalk.jl.git")
 ```
 
 Package can be updated using ```Pkg.update``` function.
@@ -25,3 +25,9 @@ Pkg.update("QSWalk")
 ## Examples
 
 Examples can be found in `examples` subdirectory. They require [QSWalk](https://github.com/QuantumWalks/QSWalk.jl), [LightGraphs](https://github.com/JuliaGraphs/LightGraphs.jl), [PyPlot](https://github.com/JuliaPy/PyPlot.jl), [TikzGraphs](https://github.com/sisl/TikzGraphs.jl) modules.
+
+## Citing QSWalk
+
+The package is described in
+
+Adam Glos, Jarosław Adam Miszczak, Mateusz Ostaszewski, *QSWalk.jl: Julia package for quantum stochastic walks analysis*, [arXiv:1801.01294](https://arxiv.org/abs/1801.01294) (2018).
