@@ -1,6 +1,8 @@
 module QSWalk
 
 using Expokit
+using SparseArrays
+using LinearAlgebra
 
 include("utils.jl")
 include("dirac.jl")

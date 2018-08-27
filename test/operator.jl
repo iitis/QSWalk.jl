@@ -1,7 +1,7 @@
 @testset "Evolution generator construction" begin
-  H = [1. 1.+im 3.; 1.-im 1. im; 3. -im 1.]
-  L1 = sparse([1.+0im 2. 3.; 4. 5. 6.; 6. 7. -6.])
-  L2 = sparse([0.+0im 0. 1.; 0. 0. 0.; 0. 0. 0.])
+  H = [1. 1. + im 3.; 1. - im 1. im; 3. -im 1.]
+  L1 = sparse([1. + 0im 2. 3.; 4. 5. 6.; 6. 7. -6.])
+  L2 = sparse([0. + 0im 0. 1.; 0. 0. 0.; 0. 0. 0.])
   resultnoomega = sparse([-52.0+0.0im  -29.0+1.0im    7.5+3.0im  -29.0-1.0im    4.0+0.0im     6.0+0.0im    7.5-3.0im     6.0+0.0im   10.0+0.0im;
                           -29.0+1.0im  -60.5+0.0im   10.0+0.0im    8.0+0.0im  -21.0-1.0im    12.0+0.0im   12.0+0.0im    19.5-3.0im   18.0+0.0im;
                            10.5+3.0im    9.0+0.0im  -73.5+0.0im   12.0+0.0im   14.0+0.0im   -43.0-1.0im   18.0+0.0im    21.0+0.0im  -13.5-3.0im;
@@ -21,9 +21,9 @@
     globalH = nm_glob_ham(H)
     Lnonmoral1 = nm_lind(L1)
     locH1 = nm_loc_ham(Lnonmoral1[2])
-    @test evolve_generator(globalH,[],locH1,1/3) ≈ evolve_generator((1-1/3)*globalH+1/3*locH1,[])
-    @test evolve_generator(globalH,[Lnonmoral1[1]],locH1,1/3) ≈ evolve_generator(globalH+1/2*(locH1),[Lnonmoral1[1]],1/3)
-    
+    @test evolve_generator(globalH, SparseMatrixCSC{ComplexF64}[], locH1, 1/3) ≈ evolve_generator((1-1/3)*globalH+1/3*locH1,SparseMatrixCSC{ComplexF64}[])
+    @test evolve_generator(globalH, [Lnonmoral1[1]], locH1, 1/3) ≈ evolve_generator(globalH+1/2*(locH1),[Lnonmoral1[1]],1/3)
+
   end
 
   @testset "Error tests" begin
@@ -33,14 +33,14 @@
   end
 end
 
-@testset "Classical lindlbad generators" begin
-  H = [1. 1.+im ; 1.-im im]
-  result = [sparse([1.+0im 0 ; 0 0 ]),
-            sparse([0.+0im 1.+im ; 0 0 ]),
-            sparse([0.+0im 0 ; 1.-im 0 ]),
-            sparse([0.+0im 0 ; 0 im ])]
-  resultwithepsilon = [sparse([0.+0im 1.+im ; 0 0 ]),
-            sparse([0.+0im 0 ; 1.-im 0 ])]
+@testset "Classical lindblad generators" begin
+  H = [1. 1.0+im ; 1.0-im im]
+ result = [sparse([1.0+0im 0 ; 0 0 ]),
+            sparse([0.0+0im 1.0+im ; 0 0 ]),
+            sparse([0.0+0im 0 ; 1.0-im 0 ]),
+            sparse([0.0+0im 0 ; 0 im ])]
+  resultwithepsilon = [sparse([0.0+0im 1.0+im ; 0 0 ]),
+           sparse([0.0+0im 0 ; 1.0-im 0 ])]
   @testset "Standard usage" begin
     @test local_lind(H) == result
     @test local_lind(sparse(H)) == result
@@ -49,8 +49,8 @@ end
   end
 
   @testset "Type tests" begin
-    @test typeof(local_lind(H)) == Vector{SparseMatrixCSC{Complex128}}
-    @test typeof(local_lind(sparse(H))) == Vector{SparseMatrixCSC{Complex128}}
+    @test typeof(local_lind(H)) == Vector{SparseMatrixCSC{ComplexF64}}
+    @test typeof(local_lind(sparse(H))) == Vector{SparseMatrixCSC{ComplexF64}}
   end
 
   @testset "Error tests" begin

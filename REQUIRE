@@ -1,2 +1,4 @@
-julia 0.6
-Expokit 0.1.0
+julia 1.0
+Expokit
+SparseArrays
+LinearAlgebra

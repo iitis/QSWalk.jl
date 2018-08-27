@@ -1,6 +1,8 @@
 #using FactCheck #depracated, so removed
 using QSWalk
-using Base.Test
+using Test
+using SparseArrays
+using LinearAlgebra
 
 include("utils.jl")
 include("dirac.jl")

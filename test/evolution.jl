@@ -1,10 +1,10 @@
 @testset "Evolution" begin
     @testset "Exponent function" begin
-    @test evolve_operator(zeros(4, 4), 1.) ≈ eye(4)
+    @test evolve_operator(zeros(4, 4), 1.) ≈ Matrix{Float64}(I,4,4)
     A = [1. im 2;
     3 4 5im;
     6 7 8]
-    @test evolve_operator(A,4.2) ≈ expm(4.2*A)
+    @test evolve_operator(A,4.2) ≈ exp(4.2*A)
 
     # type check
     @test_throws MethodError evolve_operator(spzeros(4, 4), 1.)
@@ -12,7 +12,7 @@
 
   @testset "Evolution functions" begin
     #size 4x4
-    A = zeros(Complex128,4,4)
+    A = zeros(ComplexF64,4,4)
     A[2,2] = 1/2
     A[4,4] = 1/2
     S = [0.0+0.0im 0.5+0.0im 0.0+0.0im 0.0+0.0im 0.5+0.0im 0.5+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im 0.0+0.0im;
@@ -51,7 +51,7 @@
     @test evolve(spzeros(16, 16), A, [0., 5., 10.])[3] ≈ A
 
     @test evolve(S, A, 0.) ≈ A
-    @test evolve(eye(16), A) ≈ A
+    @test evolve(Matrix{Float64}(I, 16, 16), A) ≈ A
     @test isapprox(evolve(S, A, 4.2), result_matrix42, atol=1e-5)
     @test isapprox(evolve(S, A, [0., 4.2, 10.]), [A, result_matrix42, result_matrix10], atol=1e-5)
 

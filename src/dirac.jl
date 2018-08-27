@@ -105,7 +105,7 @@ function proj(index::Int, size::Int)
   ketbra(index, index, size)
 end
 
-function proj(vector::SparseDenseVector)
+function proj(vector::AbstractVector)
   vector*vector'
 end
 
@@ -141,7 +141,7 @@ julia> res(unres(v)) ==  v
 true
 ```
 """
-function res(matrix::SparseDenseMatrix)
+function res(matrix::AbstractMatrix)
   Base.vec(transpose(matrix))
 end
 
@@ -176,7 +176,7 @@ julia> res(unres(v)) ==  v
 true
 ```
 """
-function unres(vector::SparseDenseVector)
+function unres(vector::AbstractVector)
 
   dim = floor(Int64, sqrt(length(vector)))
   @argumentcheck dim*dim ==  length(vector) "Expected vector with perfect square number of elements."
@@ -210,4 +210,3 @@ function fourier_matrix(size::Int)
   @argumentcheck size>0 "Size of the matrix needs to be positive"
   sparse([exp(2im*π*(i-1)*(j-1)/size) for i = 1:size, j = 1:size])
 end
-

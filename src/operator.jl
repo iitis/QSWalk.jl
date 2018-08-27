@@ -94,20 +94,19 @@ The function return the generator, which can be used in `evolve` function.
 julia>
 ```
 """
-function evolve_generator_create(H::SparseDenseMatrix,
-                                 L::Vector,
-                                 localH::SparseDenseMatrix,
+function evolve_generator_create(H::AbstractMatrix{<:Number},
+                                 L::AbstractVector{<:AbstractMatrix{<:Number}},
+                                 localH::AbstractMatrix{<:Number},
                                  α::Real,
                                  β::Real)
   @argumentcheck size(H) !=  (0, 0) "Matrix H must not be sizeless"
   @argumentcheck size(H, 1) ==  size(H, 2) "Matrix H must be square"
   @assert all([size(lindbladian) ==  size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
-  @argumentcheck all([typeof(el)<:SparseDenseMatrix for el in L]) "Lindblad operators must be SparseMatrixCSC or Matrix"
   @assert size(H) ==  size(localH) "Matrix localH must be of the same size as H"
   @argumentcheck 0 <=  α <=  1 && 0 <=  β <=  1 "Value of ω must be nonngeative and smaller than one"
 
-  F = spzeros(Complex128, (size(H).^2)...)
-  id = eye(H)
+  F = spzeros(ComplexF64, (size(H).^2)...)
+  id = Matrix{ComplexF64}(I, size(H)...)
   for i = 1:length(L)
       F +=  kron(L[i], conj(L[i]))-0.5*kron(L[i]'*L[i], id)-0.5*kron(id, transpose(L[i])*conj(L[i]))
   end
@@ -165,19 +164,21 @@ julia> evolve_generator(H, [L], localH, 1/2)
 
 ```
 """
-function evolve_generator(H::SparseDenseMatrix,
-                         L::Vector,
-                         localH::SparseDenseMatrix,
-                         ω::Real)
+function evolve_generator(H::AbstractMatrix{<:Number},
+                          L::AbstractVector{<:AbstractMatrix{<:Number}},
+                          localH::AbstractMatrix{<:Number},
+                          ω::Real)
   evolve_generator_create(H, L, localH, 1-ω, ω)
 end
 
-function evolve_generator(H::SparseDenseMatrix,
-                         L::Vector,
-                         localH::SparseDenseMatrix = spzeros(eltype(H), size(H)...))
+function evolve_generator(H::AbstractMatrix{<:Number},
+                          L::AbstractVector{<:AbstractMatrix{<:Number}},
+                          localH::AbstractMatrix{<:Number} = spzeros(eltype(H), size(H)...))
   evolve_generator_create(H, L, localH, 1., 1.)
 end
 
-function evolve_generator(H::SparseDenseMatrix, L::Vector, ω::Real)
-  evolve_generator_create(H, L, spzeros(eltype(H), size(H)...), 1-ω , ω)
+function evolve_generator(H::AbstractMatrix{T},
+                          L::AbstractVector{<:AbstractMatrix{<:Number}},
+                          ω::Real) where T<:Number
+  evolve_generator_create(H, L, spzeros(T, size(H)...), 1-ω , ω)
 end

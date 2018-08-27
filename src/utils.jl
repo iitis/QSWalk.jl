@@ -25,23 +25,6 @@ macro argumentcheck(ex, msgs...)
     return :($(esc(ex)) ? $(nothing) : throw(Main.Base.ArgumentError($msg)))
 end
 
-
-"""
-    type SparseDenseMatrix
-
-Type representing matrices which can be dense or sparse.
-"""
-
-SparseDenseMatrix = Union{SparseMatrixCSC{<:Number}, Matrix{<:Number}}
-
-"""
-    type SparseDenseVector
-
-Type representing vectors which can be dense or sparse.
-"""
-
-SparseDenseVector = Union{SparseVector{<:Number}, Vector{<:Number}}
-
 """
     type Vertex
 
@@ -155,18 +138,11 @@ julia> QSWalk.incidence_list(A, epsilon = 2.5)
 
 ```
 """
-function incidence_list(A::SparseMatrixCSC{<:Number};
+function incidence_list(A::AbstractMatrix{<:Number};
                         epsilon::Real = eps())
-  @argumentcheck epsilon >=  0 "epsilon needs to be nonnegative"
-  @argumentcheck size(A, 1) ==  size(A, 2) "A matrix must be square"
-  [filter(x -> abs(A[x, i])>= epsilon, A[:, i].nzind) for i = 1:size(A, 1)]
-end
-
-function incidence_list(A::Matrix{<:Number};
-                        epsilon::Real = eps())
-  @argumentcheck epsilon >=  0 "epsilon needs to be nonnegative"
-  @argumentcheck size(A, 1) ==  size(A, 2) "A matrix must be square"
-  [find(x -> abs(x)>= epsilon, A[:, i]) for i = 1:size(A, 1)]
+  @argumentcheck epsilon >= 0 "epsilon needs to be nonnegative"
+  @argumentcheck size(A, 1) == size(A, 2) "A matrix must be square"
+  [findall(x -> abs(x)>= epsilon, A[:, i]) for i = 1:size(A, 1)]
 end
 
 """
@@ -198,7 +174,7 @@ julia> QSWalk.reversed_incidence_list(A, epsilon = 2.5)
  [3]
 ```
 """
-function reversed_incidence_list(A::SparseDenseMatrix; epsilon::Real = eps())
+function reversed_incidence_list(A::AbstractMatrix; epsilon::Real = eps())
   incidence_list(transpose(A), epsilon = epsilon)
 end
 
@@ -274,7 +250,7 @@ julia> make_vertex_set(A, epsilon = 2.5)()
 
 ```
 """
-function make_vertex_set(A::SparseDenseMatrix; epsilon::Real = eps())
+function make_vertex_set(A::AbstractMatrix; epsilon::Real = eps())
   @argumentcheck epsilon >=  0 "epsilon needs to be nonnegative"
   @argumentcheck size(A, 1) ==  size(A, 2) "A matrix must be square"
   revinc_to_vertexset(reversed_incidence_list(A, epsilon = epsilon))

@@ -27,11 +27,11 @@ julia> evolve_operator(evolve_generator(H, L), 4.0)
  0.500185+0.0im
 ```
 """
-function evolve_operator(evo_gen::Matrix{<:Number}, time::Real)
+function evolve_operator(evo_gen::AbstractMatrix{<:Number}, time::Real)
   @argumentcheck time>= 0 "Time has to be nonnegative"
   @argumentcheck size(evo_gen, 1) ==  size(evo_gen, 2) "Argument evo_gen has to be a square matrix"
 
-  expm(time*evo_gen)
+  exp(time*evo_gen)
 end
 
 """
@@ -111,8 +111,8 @@ julia> evolve(ev_op, proj(1, 2))
       0.0-0.00127256im  0.500185+0.0im
 ```
 """
-function evolve(exp_evolve_generator::Matrix{<:Number},
-                initial_state::SparseDenseMatrix)
+function evolve(exp_evolve_generator::AbstractMatrix{<:Number},
+                initial_state::AbstractMatrix{<:Number})
   @argumentcheck size(exp_evolve_generator, 1) ==  size(exp_evolve_generator, 2) "Argument exp_evolve_generator should be square"
   @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "Initial_state should be a square matrix"
   @assert size(exp_evolve_generator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of exp_evolve_generator size"
@@ -120,30 +120,31 @@ function evolve(exp_evolve_generator::Matrix{<:Number},
   unres(exp_evolve_generator*res(initial_state))
 end
 
-function evolve(evolve_generator::Matrix{<:Number},
-                initial_state::SparseDenseMatrix,
+function evolve(evolve_generator::AbstractMatrix{<:Number},
+                initial_state::AbstractMatrix{<:Number},
                 timepoint::Real)
   @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "Argument evolve_generator should be square"
   @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "Initial_state should be a square matrix"
   @assert size(evolve_generator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of evolve_generator size"
   @argumentcheck timepoint>= 0 "Time needs to be nonnegative"
 
-  unres(expm(timepoint*evolve_generator)*res(initial_state))
+  unres(exp(timepoint*evolve_generator)*res(initial_state))
 end
 
 function evolve(evolve_generator::SparseMatrixCSC{<:Number},
-                initial_state::SparseDenseMatrix,
+                initial_state::AbstractMatrix{<:Number},
                 timepoint::Real)
   @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "Argument evolve_generator should be a square matrix"
   @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "Argument initial_state should be a square matrix"
   @assert size(evolve_generator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of evolve_generator size"
   @argumentcheck timepoint>= 0 "Time needs to be nonnegative"
-  unres(expmv(timepoint, evolve_generator, full(res(initial_state))))
+
+  unres(expmv(timepoint, evolve_generator, Vector(res(initial_state))))
 end
 
-function evolve(evolve_generator::SparseDenseMatrix,
-                initial_state::SparseDenseMatrix,
-                timepoints::Vector{<:Number})
+function evolve(evolve_generator::AbstractMatrix{<:Number},
+                initial_state::AbstractMatrix{<:Number},
+                timepoints::AbstractVector{<:Real})
   @argumentcheck size(evolve_generator, 1) ==  size(evolve_generator, 2) "evolve_generator should be a square matrix"
   @argumentcheck size(initial_state, 1) ==  size(initial_state, 2) "Argument initial_state should be a square matrix"
   @assert size(evolve_generator, 1) ==  size(initial_state, 1)^2 "The initial state size should be square root of evolve_generator size"

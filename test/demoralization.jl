@@ -9,20 +9,20 @@
   end
 
   @testset "default_nm_loc_ham" begin
-    @test QSWalk.default_nm_loc_ham(1) == spzeros(Complex128, 1, 1)
+    @test QSWalk.default_nm_loc_ham(1) == spzeros(ComplexF64, 1, 1)
     @test QSWalk.default_nm_loc_ham(3) == sparse([0. im 0.; -im 0 im; 0 -im 0])
   end
 
   @testset "nm_loc_ham" begin
     #default option
-    @test nm_loc_ham(VertexSet([[1], [2, 3]])) == sparse([0.+0im 0 0;0 0 im;0 -im 0])
-    @test nm_loc_ham(VertexSet([[1], [2], [3]])) == spzeros(Complex128, 3, 3)
+    @test nm_loc_ham(VertexSet([[1], [2, 3]])) == sparse([0.0+0im 0 0;0 0 im;0 -im 0])
+    @test nm_loc_ham(VertexSet([[1], [2], [3]])) == spzeros(ComplexF64, 3, 3)
     #by size version
     @test nm_loc_ham(VertexSet([[1, 2], [3, 4]]), Dict(2 =>[0 1; 1 0])) == sparse([0. 1 0 0; 1 0 0 0; 0 0 0 1; 0 0 1 0])
-    @test nm_loc_ham(VertexSet([[1], [2], [3]]), Dict(1 =>ones(Float64, (1, 1)))) == speye(Complex128, 3)
+    @test nm_loc_ham(VertexSet([[1], [2], [3]]), Dict(1 =>ones(Float64, (1, 1)))) == SparseMatrixCSC{Float64}(I, 3, 3)
     #by index version
     M1 = [1. 2;3 5]
-    M2 = zeros(1, 1)+1.
+    M2 = ones(Float64, 1, 1)
     dict = Dict(Vertex([1, 3]) =>M1, Vertex([2]) =>M2)
     @test nm_loc_ham(VertexSet([[1, 3], [2]]), dict) ==
             sparse([ 1.0+0im 0 2; 0 1 0; 3 0 5 ])
@@ -57,17 +57,17 @@
   end
 
   @testset "nm_lind" begin
-    A = sparse([0.+0.0im 1 0; 1 0 1; 0 1 0])
-    B1, B2 = eye(1), ones(2, 2)
+    A = sparse([0.0+0.0im 1 0; 1 0 1; 0 1 0])
+    B1, B2 = ones(1, 1), ones(2, 2)
     #default
     #needs to be roughly, since exp computing is inexact
     @test nm_lind(A)[1] ≈ [0 1 1 0;
-                                             1 0 0 1;
-                                             1 0 0 -1;
-                                             0 1 1 0]
+                           1 0 0 1;
+                           1 0 0 -1;
+                           0 1 1 0]
     @test nm_lind(A)[2] == make_vertex_set(A)
 
-    A = sparse([0.+0.0im 0 0 0 1;
+    A = sparse([0.0+0.0im 0 0 0 1;
                 0 0 1 0 1;
                 0 0 0 0 0;
                 0 1 1 0 0;
@@ -158,7 +158,7 @@
                                      0 -2im -2im 0]
 
     v1, v2, v3 = vlist(make_vertex_set(A))
-    @test nm_glob_ham(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>ctranspose([1im 2im;]))) ==
+    @test nm_glob_ham(A, Dict{Tuple{Vertex,Vertex},AbstractMatrix{<:Number}}((v1, v2) =>2*ones(1, 2), (v2, v3) =>adjoint([1im 2im;]))) ==
                                               [0 2 2 0;
                                                2 0 0 2im;
                                                2 0 0 4im;
@@ -167,13 +167,13 @@
         0  0  1;
         2  2  0]
   v1, v2, v3 = vlist(make_vertex_set(A))
-  @test nm_glob_ham(A, Dict((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;])) ≈
+  @test nm_glob_ham(A, Dict{Tuple{Vertex,Vertex},AbstractMatrix{<:Number}}((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;])) ≈
                           [0.0+0.0im  0.0+0.0im  2.0+0.0im  2.0+0.0im;
                            0.0+0.0im  0.0+0.0im  0.0-1.0im  0.0-2.0im;
                            2.0+0.0im  0.0+1.0im  0.0+0.0im  0.0+0.0im;
                            2.0+0.0im  0.0+2.0im  0.0+0.0im  0.0+0.0im]
 
-  @test nm_glob_ham(A, Dict((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]),epsilon=1.5) ≈
+  @test nm_glob_ham(A, Dict{Tuple{Vertex,Vertex},AbstractMatrix{<:Number}}((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]),epsilon=1.5) ≈
                           [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
                            0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
                            0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
@@ -191,16 +191,16 @@ end
 
   state = [1/6 1.0 1/6; 1. 2/3 1im; 1/6 -1im 1/6]
   vset = VertexSet([[1, 3], [2]])
-  @test nm_measurement(state, vset) ≈ [1./3, 2./3]
-  @test_throws AssertionError nm_measurement(eye(2)/2., vset)
-  @test_throws AssertionError nm_measurement([1./2, 1./3, 1./6, 0.], vset)
+  @test nm_measurement(state, vset) ≈ [1.0/3, 2.0/3]
+  @test_throws AssertionError nm_measurement(Matrix{Float64}(I,2,2)/2., vset)
+  @test_throws AssertionError nm_measurement([1.0/2, 1.0/3, 1.0/6, 0.], vset)
 
 end
 
 @testset "Initial states creation" begin
   vset = VertexSet([[1], [2, 3, 4], [5, 6, 7], [8, 9]])
-  @test nm_init(vset[[1, 3, 4]], vset) ≈ spdiagm([1./3, 0, 0, 0, 1./9, 1./9, 1./9, 1./6, 1./6])
-  A1 = ones(Complex128, 1, 1)/4
+  @test nm_init(vset[[1, 3, 4]], vset) ≈ spdiagm(0=>[1.0/3, 0, 0, 0, 1.0/9, 1.0/9, 1.0/9, 1.0/6, 1.0/6])
+  A1 = ones(ComplexF64, 1, 1)/4
   A2 = [ 1/5+0im 0 1/5; 0 1/10 0 ; 1/5 0 1/5 ]
   A3 = [0.125 -0.125+0im; -0.125 0.125]
   dict = Dict(vset[1] =>A1, vset[3] =>A2, vset[4] =>A3 )
