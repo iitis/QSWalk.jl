@@ -6,12 +6,15 @@ julia:
   - 0.7
   - 1.0
   - nightly
+matrix:
+  allow_failures:
+    julia: nightly
 notifications:
   email: false
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia --depwarn=no -e 'using Pkg; Pkg.add("Expokit")'
-  - julia -e 'using Pkg; Pkg.clone("https://github.com/ZKSI/QSWalk.jl.git"); Pkg.build("QSWalk"); Pkg.test("QSWalk"; coverage=true)'
+  - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("QSWalk"); Pkg.test("QSWalk"; coverage=true)'
 after_success:
 - julia --depwarn=no -e 'using Pkg; cd(Pkg.dir("QSWalk")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
 - julia -e 'using Pkg; Pkg.add("Documenter")'
