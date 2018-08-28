@@ -30,7 +30,7 @@ deploydocs(
     make        = nothing,
     repo        = "github.com/QuantumWalks/QSWalk.jl",
     target      = "build",
-    julia       = "0.6",
+    julia       = "1.0",
     osname      = "linux"
 )
 
