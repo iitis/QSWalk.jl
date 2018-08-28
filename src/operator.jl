@@ -6,7 +6,7 @@ export
     local_lind(A[; epsilon])
 
 Split the elements of the matrix `A` into a collection of sparse matrices with
-exactly one non-zero element. Martices are added if the absolute value of the
+exactly one non-zero element. Martices are created if the absolute value of the
 nonzero element is there are not smaller than `epsilon`, where `epsilon` should
 be nonnegative. The `epsilon` defaults to `eps()` if not specified.
 
@@ -14,29 +14,30 @@ be nonnegative. The `epsilon` defaults to `eps()` if not specified.
 
 ```jldoctest
 julia> A = [1. 2.; 3. 4.]
-2×2 Array{Float64, 2}:
+2×2 Array{Float64,2}:
  1.0  2.0
  3.0  4.0
 
 julia> local_lind(A)
-4-element Array{SparseMatrixCSC{Float64, Ti<:Integer}, 1}:
+4-element Array{SparseArrays.SparseMatrixCSC{Float64,Ti} where Ti<:Integer,1}:
 
-	[1, 1] = 1.0
+  [1, 1]  =  1.0
 
-	[1, 2] = 2.0
+  [1, 2]  =  2.0
 
-	[2, 1] = 3.0
+  [2, 1]  =  3.0
 
-	[2, 2] = 4.0
+  [2, 2]  =  4.0
 
 julia> local_lind(A, epsilon = 1.5)
-3-element Array{SparseMatrixCSC{Float64, Ti<:Integer}, 1}:
+3-element Array{SparseArrays.SparseMatrixCSC{Float64,Ti} where Ti<:Integer,1}:
 
-	[1, 2] = 2.0
+  [1, 2]  =  2.0
 
-	[2, 1] = 3.0
+  [2, 1]  =  3.0
 
-	[2, 2] = 4.0
+  [2, 2]  =  4.0
+
 ```
 """
 function local_lind(A::Matrix{T}; epsilon::Real = eps()) where T<:Number
@@ -100,9 +101,9 @@ function evolve_generator_create(H::AbstractMatrix{<:Number},
                                  α::Real,
                                  β::Real)
   @argumentcheck size(H) !=  (0, 0) "Matrix H must not be sizeless"
-  @argumentcheck size(H, 1) ==  size(H, 2) "Matrix H must be square"
-  @assert all([size(lindbladian) ==  size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
-  @assert size(H) ==  size(localH) "Matrix localH must be of the same size as H"
+  @argumentcheck size(H, 1) == size(H, 2) "Matrix H must be square"
+  @assert all([size(lindbladian) == size(H) for lindbladian in L]) "Lindblad operators must be of the same size as Hamiltonian"
+  @assert size(H) == size(localH) "Matrix localH must be of the same size as H"
   @argumentcheck 0 <=  α <=  1 && 0 <=  β <=  1 "Value of ω must be nonngeative and smaller than one"
 
   F = spzeros(ComplexF64, (size(H).^2)...)
@@ -136,8 +137,7 @@ operator takes the form
 # Arguments
 - `H`: Hamiltonian, must be hermitian,
 - `L`: collection of Lindblad operators, each must be of the same size as `H`,
-- `localH`: local Hamiltonian, suggested for nonmoralized QS walk, must be hermitian
-and of the size of `H`,
+- `localH`: local Hamiltonian, suggested for nonmoralized QS walk, must be hermitian and of the size of `H`,
 - `ω`: scaling parameter, should be in [0, 1].
 
 # Return
@@ -147,16 +147,11 @@ The generator matrix, which can be used in `evolve` function.
 # Examples
 
 ```jldoctest
-julia> H, L, localH = [0 1+im; 1-im 0], [0. 1; 0 0], eye(2)
-(
-Complex{Int64}[0+0im 1+1im; 1-1im 0+0im],
-
-[0.0 1.0; 0.0 0.0],
-
-[1.0 0.0; 0.0 1.0])
+julia> H, L, localH = [0 1+im; 1-im 0], [0. 1; 0 0], [1. 0.; 0. 1.]
+(Complex{Int64}[0+0im 1+1im; 1-1im 0+0im], [0.0 1.0; 0.0 0.0], [1.0 0.0; 0.0 1.0])
 
 julia> evolve_generator(H, [L], localH, 1/2)
-4×4 Array{Complex{Float64}, 2}:
+4×4 Array{Complex{Float64},2}:
   0.0+0.0im    0.5+0.5im    0.5-0.5im   0.5+0.0im
  -0.5+0.5im  -0.25+0.0im    0.0+0.0im   0.5-0.5im
  -0.5-0.5im    0.0+0.0im  -0.25+0.0im   0.5+0.5im
@@ -169,13 +164,13 @@ function evolve_generator(H::AbstractMatrix{<:Number},
                           localH::AbstractMatrix{<:Number},
                           ω::Real)
   evolve_generator_create(H, L, localH, 1-ω, ω)
-end
+end,
 
 function evolve_generator(H::AbstractMatrix{<:Number},
                           L::AbstractVector{<:AbstractMatrix{<:Number}},
                           localH::AbstractMatrix{<:Number} = spzeros(eltype(H), size(H)...))
   evolve_generator_create(H, L, localH, 1., 1.)
-end
+end,
 
 function evolve_generator(H::AbstractMatrix{T},
                           L::AbstractVector{<:AbstractMatrix{<:Number}},

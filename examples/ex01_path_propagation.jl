@@ -8,7 +8,6 @@
 using QSWalk
 using PyPlot # for plot
 using LightGraphs # for PathGraph
-using LinearAlgebra
 
 
 # ## Evolution on path graph for fixed time, global vs local interaction
@@ -38,7 +37,7 @@ rho_local = evolve(op_local, proj(midpoint, dim), timepoint);
 
 # To plot the result of the cannonical measurement, we take a diagonal of the states. Note that both *rhoglobal* and *rholocal* are complex matrices, hence we need to take the real part only. Argument *positions* is generated assuming that *midpoint* (the initial position) is at 0. Note that we have very heavy tails in the global interaction case, which confirms fast propagation in this model.
 
-positions = (collect(1:dim) .- midpoint)
+positions = (collect(1:dim) - midpoint)
 plot(positions, real.(diag(rho_local)), "k")
 plot(positions, real.(diag(rho_global)), "b")
 xlabel("position")
@@ -75,7 +74,7 @@ local_states = evolve(op_local, proj(midpoint, dim), timepoints);
 
 secmoment_global = Float64[]
 secmoment_local = Float64[]
-positions = (collect(1:dim) .- midpoint)
+positions = (collect(1:dim) - midpoint)
 
 for (rho_global, rho_local) = zip(global_states, local_states)
   push!(secmoment_global, sum(positions.^2 .* diag(rho_global)))
@@ -90,4 +89,3 @@ plot(timepoints, secmoment_global, "b")
 xlabel("t")
 ylabel(L"\mu_2")
 show()
-

@@ -17,7 +17,7 @@
 
   @testset "ketbra" begin
     #standard tests
-    @test ketbra(1, 2, 3) ==  [0 1 0; 0 0 0; 0 0 0]
+    @test ketbra(1, 2, 3) == [0 1 0; 0 0 0; 0 0 0]
     #error tests
     @test_throws AssertionError ketbra(3, 2, 2)
     @test_throws AssertionError ketbra(2, 3, 2)
@@ -29,7 +29,7 @@
     result = [0.0+0.0im 0.0+0.0im 0.0+0.0im;
               0.0+0.0im 1.0+0.0im 0.0+0.0im;
               0.0+0.0im 0.0+0.0im 0.0+0.0im]
-    @test proj(2, 3) ==  result
+    @test proj(2, 3) == result
     @test proj(1/sqrt(2) * (ket(1, 3)+ket(3, 3))) ≈
                          [0.5+0.0im 0.0+0.0im 0.5+0.0im;
                           0.0+0.0im 0.0+0.0im 0.0+0.0im;
