@@ -14,7 +14,7 @@ QSWalk requires [Expokit package for Julia](https://github.com/acroy/Expokit.jl)
 QSWalk can be installed directly form GitHub repository.
 
 ```julia
-Pkg.clone("https://github.com/QuantumWalks/QSWalk.jl.git")
+Pkg.add("QSWalk")
 ```
 
 Package can be updated using ```Pkg.update``` function.
