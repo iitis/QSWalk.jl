@@ -6,15 +6,9 @@ end
 
 ## Nonmoralizing model
 
-Global interaction quantum stochastic walk suffers for creating additional connections. For
-removing such effect, nonmoralizing quantum stochastic walk was introduced, see [here](http://www.rintonpress.com/journals/qiconline.html#v17n1112).
-Such model is constructed in several steps. First, the dimensionality is increased, hence to each
-vertex multidimensional subspaces is attached. Then, Hamiltonian and Lindblad
-operator is increased, furthermore additional Hamiltonian called "local Hamiltonian".
-is introduced.
+Global interaction quantum stochastic walk suffers from creating additional connections. This renders it unsuitable for constructing fast quantum walks on directed graphs. To counteract this effect, the nonmoralizing quantum stochastic walk was introduced (see [arXiv preprint](https://arxiv.org/abs/1701.04624) and [its published version](http://www.rintonpress.com/journals/qiconline.html#v17n1112)). Such a model is constructed in several steps. First, the dimensionality of the system is increased by attaching a multidimensional subspace to each vertex. Next, the Hamiltonian and the Lindblad operators are modified, and an additional Hamiltonian - so-called *local Hamiltonian* - is introduced.
 
-Below we present additional functionalities typical for nonmoralizing quantum
-stochastic walk. By default the the operator is generalized as in the original [paper](http://www.rintonpress.com/journals/qiconline.html#v17n1112).
+Below we present additional functionality useful for analyzing nonmoralizing quantum stochastic walk. By default, the operator is generalized as in the original [paper](http://www.rintonpress.com/journals/qiconline.html#v17n1112).
 
 ```@index
 Order = [:type, :function]
