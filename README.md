@@ -8,11 +8,11 @@
 
 ## Package description
 
-QSWalk provides package for [Julia programming language](https://julialang.org/) which enables high-performance analysis of quantum stochastic walks. There are two main advantages of the presented packages over the existing software. First, it can be use to describe quantum stochastic walks in the local, as well as global regime. Second, it enables the user to seamlessly utilize parallel computing capabilities.
+`QSWalk` provides a package for [Julia programming language](https://julialang.org/) which enables high-performance analysis of quantum stochastic walks. There are two main advantages of the presented packages over the existing software. First, it can be use to describe quantum stochastic walks in the local, as well as global regime. Second, it enables the user to seamlessly utilize parallel computing capabilities.
 
 ## Installation
 
-QSWalk requires [Expokit package for Julia](https://github.com/acroy/Expokit.jl), implementing some routines contained in [EXPOKIT](http://www.maths.uq.edu.au/expokit). This package will be installed automatically with `QSWalk` installation.
+`QSWalk` requires [Expokit package for Julia](https://github.com/acroy/Expokit.jl), implementing some routines contained in [EXPOKIT](http://www.maths.uq.edu.au/expokit). This package will be installed automatically with `QSWalk` installation.
 
 The package can be installed simply with Pkg REPL:
 ```julia-repl
@@ -20,7 +20,7 @@ The package can be installed simply with Pkg REPL:
 ```
 ## Examples
 
-Examples can be found in `examples` subdirectory. They require [QSWalk](https://github.com/QuantumWalks/QSWalk.jl), [LightGraphs](https://github.com/JuliaGraphs/LightGraphs.jl), [PyPlot](https://github.com/JuliaPy/PyPlot.jl).
+Examples can be found in `examples` subdirectory. They require [QSWalk](https://github.com/QuantumWalks/QSWalk.jl), [LightGraphs](https://github.com/JuliaGraphs/LightGraphs.jl), and [PyPlot](https://github.com/JuliaPy/PyPlot.jl).
 
 ## Citing QSWalk
 
