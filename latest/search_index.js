@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Welcome to QSWalk.jl",
     "category": "section",
-    "text": "QSWalk.jl is a package providing implementation of open continuous-time quantum walk evolution based on GKSL master equation. In particular we have implemented function useful for analysing local interaction, global interaction and nonmoralizing global interaction stochastic quantum walk models.In GitHub we present an examples in .ipynb and .jl extension. The present most of the functionalities of the package. Furthermore, for package explanation we refer the user to our paper describing the package, and for the basic papers describing and introducing quantum stochastic models:Quantum stochastic walks: A generalization of classical random walks and quantum walks by Whitfield, Rodríguez-Rosario, and Aspuru-Guzik,\nSuperdiffusive quantum stochastic walk definable on arbitrary directed graph by Domino, Glos, and Ostaszewski,\nProperties of quantum stochastic walks from the asymptotic scaling exponent by Domino, Glos, Ostaszewski, Pawela, and Sadowski."
+    "text": "QSWalk.jl is a package providing an implementation of open continuous-time quantum walk based on the GKSL master equation. In particular, it provides the implementation of functions useful for analyzing the local interaction, the global interaction, and the non-moralizing global interaction stochastic quantum walk models.Package repository contains examples presenting the most of the functionality of the package. Examples are provided as .ipynb, as well as .jl files. The detailed description of the package can also be found in manuscript available from arXiv.Description of the quantum stochastic models can be found in the following papers:Quantum stochastic walks: A generalization of classical random walks and quantum walks by Whitfield, Rodríguez-Rosario, and Aspuru-Guzik,\nSuperdiffusive quantum stochastic walk definable on arbitrary directed graph by Domino, Glos, and Ostaszewski,\nProperties of quantum stochastic walks from the asymptotic scaling exponent by Domino, Glos, Ostaszewski, Pawela, and Sadowski."
 },
 
 {
@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "GKSL master equation",
     "title": "GKSL master equation",
     "category": "section",
-    "text": "GKSL master equation is general continuous-time open quantum evolution. The master equation base on to form of operators: the Hamiltonian, which describes the evolution of closed system, and the Lindbladian operators which describes the evolution of open system. Basic facts in context of quantum stochastic walks can found here. For local interaction, where each Lindblad operator is a matrix with single nonzero element, we created a local_lind function which splits matrix into mentioned operators.Below we present a documentation of basic function used for simulating GKSL master equation.Order = [:type, :function]\nModules = [QSWalk]\nPages   = [\"gksl.md\"]"
+    "text": "The GKSL master equation is general continuous-time open quantum evolution. The master equation base on to form of operators: the Hamiltonian, which describes the evolution of a closed system, and the Lindbladian operators which describes the evolution of an open system. Basic facts in the context of quantum stochastic walks can found in this preprint or its published version. For local interaction, where each Lindblad operator is a matrix with a single nonzero element, we provide a local_lind function which splits the matrix into mentioned operators.Below we present documentation for essential functions used for simulating GKSL master equation.Order = [:type, :function]\nModules = [QSWalk]\nPages   = [\"gksl.md\"]"
 },
 
 {
@@ -133,7 +133,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Demoralization",
     "title": "Nonmoralizing model",
     "category": "section",
-    "text": "Global interaction quantum stochastic walk suffers for creating additional connections. For removing such effect, nonmoralizing quantum stochastic walk was introduced, see here. Such model is constructed in several steps. First, the dimensionality is increased, hence to each vertex multidimensional subspaces is attached. Then, Hamiltonian and Lindblad operator is increased, furthermore additional Hamiltonian called \"local Hamiltonian\". is introduced.Below we present additional functionalities typical for nonmoralizing quantum stochastic walk. By default the the operator is generalized as in the original paper.Order = [:type, :function]\nModules = [QSWalk]\nPages   = [\"demoralization.md\"]"
+    "text": "Global interaction quantum stochastic walk suffers from creating additional connections. This renders it unsuitable for constructing fast quantum walks on directed graphs. To counteract this effect, the nonmoralizing quantum stochastic walk was introduced (see arXiv preprint and its published version). Such a model is constructed in several steps. First, the dimensionality of the system is increased by attaching a multidimensional subspace to each vertex. Next, the Hamiltonian and the Lindblad operators are modified, and an additional Hamiltonian - so-called local Hamiltonian - is introduced.Below we present additional functionality useful for analyzing nonmoralizing quantum stochastic walk. By default, the operator is generalized as in the original paper.Order = [:type, :function]\nModules = [QSWalk]\nPages   = [\"demoralization.md\"]"
 },
 
 {
@@ -245,7 +245,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Contributing",
     "title": "Bugs",
     "category": "section",
-    "text": "In the case, you noticed some bugs, please start with an issue with a minimal working example of not-working code. If Exception is thrown, please provide an exception message as well.  If no Exception is thrown, but the result is wrong, please provide in the issue message correct answer.In the case you make a pull request, please add a not-working example as a test."
+    "text": "If you noticed a bug, please start with an issue with a minimal working example reproducing the error. If Exception is thrown, please provide an exception message as well. If no Exception is thrown, but the result is wrong, please provide the correct in the issue message.In the case you make a pull request, please use the example reproducing the error as a test."
 },
 
 {
@@ -253,7 +253,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Contributing",
     "title": "Improvements",
     "category": "section",
-    "text": "If you can provide a code, which works faster than already existing, please check its efficiency for various input data. We welcome any ideas concerning the readability and logic of the code as well."
+    "text": "If you can provide a code, which works faster than already existing one, please check its efficiency for various input data.We welcome any ideas concerning the readability and logic of the code as well."
 },
 
 {
@@ -277,7 +277,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Citing",
     "title": "Usage and citing",
     "category": "section",
-    "text": "In case of citing, please use the following BibTeX form:@article{glos2018qswalk,\n  title={QSWalk. jl: Julia package for quantum stochastic walks analysis},\n  author={Glos, Adam and Miszczak, Jaros{\\l}aw Adam and Ostaszewski, Mateusz},\n  journal={arXiv preprint arXiv:1801.01294},\n  year={2018}\n}Our package was already used in papers concerning quantum attacksAdam Glos, Jarosław Adam Miszczak, and Mateusz Ostaszewski. \'Limiting properties of stochastic quantum walks on directed graphs.\' Journal of Physics A: Mathematical and Theoretical 51.3 (2017): 035304.\nKrzysztof Domino, Adam Glos, and Mateusz Ostaszewski. \'Superdiffusive quantum stochastic walk definable on arbitrary directed graph\'. Quantum Information & Computation, 17(11-12), 973-986.In case You have used our package for your research, we will be grateful for any information about the paper or the package. With your consent we will provide a link to the paper here."
+    "text": "In case of using QSWalk, please please use the following BibTeX to cite the package:@article{glos2018qswalk,\n  title={QSWalk. jl: Julia package for quantum stochastic walks analysis},\n  author={Glos, Adam and Miszczak, Jaros{\\l}aw Adam and Ostaszewski, Mateusz},\n  journal={arXiv preprint arXiv:1801.01294},\n  year={2018}\n}Our package was already used in the following papers concerning quantum walks:Adam Glos, Jarosław Adam Miszczak, and Mateusz Ostaszewski. \'Limiting properties of stochastic quantum walks on directed graphs.\' Journal of Physics A: Mathematical and Theoretical 51.3 (2017): 035304.\nKrzysztof Domino, Adam Glos, and Mateusz Ostaszewski. \'Superdiffusive quantum stochastic walk definable on arbitrary directed graph\'. Quantum Information & Computation, 17(11-12), 973-986.In case you have used our package for your research, we will be grateful for any information about the paper or the package utilizing our code. With your consent, we will provide a link to your work."
 },
 
 {
