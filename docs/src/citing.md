@@ -4,13 +4,14 @@
 In case of using `QSWalk`, please please use the following BibTeX to cite the package:
 
 ```tex
-@article{glos2018qswalk,
-  title={QSWalk. jl: Julia package for quantum stochastic walks analysis},
-  author={Glos, Adam and Miszczak, Jaros{\l}aw Adam and Ostaszewski, Mateusz},
-  journal={arXiv preprint arXiv:1801.01294},
-  year={2018}
-}
-```
+@article{GLOS2018,
+title = "QSWalk.jl: Julia package for quantum stochastic walks analysis",
+journal = "Computer Physics Communications",
+year = "2018",
+issn = "0010-4655",
+doi = "https://doi.org/10.1016/j.cpc.2018.09.001",
+author = "Glos, Adam and Miszczak, Jarosław Adam and Ostaszewski, Mateusz",
+}```
 
 Our package was already used in the following papers concerning quantum walks:
 * Adam Glos, Jarosław Adam Miszczak, and Mateusz Ostaszewski. 'Limiting properties of stochastic quantum walks on directed graphs.' Journal of Physics A: Mathematical and Theoretical 51.3 (2017): 035304.
