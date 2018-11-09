@@ -26,4 +26,14 @@ Examples can be found in `examples` subdirectory. They require [QSWalk](https://
 
 The package is described in
 
-Adam Glos, Jarosław Adam Miszczak, Mateusz Ostaszewski, *QSWalk.jl: Julia package for quantum stochastic walks analysis*, [arXiv:1801.01294](https://arxiv.org/abs/1801.01294) (2018).
+Adam Glos, Jarosław Adam Miszczak, Mateusz Ostaszewski, *QSWalk.jl: Julia package for quantum stochastic walks analysis*, Computer Physics Communications (2018), DOI:[10.1016/j.cpc.2018.09.001](https://doi.org/10.1016/j.cpc.2018.09.001), [arXiv:1801.01294](https://arxiv.org/abs/1801.01294).
+
+```tex
+@article{GLOS2018,
+title = "QSWalk.jl: Julia package for quantum stochastic walks analysis",
+journal = "Computer Physics Communications",
+year = "2018",
+issn = "0010-4655",
+doi = "https://doi.org/10.1016/j.cpc.2018.09.001",
+author = "Glos, Adam and Miszczak, Jarosław Adam and Ostaszewski, Mateusz",
+}```
