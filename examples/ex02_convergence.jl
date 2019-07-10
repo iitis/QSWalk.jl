@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # Convergence on local interaction model
@@ -9,6 +9,7 @@
 using QSWalk
 using LightGraphs # for graph functions 
 using GraphPlot # for ploting graphs 
+using LinearAlgebra # for linear algebra utilities
 
 
 # ## Numerical proof of unique stationary state
@@ -22,8 +23,8 @@ prob = 0.5
 digraph = erdos_renyi(dim, prob, is_directed=true)
 graph = Graph(digraph)
 
-adj_digraph = full(adjacency_matrix(digraph, dir=:in))
-adj_graph = full(adjacency_matrix(graph))
+adj_digraph = Matrix(adjacency_matrix(digraph, dir=:in))
+adj_graph = Matrix(adjacency_matrix(graph))
 time = 100.
 
 println("The graph is strongly connected: $(is_strongly_connected(digraph))")
@@ -44,13 +45,13 @@ println("Dimensionality of null-space of the evolution operator: $null_dim")
 
 # This allows efficient stationary state generation. Note that the trace may differ from one, as the eigenstate is normalized according to different norm.
 
-eigendecomposition = eigfact(evo_gen)
-zeroindex = find(x -> abs(x)<=1.e-5, eigendecomposition[:values])
-stationary_state = unres(vec(eigendecomposition[:vectors][:, zeroindex]))
+eigendecomposition = eigen(evo_gen)
+zeroindex = findfirst(x -> abs(x)<=1.e-5, eigendecomposition.values)
+stationary_state = unres(vec(eigendecomposition.vectors[:, zeroindex]))
 
-println("Trace of stationary state: $(trace(stationary_state))")
-stationary_state /= trace(stationary_state)
-println("Trace of stationary state after the normalization: $(trace(stationary_state))")
+println("Trace of stationary state: $(sum(diag(stationary_state)))")
+stationary_state /= sum(diag(stationary_state))
+println("Trace of stationary state after the normalization: $(sum(diag(stationary_state)))")
 
 
 # ## Convergence
@@ -59,7 +60,7 @@ println("Trace of stationary state after the normalization: $(trace(stationary_s
 
 rhoinit1 = proj(1, dim)
 rhoinit2 = proj(3, dim)
-rhoinit3 = eye(dim)/dim;
+rhoinit3 = Diagonal(I,dim)/dim
 
 
 # Since we apply the same evolution for all of the initial states, it is more efficient to calulate exponent once.

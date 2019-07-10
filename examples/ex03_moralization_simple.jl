@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # Spontaneous moralization on simple graph
@@ -6,8 +6,9 @@
 # ## Loading modules
 
 using QSWalk
-using TikzGraphs # For plotting graph
+using GraphPlot # For plotting graph
 using LightGraphs 
+using LinearAlgebra
 
 
 # ## Moralizing evolution
@@ -18,14 +19,14 @@ digraph = DiGraph(3)
 add_edge!(digraph, 1, 3)
 add_edge!(digraph, 2, 3)
 
-TikzGraphs.plot(digraph)
+gplot(digraph)
 
 
 # Here we generate some basic operators. Note in the case of directed graphs we need to transpose adjacency matrix, as *QSWalk.jl* multiplies the state on the right side of evolution operator. Note we choose zero matrix as Hamiltonian of the system. 
 # 
 # As we deal with the graph of very small size, we choose full-matrix evolution algorithm. In order to do such, we need to provide in opmoral at least one full matrix.
 
-adjacency = full(transpose(adjacency_matrix(digraph)))
+adjacency = Matrix(transpose(adjacency_matrix(digraph)))
 timepoint = 100.
 
 opmoral = evolve_generator(zero(adjacency), [adjacency])
