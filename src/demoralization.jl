@@ -228,7 +228,6 @@ julia> v1, v2, v3 = vlist(vset)
   0.0+0.0im  3.0+0.0im  3.0+0.0im   0.0+0.0im
 ```
 """
-
 function nm_lind(A::AbstractMatrix{<:Number},
                  lindbladians::Dict{Int, <:AbstractMatrix{<:Number}};
                  epsilon::Real = eps())
@@ -327,7 +326,6 @@ julia> nm_glob_ham(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]')) |> 
  0.0+0.0im  0.0-1.0im  0.0-2.0im  0.0+0.0im
 ```
 """
-
 function nm_glob_ham(A::AbstractMatrix{<:Number},
                      hamiltonians::Dict{Tuple{Int, Int}, <:AbstractMatrix{<:Number}};
                      epsilon::Real = eps())
