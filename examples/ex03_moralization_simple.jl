@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # Spontaneous moralization on simple graph
@@ -6,6 +6,7 @@
 # ## Loading modules
 
 using QSWalk
+using GraphPlot # For plotting graph
 using LightGraphs 
 using LinearAlgebra
 
@@ -17,6 +18,8 @@ using LinearAlgebra
 digraph = DiGraph(3)
 add_edge!(digraph, 1, 3)
 add_edge!(digraph, 2, 3)
+
+gplot(digraph)
 
 
 # Here we generate some basic operators. Note in the case of directed graphs we need to transpose adjacency matrix, as *QSWalk.jl* multiplies the state on the right side of evolution operator. Note we choose zero matrix as Hamiltonian of the system. 

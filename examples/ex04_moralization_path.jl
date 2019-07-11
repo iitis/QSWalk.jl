@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # Spontaneous moralization on path graph
@@ -57,9 +57,8 @@ vlines(0, 0., maximum(measurement_nonsymmetric), linestyles="--")
 
 # The way to correct this is to choose another, symmetric Lindblad operator. While standard suage of *nm_lind* will always output the same result, we can choose different basic orthogonal matrices to form different operators. In following example. We choose dictionary, which for different vertex degree chooses different matrix.
 
-linddescription1 = Dict{Int, Matrix{Float64}}(1 => ones(1, 1), 2 => [1 1; 1 -1])
-linddescription2 = Dict{Int, Matrix{Float64}}(1 => ones(1, 1), 2 => [1 1; -1 1])
-
+linddescription1 = Dict{Int,Matrix{Float64}}(1 => ones(1, 1), 2 => [1 1; 1 -1])
+linddescription2 = Dict{Int,Matrix{Float64}}(1 => ones(1, 1), 2 => [1 1; -1 1])
 lind1, vset = nm_lind(adjacency, linddescription1)
 lind2, vset = nm_lind(adjacency, linddescription2);
 

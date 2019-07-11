@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # Propagation on the path graph
@@ -8,6 +8,7 @@
 using QSWalk
 using PyPlot # for plot
 using LightGraphs # for PathGraph
+using LinearAlgebra # for diag method
 
 
 # ## Evolution on path graph for fixed time, global vs local interaction
@@ -15,10 +16,10 @@ using LightGraphs # for PathGraph
 # Basic parameters. Note that *dim* should be an odd number. Otherwise the middle point *midpoint* is not unique. Matrix
 # *adjacency* can be alternatively generated as *adjacency = spdiagm((ones(dim-1), ones(dim-1)), (-1, 1))*.
 
-dim = 251 # odd for unique middle point
+dim = 151 # odd for unique middle point
 midpoint = ceil(Int, dim/2)
 w = 0.5
-timepoint = 100.
+timepoint = 50.
 adjacency = adjacency_matrix(PathGraph(dim));
 
 
@@ -37,7 +38,7 @@ rho_local = evolve(op_local, proj(midpoint, dim), timepoint);
 
 # To plot the result of the cannonical measurement, we take a diagonal of the states. Note that both *rhoglobal* and *rholocal* are complex matrices, hence we need to take the real part only. Argument *positions* is generated assuming that *midpoint* (the initial position) is at 0. Note that we have very heavy tails in the global interaction case, which confirms fast propagation in this model.
 
-positions = (collect(1:dim) - midpoint)
+positions = (collect(1:dim) .- midpoint)
 plot(positions, real.(diag(rho_local)), "k")
 plot(positions, real.(diag(rho_global)), "b")
 xlabel("position")
@@ -50,10 +51,10 @@ show()
 # Basic parameters. Note that *dim* should be an odd number. Otherwise the middle point *midpoint* is not unique. Matrix
 # *adjacency* can be alternatively generated as *adjacency = spdiagm((ones(dim-1), ones(dim-1)), (-1, 1))*.
 
-dim = 251 #odd for unique middle point
+dim = 151 #odd for unique middle point
 midpoint = ceil(Int, dim/2)
 w = 0.5
-timepoints = collect(0:5:100)
+timepoints = collect(0:2.5:50)
 adjacency = adjacency_matrix(PathGraph(dim));
 
 
@@ -74,7 +75,7 @@ local_states = evolve(op_local, proj(midpoint, dim), timepoints);
 
 secmoment_global = Float64[]
 secmoment_local = Float64[]
-positions = (collect(1:dim) - midpoint)
+positions = (collect(1:dim) .- midpoint)
 
 for (rho_global, rho_local) = zip(global_states, local_states)
   push!(secmoment_global, sum(positions.^2 .* diag(rho_global)))
@@ -89,3 +90,4 @@ plot(timepoints, secmoment_global, "b")
 xlabel("t")
 ylabel(L"\mu_2")
 show()
+

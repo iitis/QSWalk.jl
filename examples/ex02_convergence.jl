@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # Convergence on local interaction model
@@ -7,8 +7,9 @@
 # ## Loading modules
 
 using QSWalk
-using LightGraphs # for graph functions
-using LinearAlgebra
+using LightGraphs # for graph functions 
+using GraphPlot # for ploting graphs 
+using LinearAlgebra # for linear algebra utilities
 
 
 # ## Numerical proof of unique stationary state
@@ -27,6 +28,7 @@ adj_graph = Matrix(adjacency_matrix(graph))
 time = 100.
 
 println("The graph is strongly connected: $(is_strongly_connected(digraph))")
+gplot(digraph)
 
 
 # Now we can calcuate the lindbladian and the subgroup generator.
@@ -44,12 +46,12 @@ println("Dimensionality of null-space of the evolution operator: $null_dim")
 # This allows efficient stationary state generation. Note that the trace may differ from one, as the eigenstate is normalized according to different norm.
 
 eigendecomposition = eigen(evo_gen)
-zeroindex = findall(x -> abs(x)<=1.e-5, eigendecomposition.values)
+zeroindex = findfirst(x -> abs(x)<=1.e-5, eigendecomposition.values)
 stationary_state = unres(vec(eigendecomposition.vectors[:, zeroindex]))
 
-println("Trace of stationary state: $(tr(stationary_state))")
-stationary_state /= tr(stationary_state)
-println("Trace of stationary state after the normalization: $(tr(stationary_state))")
+println("Trace of stationary state: $(sum(diag(stationary_state)))")
+stationary_state /= sum(diag(stationary_state))
+println("Trace of stationary state after the normalization: $(sum(diag(stationary_state)))")
 
 
 # ## Convergence
@@ -58,7 +60,7 @@ println("Trace of stationary state after the normalization: $(tr(stationary_stat
 
 rhoinit1 = proj(1, dim)
 rhoinit2 = proj(3, dim)
-rhoinit3 = Matrix{Float64}(I, dim, dim)/dim;
+rhoinit3 = Diagonal(I,dim)/dim
 
 
 # Since we apply the same evolution for all of the initial states, it is more efficient to calulate exponent once.
