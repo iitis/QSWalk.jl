@@ -278,7 +278,7 @@ end
     nm_glob_ham(A[, hamiltonians][, epsilon])
 
 Return global Hamiltonian for the moralization procedure. Matrix `A` should the
-adjacency matrix of an undirected graph, for which one aims to construct the
+adjacency matrix of a directed graph, for which one aims to construct the
 nonmoralizing dynamics. Here, `hamiltonians` is an optional argument which is a
 Dictionary with keys of type `Tuple{Int, Int}` or `Tuple{Vertex, Vertex}`. The
 first collects the submatrices according to their shape, while the second
@@ -354,8 +354,10 @@ function nm_glob_ham(A::T;
   alloneshamiltonians = Dict{Tuple{Int, Int}, T}()
   for v = revindlist, w = v
     w = revindlist[w]
-    alloneshamiltonians[length.((v, w))] = ones(length(v), length(w))
-    alloneshamiltonians[length.((w, v))] = ones(length(w), length(v))
+    length_w = max(1, length(w))
+    length_v = max(1, length(v))
+    alloneshamiltonians[(length_v, length_w)] = ones(length_v, length_w)
+    alloneshamiltonians[(length_w, length_v)] = ones(length_w, length_v)
   end
   nm_glob_ham(A, alloneshamiltonians, epsilon = epsilon)
 end,
@@ -364,7 +366,6 @@ function nm_glob_ham(A::AbstractMatrix{<:Number},
                      hamiltonians::Dict{Tuple{Vertex, Vertex}, <:AbstractMatrix{<:Number}};
                      epsilon::Real = eps())
   @argumentcheck epsilon >= 0 "epsilon needs to be nonnegative"
-
   revincidence_list = reversed_incidence_list(A, epsilon = epsilon)
   vset = revinc_to_vertexset(revincidence_list)
 
