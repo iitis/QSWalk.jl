@@ -6,6 +6,9 @@ authors = ["Adam Glos <aglos@iitis.pl>", "Jarosław Adam Miszczak <jmiszczak@iit
 licence = "MIT"
 version = "1.0.2"
 
+[compat]
+julia = "1"
+
 [deps]
 Expokit = "a1e7a1ef-7a5d-5822-a38c-be74e1bb89f4"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
