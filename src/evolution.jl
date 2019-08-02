@@ -15,7 +15,7 @@ case different numerical approach is used. See function ```epmv``` in package
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> H, L = [0 1; 1 0], [[0 1; 0 0], [0 0; 1 0]]
 ([0 1; 1 0], Array{Int64,2}[[0 1; 0 0], [0 0; 1 0]])
 
@@ -74,7 +74,7 @@ evolution in the case of multiple initial states and the same time point.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> H, L = [0 1; 1 0], [[0 1; 0 0], [0 0; 1 0]]
 ([0 1; 1 0], Array{Int64,2}[[0 1; 0 0], [0 0; 1 0]])
 

@@ -50,7 +50,7 @@ end
 
 Returns the subspace connected to vertex `v`.
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> v = Vertex([1,2,3])
 Vertex([1, 2, 3])
 
@@ -90,7 +90,7 @@ Type consisting of a list of `Vertex` objects. It describes the partition of the
 linear subspace. Object of this type should be constructed using
 `make_vertex_set` or by `nm_lind` functions. In order to get a
 list of the vertices from an object of type `vertexset`, one should use
-`vlist()` function, or, for a specific `Vertex`, an getindex function
+`vlist` function, or, for a specific `Vertex`, an getindex function
 `vertexset[i]`.
 """
 struct VertexSet
@@ -106,7 +106,7 @@ VertexSet(vset::Vector{Vector{Int}}) = VertexSet([Vertex(v) for v = vset])
 
 Returns the list of vertices for given `vset` of type `VertexSet`.
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> vset = VertexSet([[1], [2, 3, 4], [5, 6, 7], [8, 9]])
 VertexSet(Vertex[Vertex([1]), Vertex([2, 3, 4]), Vertex([5, 6, 7]), Vertex([8, 9])])
 
@@ -133,7 +133,7 @@ Return the dimension of the linearspace corresponding to given `vertexset`.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> vertexsetsize(VertexSet([[1, 2, 3], [4, 5]]))
 5
 ```
@@ -152,24 +152,24 @@ result list is the vector of indices `j` for which `abs(A[j, i]) >=  epsilon`.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> A = [1 2 3; 0 3. 4.; 0 0 5.]
-3×3 Array{Float64, 2}:
+3×3 Array{Float64,2}:
  1.0  2.0  3.0
  0.0  3.0  4.0
  0.0  0.0  5.0
 
 julia> QSWalk.incidence_list(A)
-3-element Array{Array{Int64, 1}, 1}:
+3-element Array{Array{Int64,1},1}:
  [1]
  [1, 2]
  [1, 2, 3]
 
 julia> QSWalk.incidence_list(A, epsilon = 2.5)
-3-element Array{Array{Int64, 1}, 1}:
-  Int64[]
-  [2]
-  [1, 2, 3]
+3-element Array{Array{Int64,1},1}:
+ []
+ [2]
+ [1, 2, 3]
 
 ```
 """
@@ -189,21 +189,21 @@ result list is the vector of indices for which `abs(A[i, j]) >=  epsilon`.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> A = [1 2 3; 0 3. 4.; 0 0 5.]
-3×3 Array{Float64, 2}:
+3×3 Array{Float64,2}:
  1.0  2.0  3.0
  0.0  3.0  4.0
  0.0  0.0  5.0
 
 julia> QSWalk.reversed_incidence_list(A)
-3-element Array{Array{Int64, 1}, 1}:
+3-element Array{Array{Int64,1},1}:
  [1, 2, 3]
  [2, 3]
  [3]
 
 julia> QSWalk.reversed_incidence_list(A, epsilon = 2.5)
-3-element Array{Array{Int64, 1}, 1}:
+3-element Array{Array{Int64,1},1}:
  [3]
  [2, 3]
  [3]
@@ -224,18 +224,18 @@ The exception is empty list, for which onedimensional subspace is attached.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> vset = [Int64[], [2], [1, 2, 3]]
-3-element Array{Array{Int64, 1}, 1}:
- Int64[]
+3-element Array{Array{Int64,1},1}:
+ []
  [2]
  [1, 2, 3]
 
-julia> QSWalk.revinc_to_vertexset(vset)()
-3-element Array{QSWalk.Vertex, 1}:
- QSWalk.Vertex([1])
- QSWalk.Vertex([2])
- QSWalk.Vertex([3, 4, 5])
+julia> vlist(QSWalk.revinc_to_vertexset(vset))
+3-element Array{Vertex,1}:
+ Vertex([1])
+ Vertex([2])
+ Vertex([3, 4, 5])
 
 ```
 """
@@ -264,7 +264,7 @@ It is always equal to the second element if output of `evolve_generator` functio
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> A = [1 2 3; 0 3. 4.; 0 0 5.]
 3×3 Array{Float64,2}:
  1.0  2.0  3.0

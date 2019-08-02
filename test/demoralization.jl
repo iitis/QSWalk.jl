@@ -142,6 +142,7 @@
   end
 
   @testset "nm_glob_ham" begin
+  println("Test 1")
     A = sparse([0 1 0;
                1 0 2;
                0 2 0])
@@ -158,27 +159,36 @@
                                      0 -2im -2im 0]
 
     v1, v2, v3 = vlist(make_vertex_set(A))
-    @test nm_glob_ham(A, Dict{Tuple{Vertex,Vertex},AbstractMatrix{<:Number}}((v1, v2) =>2*ones(1, 2), (v2, v3) =>adjoint([1im 2im;]))) ==
+    @test nm_glob_ham(A, Dict{Tuple{Vertex,Vertex},AbstractMatrix{<:Number}}((v1, v2) =>2*ones(1, 2), (v2, v3) => -adjoint([1im 2im]))) ==
                                               [0 2 2 0;
                                                2 0 0 2im;
                                                2 0 0 4im;
                                                0 -2im -4im 0]
+    println("\nTest 2")
    A = [0  0  1;
         0  0  1;
         2  2  0]
   v1, v2, v3 = vlist(make_vertex_set(A))
   @test nm_glob_ham(A, Dict{Tuple{Vertex,Vertex},AbstractMatrix{<:Number}}((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;])) ≈
-                          [0.0+0.0im  0.0+0.0im  2.0+0.0im  2.0+0.0im;
-                           0.0+0.0im  0.0+0.0im  0.0-1.0im  0.0-2.0im;
-                           2.0+0.0im  0.0+1.0im  0.0+0.0im  0.0+0.0im;
-                           2.0+0.0im  0.0+2.0im  0.0+0.0im  0.0+0.0im]
+                          [0.0+0.0im  0.0+0.0im  3.0+0.0im  3.0+0.0im;
+                           0.0+0.0im  0.0+0.0im  0.0+1.5im  0.0+3.0im;
+                           3.0+0.0im  0.0-1.5im  0.0+0.0im  0.0+0.0im;
+                           3.0+0.0im  0.0-3.0im  0.0+0.0im  0.0+0.0im]
 
-  @test nm_glob_ham(A, Dict{Tuple{Vertex,Vertex},AbstractMatrix{<:Number}}((v1, v3) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]),epsilon=1.5) ≈
-                          [0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
-                           0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
-                           0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im;
-                           0.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+0.0im]
+  @test nm_glob_ham(A, Dict{Tuple{Vertex,Vertex},AbstractMatrix{<:Number}}((v1, v3) =>2*ones(1, 1), (v2, v3) =>ones(1,1)*1im),epsilon=3) ≈
+                          [0.0+0.0im  0.0+0.0im  0.0+0.0im;
+                           0.0+0.0im  0.0+0.0im  0.0+0.0im;
+                           0.0+0.0im  0.0+0.0im  0.0+0.0im]
+  a_directed = diagm(1=>ones(3))
+  a_directed_transposed = diagm(-1=>ones(3))
+  a_undirected = a_directed_transposed + a_directed
+  @test nm_glob_ham(a_directed) ≈ a_undirected
+  @test nm_glob_ham(a_directed_transposed) ≈ a_undirected
+  @test_throws DimensionMismatch nm_glob_ham(a_undirected) ≈ a_undirected
 
+  @test nm_glob_ham(Matrix(a_directed)) ≈ a_undirected
+  @test nm_glob_ham(Matrix(a_directed_transposed)) ≈ a_undirected
+  @test_throws DimensionMismatch nm_glob_ham(Matrix(a_undirected)) ≈ a_undirected
   end
 end
 

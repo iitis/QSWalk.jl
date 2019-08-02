@@ -4,7 +4,7 @@ keywords = ["quantum walk", "quantum computing", "GKSL"]
 desc = "Simulator for stochastic quantum walk"
 authors = ["Adam Glos <aglos@iitis.pl>", "Jarosław Adam Miszczak <jmiszczak@iitis.pl>", "Mateusz Ostaszewski <mostaszewski@iitis.pl>"]
 licence = "MIT"
-version = "1.0.2"
+version = "1.1.0"
 
 [compat]
 julia = "1"

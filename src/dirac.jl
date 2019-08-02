@@ -16,7 +16,7 @@ To be consistent with Julia indexing, `index` = 1, 2, ..., `size`.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> ket(1, 2)
 2-element SparseArrays.SparseVector{Int64,Int64} with 1 stored entry:
   [1]  =  1
@@ -28,7 +28,7 @@ function ket(index::Int, size::Int)
   @assert 1 <=  index <=  size "index must be positive and not bigger than vector size"
 
   ret = spzeros(Int, size)
-  ret[index] = 1
+  ret[index]  =  1
   ret
 end
 
@@ -40,7 +40,7 @@ Return `index`-th base row vector in the `size`-dimensional vector space, with
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> bra(1, 2)
 1×2 LinearAlgebra.Adjoint{Int64,SparseArrays.SparseVector{Int64,Int64}}:
  1  0
@@ -59,7 +59,7 @@ equal to one, located at position (`irow`, `icol`).
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> ketbra(1, 2, 3)
 3×3 SparseArrays.SparseMatrixCSC{Int64,Int64} with 1 stored entry:
   [1, 2]  =  1
@@ -77,7 +77,7 @@ Return projector onto `index`-th base vector in `size`-dimensional vector space,
 with `index` = 1, 2, ..., `size`. This is equivalent to `ketbra(index, index,
 size)`.
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> proj(1, 2)
 2×2 SparseArrays.SparseMatrixCSC{Int64,Int64} with 1 stored entry:
   [1, 1]  =  1
@@ -93,7 +93,7 @@ end
 Return projector onto the subspace spanned by vector `vector`.
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> v = 1/sqrt(2) * (ket(1, 3)+ket(3, 3))
 3-element SparseArrays.SparseVector{Float64,Int64} with 2 stored entries:
   [1]  =  0.707107
@@ -120,7 +120,7 @@ Return vectorization of the `matrix` in the row order. This is equivalent to
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> M = reshape(1:9, (3, 3))'*1im
 3×3 Array{Complex{Int64},2}:
  0+1im  0+2im  0+3im
@@ -155,7 +155,7 @@ Return square matrix with elements from `vector`. The `vector` is expected to
 have perfect square number of arguments.
 
 # Examples
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> v = collect(1:9)*im
 9-element Array{Complex{Int64},1}:
  0 + 1im
@@ -194,7 +194,7 @@ Returns Fourier matrix of size `size`×`size`.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> fourier_matrix(1)
 1×1 SparseArrays.SparseMatrixCSC{Complex{Float64},Int64} with 1 stored entry:
   [1, 1]  =  1.0+0.0im

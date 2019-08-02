@@ -9,12 +9,11 @@ cp(normpath(@__FILE__, "../../LICENSE"), normpath(@__FILE__, "../src/license.md"
 
 makedocs(
     modules     = [QSWalk],
-    format      = :html,
+    format      = Documenter.HTML(assets = ["assets/logo.ico"]),
     sitename    = "QSWalk",
     clean       = true,
     doctest     = true,
     checkdocs   = :exports,
-    assets 	= ["assets/logo.ico"],
     pages       = Any[
 		"Home"				=> "index.md",
         "GKSL master equation" => "gksl.md",
@@ -30,7 +29,7 @@ deploydocs(
     make        = nothing,
     repo        = "github.com/QuantumWalks/QSWalk.jl",
     target      = "build",
-    julia       = "1.0",
+    julia       = "1.1",
     osname      = "linux"
 )
 

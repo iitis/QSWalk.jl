@@ -20,7 +20,7 @@ upper diagonal (equal to `1im`) and lower diagonal (equal to `-1im`).
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> QSWalk.default_nm_loc_ham(4)
 4×4 SparseArrays.SparseMatrixCSC{Complex{Float64},Int64} with 6 stored entries:
   [2, 1]  =  0.0-1.0im
@@ -56,7 +56,7 @@ hamiltonians should be complex valued.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> vset = VertexSet([[1, 2], [3, 4]])
 VertexSet(Vertex[Vertex([1, 2]), Vertex([3, 4])])
 
@@ -110,7 +110,7 @@ hamiltonians should be complex valued.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> vset = VertexSet([[1, 2], [3, 4]])
 VertexSet(Vertex[Vertex([1, 2]), Vertex([3, 4])])
 
@@ -147,7 +147,7 @@ function nm_loc_ham(vset::VertexSet,
 
   result = spzeros(ComplexF64, vertexsetsize(vset), vertexsetsize(vset))
   for v = vlist(vset)
-    result[subspace(v), subspace(v)] = hamiltonians[v]
+    result[subspace(v), subspace(v)]  =  hamiltonians[v]
   end
   result
 end
@@ -182,50 +182,50 @@ Vol.17 No.11&12, pp. 0973-0986, arXiv:1701.04624.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk, LinearAlgebra)
 julia> A = [0 1 0; 1 0 1; 0 1 0]
-3×3 Array{Int64, 2}:
+3×3 Array{Int64,2}:
  0  1  0
  1  0  1
  0  1  0
 
 julia> L, vset = nm_lind(A)
 (
-  [2, 1] = 1.0+0.0im
-  [3, 1] = 1.0+0.0im
-  [1, 2] = 1.0+0.0im
-  [4, 2] = 1.0+0.0im
-  [1, 3] = 1.0+0.0im
-  [4, 3] = 1.0+0.0im
-  [2, 4] = 1.0+0.0im
-  [3, 4] = -1.0+1.22465e-16im, QSWalk.VertexSet(QSWalk.Vertex[QSWalk.Vertex([1]), QSWalk.Vertex([2, 3]), QSWalk.Vertex([4])]))
+  [2, 1]  =  1.0+0.0im
+  [3, 1]  =  1.0+0.0im
+  [1, 2]  =  1.0+0.0im
+  [4, 2]  =  1.0+0.0im
+  [1, 3]  =  1.0+0.0im
+  [4, 3]  =  1.0+0.0im
+  [2, 4]  =  1.0+0.0im
+  [3, 4]  =  -1.0+1.22465e-16im, VertexSet(Vertex[Vertex([1]), Vertex([2, 3]), Vertex([4])]))
 
-julia> B1, B2 = 2*eye(1), 3*ones(2, 2)
+julia> B1, B2 = 2*diagm(0=>[1.]), 3*ones(2, 2)
 ([2.0], [3.0 3.0; 3.0 3.0])
 
-julia> nm_lind(A, Dict(1  => B1, 2 =>B2 ))
+julia> nm_lind(A, Dict{Int,Matrix{Float64}}(1=>B1, 2=>B2))
 (
-  [2, 1] = 3.0+0.0im
-  [3, 1] = 3.0+0.0im
-  [1, 2] = 2.0+0.0im
-  [4, 2] = 2.0+0.0im
-  [1, 3] = 2.0+0.0im
-  [4, 3] = 2.0+0.0im
-  [2, 4] = 3.0+0.0im
-  [3, 4] = 3.0+0.0im, QSWalk.VertexSet(QSWalk.Vertex[QSWalk.Vertex([1]), QSWalk.Vertex([2, 3]), QSWalk.Vertex([4])]))
+  [2, 1]  =  3.0+0.0im
+  [3, 1]  =  3.0+0.0im
+  [1, 2]  =  2.0+0.0im
+  [4, 2]  =  2.0+0.0im
+  [1, 3]  =  2.0+0.0im
+  [4, 3]  =  2.0+0.0im
+  [2, 4]  =  3.0+0.0im
+  [3, 4]  =  3.0+0.0im, VertexSet(Vertex[Vertex([1]), Vertex([2, 3]), Vertex([4])]))
 
 julia> v1, v2, v3 = vlist(vset)
-3-element Array{QSWalk.Vertex, 1}:
- QSWalk.Vertex([1])
- QSWalk.Vertex([2, 3])
- QSWalk.Vertex([4])
+3-element Array{Vertex,1}:
+ Vertex([1])
+ Vertex([2, 3])
+ Vertex([4])
 
- julia> nm_lind(A, Dict(v1  => ones(1, 1), v2  => [2 2; 2 -2], v3 =>3*ones(1, 1)))[1] |> full
- 4×4 Array{Complex{Float64}, 2}:
-  0.0+0.0im  1.0+0.0im  1.0+0.0im   0.0+0.0im
-  2.0+0.0im  0.0+0.0im  0.0+0.0im   2.0+0.0im
-  2.0+0.0im  0.0+0.0im  0.0+0.0im  -2.0+0.0im
-  0.0+0.0im  3.0+0.0im  3.0+0.0im   0.0+0.0im
+julia> nm_lind(A, Dict{Vertex,Matrix{Float64}}(v1 => ones(1, 1), v2 => [2 2; 2 -2], v3 => 3*ones(1, 1)))[1] |> Matrix
+4×4 Array{Complex{Float64},2}:
+ 0.0+0.0im  1.0+0.0im  1.0+0.0im   0.0+0.0im
+ 2.0+0.0im  0.0+0.0im  0.0+0.0im   2.0+0.0im
+ 2.0+0.0im  0.0+0.0im  0.0+0.0im  -2.0+0.0im
+ 0.0+0.0im  3.0+0.0im  3.0+0.0im   0.0+0.0im
 ```
 """
 function nm_lind(A::AbstractMatrix{<:Number},
@@ -241,7 +241,7 @@ function nm_lind(A::AbstractMatrix{<:Number},
 
   L = spzeros(ComplexF64, vertexsetsize(vset), vertexsetsize(vset))
   for i = 1:size(A, 1), (index, j) = enumerate(revincidence_list[i]), k in subspace(vset[j])
-      L[subspace(vset[i]), k] = A[i, j]*lindbladians[length(vset[i])][:, index]
+      L[subspace(vset[i]), k]  =  A[i, j]*lindbladians[length(vset[i])][:, index]
   end
   L, vset
 end,
@@ -268,14 +268,14 @@ function nm_lind(A::AbstractMatrix{<:Number},
 
   L = spzeros(ComplexF64, vertexsetsize(vset), vertexsetsize(vset))
   for i = 1:size(A, 1), (index, j) = enumerate(revincidence_list[i]), l = subspace(vset[j])
-    L[subspace(vset[i]), l] = A[i, j]*lindbladians[vset[i]][:, index]
+    L[subspace(vset[i]), l]  =  A[i, j]*lindbladians[vset[i]][:, index]
   end
   L, vset
 end
 
 """
 
-    nm_glob_ham(A[, hamiltonians][, epsilon])
+    nm_glob_ham(A[, hamiltonians][, weights, epsilon])
 
 Return global Hamiltonian for the moralization procedure. Matrix `A` should the
 adjacency matrix of a directed graph, for which one aims to construct the
@@ -286,44 +286,51 @@ collects them according to each pair of vertices. As the default all-one
 submatrices are chosen. The last argument states that only those elements for
 which `abs(A[i, j]) >= epsilon` are considered.
 
-*Note:* The submatrices of the result matrix are scaled by corresponding `A`
-element.
+*Note:* The submatrices of the result matrix are scaled by corresponding `weights`
+argument, which should be a square matrix of the same dimension as `A`. If `weights`
+is not provided, then `weights[i,j]=A[i,j]`, if `A[i,j]` is nonzero and `A[j,i]`
+is zero, `weights[i,j]=A[j,i]`, if `A[i,j]` in reverse scenario,
+`weights[i,j]=(A[i,j]+A[j,i])/2` if both are nonzero, and zero otherwise.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> A = [ 0 1 0; 1 0 1; 0 1 0]
-3×3 Array{Int64, 2}:
+3×3 Array{Int64,2}:
  0  1  0
  1  0  1
  0  1  0
 
-julia> nm_glob_ham(A) |> full
-4×4 Array{Complex{Float64}, 2}:
+julia> nm_glob_ham(A) |> Matrix
+4×4 Array{Complex{Float64},2}:
  0.0+0.0im  1.0+0.0im  1.0+0.0im  0.0+0.0im
  1.0+0.0im  0.0+0.0im  0.0+0.0im  1.0+0.0im
  1.0+0.0im  0.0+0.0im  0.0+0.0im  1.0+0.0im
  0.0+0.0im  1.0+0.0im  1.0+0.0im  0.0+0.0im
 
-julia> nm_glob_ham(A, Dict((1, 2) => (2+1im)*ones(1, 2), (2, 1) =>1im*ones(2, 1))) |> full
-4×4 Array{Complex{Float64}, 2}:
+julia> dict_deg = Dict{Tuple{Int,Int},Matrix{ComplexF64}}((1, 2) => (2+1im)*ones(1, 2), (2, 1) =>1im*ones(2, 1));
+
+julia> nm_glob_ham(A, dict_deg) |> Matrix
+4×4 Array{Complex{Float64},2}:
  0.0+0.0im  2.0+1.0im  2.0+1.0im  0.0+0.0im
  2.0-1.0im  0.0+0.0im  0.0+0.0im  0.0+1.0im
  2.0-1.0im  0.0+0.0im  0.0+0.0im  0.0+1.0im
  0.0+0.0im  0.0-1.0im  0.0-1.0im  0.0+0.0im
 
-julia> v1, v2, v3 = make_vertex_set(A)()
-3-element Array{QSWalk.Vertex, 1}:
- QSWalk.Vertex([1])
- QSWalk.Vertex([2, 3])
- QSWalk.Vertex([4])
+julia> v1, v2, v3 = vlist(make_vertex_set(A))
+3-element Array{Vertex,1}:
+ Vertex([1])
+ Vertex([2, 3])
+ Vertex([4])
 
-julia> nm_glob_ham(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]')) |> full
-4×4 Array{Complex{Float64}, 2}:
+julia> dict_vec = Dict{Tuple{Vertex,Vertex},Matrix{ComplexF64}}((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]');
+
+julia> nm_glob_ham(A, dict_vec) |> Matrix
+4×4 Array{Complex{Float64},2}:
  0.0+0.0im  2.0+0.0im  2.0+0.0im  0.0+0.0im
- 2.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+1.0im
- 2.0+0.0im  0.0+0.0im  0.0+0.0im  0.0+2.0im
- 0.0+0.0im  0.0-1.0im  0.0-2.0im  0.0+0.0im
+ 2.0+0.0im  0.0+0.0im  0.0+0.0im  0.0-1.0im
+ 2.0+0.0im  0.0+0.0im  0.0+0.0im  0.0-2.0im
+ 0.0+0.0im  0.0+1.0im  0.0+2.0im  0.0+0.0im
 ```
 """
 function nm_glob_ham(A::AbstractMatrix{<:Number},
@@ -337,12 +344,11 @@ function nm_glob_ham(A::AbstractMatrix{<:Number},
 
   H = spzeros(ComplexF64, vertexsetsize(vset), vertexsetsize(vset))
   for (index, i) = enumerate(revincidence_list), j = i
-    if index < j
-      hamiltonianshape = length.((subspace(vset[index]), subspace(vset[j])))
-      @argumentcheck hamiltonianshape in keys(hamiltonians) "hamiltonian of size $hamiltonianshape not found"
-      @argumentcheck hamiltonianshape == size(hamiltonians[hamiltonianshape]) "hamiltonian for key $(hamiltonianshape) shoud have shape $(hamiltonianshape)"
-      H[subspace(vset[index]), subspace(vset[j])] = weights[index, j]*hamiltonians[hamiltonianshape]
-    end
+    ind_min, ind_max = sort([index, j])
+    hamiltonianshape = length.((subspace(vset[ind_min]), subspace(vset[ind_max])))
+    @argumentcheck hamiltonianshape in keys(hamiltonians) "hamiltonian of size $hamiltonianshape not found"
+    @argumentcheck hamiltonianshape == size(hamiltonians[hamiltonianshape]) "hamiltonian for key $(hamiltonianshape) shoud have shape $(hamiltonianshape)"
+    H[subspace(vset[ind_min]), subspace(vset[ind_max])]  =  weights[ind_min, ind_max]*hamiltonians[hamiltonianshape]
   end
   H + H'
 end,
@@ -352,14 +358,13 @@ function nm_glob_ham(A::T;
                      weights::AbstractMatrix{<:Number}=default_weights_glob_ham(A, epsilon)) where T<:AbstractMatrix{<:Number}
   #indlist = incidence_list(A, epsilon = epsilon)
   revindlist = reversed_incidence_list(A, epsilon = epsilon)
-
   alloneshamiltonians = Dict{Tuple{Int, Int}, T}()
   for v = revindlist, w = v
     w = revindlist[w]
     length_w = max(1, length(w))
     length_v = max(1, length(v))
-    alloneshamiltonians[(length_v, length_w)] = ones(length_v, length_w)
-    alloneshamiltonians[(length_w, length_v)] = ones(length_w, length_v)
+    alloneshamiltonians[(length_v, length_w)]  =  ones(length_v, length_w)
+    alloneshamiltonians[(length_w, length_v)]  =  ones(length_w, length_v)
   end
   nm_glob_ham(A, alloneshamiltonians, epsilon = epsilon)
 end,
@@ -367,19 +372,18 @@ end,
 function nm_glob_ham(A::AbstractMatrix{<:Number},
                      hamiltonians::Dict{Tuple{Vertex, Vertex}, <:AbstractMatrix{<:Number}};
                      epsilon::Real = eps(),
-                     weights::AbstractMatrix{<:Real}=default_weights_glob_ham(A, epsilon))
+                     weights::AbstractMatrix{<:Number}=default_weights_glob_ham(A, epsilon))
   @argumentcheck epsilon >= 0 "epsilon needs to be nonnegative"
   revincidence_list = reversed_incidence_list(A, epsilon = epsilon)
   vset = revinc_to_vertexset(revincidence_list)
 
   H = spzeros(ComplexF64, vertexsetsize(vset), vertexsetsize(vset))
   for (index, i) = enumerate(revincidence_list), j = i
-    if index < j
-      key = (vset[index], vset[j])
+      ind_min, ind_max = sort([index, j])
+      key = (vset[ind_min], vset[ind_max])
       @argumentcheck key in keys(hamiltonians) "hamiltonian for $key not found"
       @argumentcheck length.(key) == size(hamiltonians[key]) "hamiltonian for key $key shoud have shape $(length.(key))"
-      H[subspace(vset[j]), subspace(vset[index])] = weights[index, j]*transpose(hamiltonians[key])
-    end
+      H[subspace(vset[ind_min]), subspace(vset[ind_max])]  =  weights[ind_min, ind_max]*hamiltonians[key]
   end
   H + H'
 end
@@ -391,33 +395,32 @@ function default_weights_glob_ham(A::AbstractMatrix{<:Number},
     for i = 1:size(A, 1), j=(i+1):size(A, 2)
       if abs(A[i,j]) > epsilon
         if abs(A[j,i]) > epsilon
-          result[i,j] = (A[i,j] + A[j,i])/2
+          result[i,j]  =  (A[i,j] + A[j,i])/2
         else
-          result[i,j] = A[i,j]
+          result[i,j]  =  A[i,j]
         end
       elseif abs(A[j,i]) > epsilon
-        result[i,j] = A[j,i]
+        result[i,j]  =  A[j,i]
       end
     end
-
-    result + result'
+    result
 end
 
 
-function default_weights_glob_ham(A::SparseMatrixCSC{T},
-                                  epsilon::Real) where T<:Number
+function default_weights_glob_ham(A::SparseMatrixCSC{<:Number},
+                                  epsilon::Real)
     #@argumentcheck epsilon >= 0 "epsilon needs to be nonnegative"
     result = spzeros(ComplexF64, size(A)...)
     for (i, (row_ind1, row_ind2)) = enumerate(zip(A.colptr[1:end-1], A.colptr[2:end]))
       for j = filter(k -> (i < k), A.rowval[row_ind1:row_ind2-1])
         if abs(A[i,j]) > epsilon
           if abs(A[j,i]) > epsilon
-            result[i,j] = (A[i,j] + A[j,i])/2
+            result[i,j]  =  (A[i,j] + A[j,i])/2
           else
-            result[i,j] = A[i,j]
+            result[i,j]  =  A[i,j]
           end
         elseif abs(A[j,i]) > epsilon
-          result[i,j] = A[j,i]
+          result[i,j]  =  A[j,i]
         end
       end
     end
@@ -437,7 +440,7 @@ according to `vertexset`.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> probability = [0.05, 0.1, 0.25, 0.3, 0.01, 0.20, 0.04, 0.05]
 8-element Array{Float64,1}:
  0.05
@@ -475,7 +478,7 @@ according to `vertexset`.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> state = [1/6 0 1/6; 0 2/3 0; 1/6 0 1/6]
 3×3 Array{Float64,2}:
  0.166667  0.0       0.166667
@@ -508,7 +511,7 @@ The final state represent an uniform probability over `nm_measurement`.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> vset = VertexSet([[1], [2, 3, 4], [5, 6, 7], [8, 9]])
 VertexSet(Vertex[Vertex([1]), Vertex([2, 3, 4]), Vertex([5, 6, 7]), Vertex([8, 9])])
 
@@ -529,7 +532,7 @@ function nm_init(initialvertices::AbstractVector{Vertex},
   L = spzeros(ComplexF64, vertexsetsize(vset), vertexsetsize(vset))
   for v = initialvertices
     normalization = length(v)*length(initialvertices)
-    L[subspace(v), subspace(v)] = SparseMatrixCSC{ComplexF64}(I, length(v), length(v))/normalization
+    L[subspace(v), subspace(v)]  =  SparseMatrixCSC{ComplexF64}(I, length(v), length(v))/normalization
   end
   L
 end
@@ -549,7 +552,7 @@ size `length(v)`×`length(v)`.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> vset = VertexSet([[1], [2, 3, 4], [5, 6, 7], [8, 9]])
 VertexSet(Vertex[Vertex([1]), Vertex([2, 3, 4]), Vertex([5, 6, 7]), Vertex([8, 9])])
 
@@ -578,12 +581,7 @@ function nm_init(initial_states::Dict{Vertex, <:AbstractMatrix{<:Number}},
 
   L = spzeros(ComplexF64, vertexsetsize(vset), vertexsetsize(vset))
   for v = keys(initial_states)
-    L[subspace(v), subspace(v)] = initial_states[v]
+    L[subspace(v), subspace(v)]  =  initial_states[v]
   end
   L
 end
-  for i = 1:size(A, 1), j=i:size(A, 1)
-    if abs(A[i,j]) > epsilon
-      if abs(A[j,i] > epsilon
-        result[i,j] = A[i,j +
-  end

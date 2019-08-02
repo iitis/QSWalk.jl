@@ -11,8 +11,7 @@ nonzero element is there are not smaller than `epsilon`, where `epsilon` should
 be nonnegative. The `epsilon` defaults to `eps()` if not specified.
 
 # Examples
-
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> A = [1. 2.; 3. 4.]
 2×2 Array{Float64,2}:
  1.0  2.0
@@ -89,11 +88,6 @@ hermitian and of the size of `H`,
 
 # Return
 The function return the generator, which can be used in `evolve` function.
-
-# Examples
-```jldoctest
-julia>
-```
 """
 function evolve_generator_create(H::AbstractMatrix{<:Number},
                                  L::AbstractVector{<:AbstractMatrix{<:Number}},
@@ -146,7 +140,7 @@ The generator matrix, which can be used in `evolve` function.
 
 # Examples
 
-```jldoctest
+```jldoctest; setup = :(using QSWalk)
 julia> H, L, localH = [0 1+im; 1-im 0], [0. 1; 0 0], [1. 0.; 0. 1.]
 (Complex{Int64}[0+0im 1+1im; 1-1im 0+0im], [0.0 1.0; 0.0 0.0], [1.0 0.0; 0.0 1.0])
 
