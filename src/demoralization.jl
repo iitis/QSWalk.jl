@@ -328,7 +328,8 @@ julia> nm_glob_ham(A, Dict((v1, v2) =>2*ones(1, 2), (v2, v3) =>[1im 2im;]')) |> 
 """
 function nm_glob_ham(A::AbstractMatrix{<:Number},
                      hamiltonians::Dict{Tuple{Int, Int}, <:AbstractMatrix{<:Number}};
-                     epsilon::Real = eps())
+                     epsilon::Real = eps(),
+                     weights::AbstractMatrix{<:Number}=default_weights_glob_ham(A, epsilon))
   @argumentcheck epsilon>= 0 "epsilon needs to be nonnegative"
 
   revincidence_list = reversed_incidence_list(A, epsilon = epsilon)
@@ -340,14 +341,15 @@ function nm_glob_ham(A::AbstractMatrix{<:Number},
       hamiltonianshape = length.((subspace(vset[index]), subspace(vset[j])))
       @argumentcheck hamiltonianshape in keys(hamiltonians) "hamiltonian of size $hamiltonianshape not found"
       @argumentcheck hamiltonianshape == size(hamiltonians[hamiltonianshape]) "hamiltonian for key $(hamiltonianshape) shoud have shape $(hamiltonianshape)"
-      H[subspace(vset[index]), subspace(vset[j])] = A[index, j]*hamiltonians[hamiltonianshape]
+      H[subspace(vset[index]), subspace(vset[j])] = weights[index, j]*hamiltonians[hamiltonianshape]
     end
   end
   H + H'
 end,
 
 function nm_glob_ham(A::T;
-                     epsilon::Real = eps()) where T<:AbstractMatrix{<:Number}
+                     epsilon::Real = eps(),
+                     weights::AbstractMatrix{<:Number}=default_weights_glob_ham(A, epsilon)) where T<:AbstractMatrix{<:Number}
   #indlist = incidence_list(A, epsilon = epsilon)
   revindlist = reversed_incidence_list(A, epsilon = epsilon)
 
@@ -364,7 +366,8 @@ end,
 
 function nm_glob_ham(A::AbstractMatrix{<:Number},
                      hamiltonians::Dict{Tuple{Vertex, Vertex}, <:AbstractMatrix{<:Number}};
-                     epsilon::Real = eps())
+                     epsilon::Real = eps(),
+                     weights::AbstractMatrix{<:Real}=default_weights_glob_ham(A, epsilon))
   @argumentcheck epsilon >= 0 "epsilon needs to be nonnegative"
   revincidence_list = reversed_incidence_list(A, epsilon = epsilon)
   vset = revinc_to_vertexset(revincidence_list)
@@ -375,11 +378,53 @@ function nm_glob_ham(A::AbstractMatrix{<:Number},
       key = (vset[index], vset[j])
       @argumentcheck key in keys(hamiltonians) "hamiltonian for $key not found"
       @argumentcheck length.(key) == size(hamiltonians[key]) "hamiltonian for key $key shoud have shape $(length.(key))"
-      H[subspace(vset[j]), subspace(vset[index])] = A[index, j]*transpose(hamiltonians[key])
+      H[subspace(vset[j]), subspace(vset[index])] = weights[index, j]*transpose(hamiltonians[key])
     end
   end
   H + H'
 end
+
+function default_weights_glob_ham(A::AbstractMatrix{<:Number},
+                                  epsilon::Real)
+    #@argumentcheck epsilon >= 0 "epsilon needs to be nonnegative"
+    result = zeros(ComplexF64, size(A)...)
+    for i = 1:size(A, 1), j=(i+1):size(A, 2)
+      if abs(A[i,j]) > epsilon
+        if abs(A[j,i]) > epsilon
+          result[i,j] = (A[i,j] + A[j,i])/2
+        else
+          result[i,j] = A[i,j]
+        end
+      elseif abs(A[j,i]) > epsilon
+        result[i,j] = A[j,i]
+      end
+    end
+
+    result + result'
+end
+
+
+function default_weights_glob_ham(A::SparseMatrixCSC{T},
+                                  epsilon::Real) where T<:Number
+    #@argumentcheck epsilon >= 0 "epsilon needs to be nonnegative"
+    result = spzeros(ComplexF64, size(A)...)
+    for (i, (row_ind1, row_ind2)) = enumerate(zip(A.colptr[1:end-1], A.colptr[2:end]))
+      for j = filter(k -> (i < k), A.rowval[row_ind1:row_ind2-1])
+        if abs(A[i,j]) > epsilon
+          if abs(A[j,i]) > epsilon
+            result[i,j] = (A[i,j] + A[j,i])/2
+          else
+            result[i,j] = A[i,j]
+          end
+        elseif abs(A[j,i]) > epsilon
+          result[i,j] = A[j,i]
+        end
+      end
+    end
+    result
+end
+
+
 
 """
 
@@ -537,3 +582,8 @@ function nm_init(initial_states::Dict{Vertex, <:AbstractMatrix{<:Number}},
   end
   L
 end
+  for i = 1:size(A, 1), j=i:size(A, 1)
+    if abs(A[i,j]) > epsilon
+      if abs(A[j,i] > epsilon
+        result[i,j] = A[i,j +
+  end
