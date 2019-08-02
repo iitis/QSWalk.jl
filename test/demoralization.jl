@@ -142,7 +142,6 @@
   end
 
   @testset "nm_glob_ham" begin
-  println("Test 1")
     A = sparse([0 1 0;
                1 0 2;
                0 2 0])
@@ -164,7 +163,6 @@
                                                2 0 0 2im;
                                                2 0 0 4im;
                                                0 -2im -4im 0]
-    println("\nTest 2")
    A = [0  0  1;
         0  0  1;
         2  2  0]
