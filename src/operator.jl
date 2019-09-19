@@ -142,7 +142,7 @@ The generator matrix, which can be used in `evolve` function.
 
 ```jldoctest; setup = :(using QSWalk)
 julia> H, L, localH = [0 1+im; 1-im 0], [0. 1; 0 0], [1. 0.; 0. 1.]
-(Complex{Int64}[0+0im 1+1im; 1-1im 0+0im], [0.0 1.0; 0.0 0.0], [1.0 0.0; 0.0 1.0])
+(Complex{Int64}[0 + 0im 1 + 1im; 1 - 1im 0 + 0im], [0.0 1.0; 0.0 0.0], [1.0 0.0; 0.0 1.0])
 
 julia> evolve_generator(H, [L], localH, 1/2)
 4×4 Array{Complex{Float64},2}:

@@ -27,10 +27,8 @@ makedocs(
 deploydocs(
     deps        = nothing,
     make        = nothing,
-    repo        = "github.com/QuantumWalks/QSWalk.jl",
+    repo        = "github.com/iitis/QSWalk.jl",
     target      = "build",
-    julia       = "1.1",
-    osname      = "linux"
 )
 
 
