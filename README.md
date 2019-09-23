@@ -34,4 +34,5 @@ year = "2018",
 issn = "0010-4655",
 doi = "https://doi.org/10.1016/j.cpc.2018.09.001",
 author = "Glos, Adam and Miszczak, Jarosław Adam and Ostaszewski, Mateusz",
-}```
+}
+```
