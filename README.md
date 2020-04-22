@@ -4,7 +4,7 @@
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://iitis.github.io/QSWalk.jl/latest)
 
 
-# QSWalk
+# QSWalk.jl
 
 ## Package description
 
