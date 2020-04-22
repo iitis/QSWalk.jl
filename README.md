@@ -1,7 +1,7 @@
+[![DOI](https://zenodo.org/badge/100469695.svg)](https://zenodo.org/badge/latestdoi/100469695)
 [![Build Status](https://travis-ci.org/iitis/QSWalk.jl.svg?branch=master)](https://travis-ci.org/iitis/QSWalk.jl)
 [![Coverage Status](https://coveralls.io/repos/github/iitis/QSWalk.jl/badge.svg?branch=master)](https://coveralls.io/github/iitis/QSWalk.jl?branch=master)
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://iitis.github.io/QSWalk.jl/latest)
-[![DOI](https://zenodo.org/badge/100469695.svg)](https://zenodo.org/badge/latestdoi/100469695)
 
 
 # QSWalk
@@ -28,11 +28,11 @@ Adam Glos, Jarosław Adam Miszczak, Mateusz Ostaszewski, *QSWalk.jl: Julia packa
 
 ```tex
 @article{GLOS2018,
-title = "QSWalk.jl: Julia package for quantum stochastic walks analysis",
-journal = "Computer Physics Communications",
-year = "2018",
-issn = "0010-4655",
-doi = "https://doi.org/10.1016/j.cpc.2018.09.001",
-author = "Glos, Adam and Miszczak, Jarosław Adam and Ostaszewski, Mateusz",
+  title = {{QSWalk.jl}: {Julia} package for quantum stochastic walks analysis},
+  journal = {Computer Physics Communications},
+  year = {2018},
+  issn = {0010-4655},
+  doi = {10.1016/j.cpc.2018.09.001},
+  author = {Glos, Adam and Miszczak, Jarosław Adam and Ostaszewski, Mateusz}
 }
 ```
